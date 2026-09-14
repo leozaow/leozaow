@@ -4,6 +4,12 @@ on:
   schedule:
     - cron: "37 6 * * *"
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'scripts/generate_streak.py'
+      - '.github/workflows/streak.yml'
 
 permissions:
   contents: write
@@ -14,6 +20,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
 
       - name: Generate streak SVGs
         env:
@@ -27,7 +38,7 @@ jobs:
           git config user.name github-actions
           git config user.email github-actions@github.com
           git add assets/streak.light.svg assets/streak.dark.svg
-          if git commit -m "chore: refresh streak card"; then
+          if git commit -m "chore: refresh streak card [skip ci]"; then
             for i in {1..5}; do
               git pull --rebase origin main && git push && break || sleep 3
             done

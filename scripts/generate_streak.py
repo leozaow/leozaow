@@ -189,9 +189,11 @@ def compute(days: dict[date, int], today: date) -> Stats:
 def render(stats: Stats, username: str, theme: str) -> str:
     dark = theme == "dark"
     bg = "#0d1117" if dark else "#ffffff"
+    card_bg = "#161b22" if dark else "#f6f8fa"
     border = "#30363d" if dark else "#d0d7de"
     text = "#f0f6fc" if dark else "#1f2328"
     muted = "#8c959f" if dark else "#57606a"
+    orange = "#fb8500"
     green = "#3fb950" if dark else "#1a7f37"
     blue = "#58a6ff" if dark else "#0969da"
     purple = "#a371f7" if dark else "#8250df"
@@ -199,55 +201,97 @@ def render(stats: Stats, username: str, theme: str) -> str:
     maxv = max(stats.last35) if stats.last35 else 1
     maxv = max(maxv, 1)
     bars = []
-    x0, baseline, width, gap = 525, 140, 5, 3
+    x0, baseline, width, gap = 535, 138, 5, 3
     for i, v in enumerate(stats.last35):
-        h = 4 if v == 0 else 8 + int(48 * (v / maxv))
+        h = 4 if v == 0 else 8 + int(42 * (v / maxv))
         x = x0 + i * (width + gap)
         y = baseline - h
         opacity = 0.18 if v == 0 else min(1.0, 0.38 + (v / maxv) * 0.62)
+        bar_color = orange if i >= (35 - stats.current_days) else green
         bars.append(
-            f'<rect x="{x}" y="{y}" width="{width}" height="{h}" rx="3" fill="{green}" opacity="{opacity:.2f}">'
+            f'<rect x="{x}" y="{y}" width="{width}" height="{h}" rx="2.5" fill="{bar_color}" opacity="{opacity:.2f}">'
             f'<animate attributeName="height" from="2" to="{h}" dur="0.55s" begin="{i*0.015:.3f}s" fill="freeze"/>'
             f'<animate attributeName="y" from="{baseline-2}" to="{y}" dur="0.55s" begin="{i*0.015:.3f}s" fill="freeze"/>'
             '</rect>'
         )
 
-    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="846" height="190" viewBox="0 0 846 190" role="img" aria-label="Sequ\u00eancia GitHub de {escape(username)}">
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="850" height="205" viewBox="0 0 850 205" role="img" aria-label="Estatísticas e Sequência GitHub de {escape(username)}">
   <defs>
-    <linearGradient id="line" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="{blue}"/><stop offset="0.5" stop-color="{purple}"/><stop offset="1" stop-color="{green}"/>
+    <linearGradient id="headerLine" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="{orange}"/>
+      <stop offset="30%" stop-color="#ffb703"/>
+      <stop offset="70%" stop-color="{blue}"/>
+      <stop offset="100%" stop-color="{green}"/>
     </linearGradient>
+    <filter id="ringGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
     <style>
-      .title{{font:700 13px ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:1.5px;fill:{muted}}}
-      .big{{font:700 34px 'Segoe UI',Ubuntu,sans-serif;fill:{text}}}
-      .label{{font:600 11px ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.7px;fill:{muted}}}
-      .small{{font:600 11px ui-monospace,SFMono-Regular,Consolas,monospace;fill:{muted}}}
+      .badge-title {{ font: 700 12px ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: 1.5px; fill: {muted}; }}
+      .stat-num {{ font: 800 32px 'Segoe UI', Ubuntu, -apple-system, sans-serif; fill: {text}; }}
+      .stat-num-orange {{ font: 800 34px 'Segoe UI', Ubuntu, -apple-system, sans-serif; fill: {orange}; }}
+      .stat-label {{ font: 700 11px ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: 0.8px; fill: {muted}; }}
+      .stat-sub {{ font: 500 10px ui-monospace, SFMono-Regular, Consolas, monospace; fill: {muted}; }}
+      .flame {{ animation: pulseFlame 1.8s ease-in-out infinite; transform-origin: 295px 105px; }}
+      @keyframes pulseFlame {{ 0%, 100% {{ transform: scale(1); }} 50% {{ transform: scale(1.1); }} }}
     </style>
   </defs>
-  <rect x="1" y="1" width="844" height="188" rx="16" fill="{bg}" stroke="{border}"/>
-  <rect x="18" y="18" width="810" height="3" rx="2" fill="url(#line)" opacity=".85"/>
-  <text x="28" y="48" class="title">SEQU\u00caNCIA // GITHUB</text>
 
-  <g transform="translate(28,68)">
-    <text x="0" y="32" class="big">{stats.current_days}</text>
-    <text x="0" y="55" class="label">DIAS SEGUIDOS</text>
-  </g>
-  <g transform="translate(160,68)">
-    <text x="0" y="32" class="big">{stats.current_weeks}</text>
-    <text x="0" y="55" class="label">SEMANAS SEGUIDAS</text>
-  </g>
-  <g transform="translate(340,68)">
-    <text x="0" y="32" class="big">{stats.longest_days}</text>
-    <text x="0" y="55" class="label">MAIOR SEQU\u00caNCIA</text>
-  </g>
-  <g transform="translate(470,68)">
-    <text x="0" y="32" class="big">{stats.total:,}</text>
-    <text x="0" y="55" class="label">CONTRIBUI\u00c7\u00d5ES</text>
+  <!-- Card Background -->
+  <rect x="1" y="1" width="848" height="203" rx="16" fill="{bg}" stroke="{border}"/>
+  <rect x="1" y="1" width="848" height="4" rx="2" fill="url(#headerLine)"/>
+
+  <!-- Card Title -->
+  <text x="28" y="32" class="badge-title">GITHUB STATS &amp; STREAK</text>
+  <text x="822" y="32" text-anchor="end" class="stat-sub">TZ: America/Sao_Paulo</text>
+
+  <!-- Column 1: Total Contributions -->
+  <g transform="translate(28, 48)">
+    <rect width="180" height="135" rx="12" fill="{card_bg}" stroke="{border}" stroke-width="0.8"/>
+    <!-- Icon: Chart icon -->
+    <path d="M 20 38 L 20 22 M 28 38 L 28 14 M 36 38 L 36 30" stroke="{blue}" stroke-width="2.5" stroke-linecap="round"/>
+    <text x="50" y="32" class="stat-label">TOTAL</text>
+    <text x="20" y="80" class="stat-num">{stats.total:,}</text>
+    <text x="20" y="104" class="stat-sub">CONTRIBUIÇÕES</text>
+    <text x="20" y="122" class="stat-sub" fill="{green}">{stats.active_days} dias com atividade</text>
   </g>
 
-  <text x="525" y="71" class="label">\u00daLTIMOS 35 DIAS</text>
+  <!-- Column 2: Current Streak (Highlighted Circle Centerpiece) -->
+  <g transform="translate(222, 48)">
+    <rect width="270" height="135" rx="12" fill="{card_bg}" stroke="{orange}" stroke-width="1.2" opacity="0.95"/>
+    
+    <!-- Circular Flame Badge (Inspired by ulsklyc & Cjaker) -->
+    <circle cx="72" cy="67" r="42" fill="none" stroke="{border}" stroke-width="4"/>
+    <circle cx="72" cy="67" r="42" fill="none" stroke="{orange}" stroke-width="4" stroke-dasharray="264" stroke-dashoffset="66" stroke-linecap="round" filter="url(#ringGlow)"/>
+    
+    <!-- SVG Flame Icon -->
+    <path class="flame" d="M 72 38 C 72 38 78 48 78 54 C 78 58 75 61 72 61 C 69 61 66 58 66 54 C 66 48 72 38 72 38 Z" fill="{orange}"/>
+    
+    <!-- Number inside ring -->
+    <text x="72" y="80" text-anchor="middle" class="stat-num-orange">{stats.current_days}</text>
+    <text x="72" y="96" text-anchor="middle" class="stat-sub">DIAS</text>
+
+    <!-- Info beside ring -->
+    <text x="135" y="42" class="stat-label" fill="{orange}">SEQUÊNCIA ATUAL</text>
+    <text x="135" y="70" class="stat-num" style="font-size: 24px;">{stats.current_weeks} <tspan font-size="13" font-weight="500" fill="{muted}">semanas</tspan></text>
+    <text x="135" y="90" class="stat-sub">consecutivas ativas</text>
+    <text x="135" y="118" class="stat-sub">Recorde diário: <tspan font-weight="700" fill="{text}">{stats.longest_days} dias</tspan></text>
+  </g>
+
+  <!-- Column 3: Recent Activity (Last 35 Days Chart + Record Info) -->
+  <g transform="translate(506, 48)">
+    <rect width="316" height="135" rx="12" fill="{card_bg}" stroke="{border}" stroke-width="0.8"/>
+    <text x="20" y="28" class="stat-label">ÚLTIMOS 35 DIAS</text>
+    <text x="296" y="28" text-anchor="end" class="stat-sub">Recorde: {stats.longest_weeks} sem.</text>
+  </g>
+
+  <!-- Bars inside Column 3 -->
   {''.join(bars)}
-  <text x="525" y="164" class="small">GitHub · America/Sao_Paulo</text>
+  <text x="802" y="166" text-anchor="end" class="stat-sub">Atualização automática</text>
 </svg>'''
 
 
