@@ -259,41 +259,39 @@ def render(stats: Stats, username: str, theme: str) -> str:
     <text x="20" y="122" class="stat-sub" fill="{green}">{stats.active_days} dias com atividade</text>
   </g>
 
-  <!-- Column 2: Current Streak (Highlighted Circle Centerpiece) -->
+    <!-- Column 2: Current Streak (Highlighted Centerpiece) -->
   <g transform="translate(222, 48)">
     <rect width="270" height="135" rx="12" fill="{card_bg}" stroke="{orange}" stroke-width="1.2" opacity="0.95"/>
     
-    <!-- Circular Flame Badge (Positioned at center cx=72, cy=72, r=40) -->
-    <circle cx="72" cy="72" r="40" fill="none" stroke="{border}" stroke-width="4"/>
-    <circle cx="72" cy="72" r="40" fill="none" stroke="{orange}" stroke-width="4" stroke-dasharray="251" stroke-dashoffset="62" stroke-linecap="round" filter="url(#ringGlow)"/>
+    <!-- Circular Flame Badge (Centered at cx=68, cy=67, r=42) -->
+    <circle cx="68" cy="67" r="42" fill="none" stroke="{border}" stroke-width="4"/>
+    <circle cx="68" cy="67" r="42" fill="none" stroke="{orange}" stroke-width="4" stroke-dasharray="264" stroke-dashoffset="66" stroke-linecap="round" filter="url(#ringGlow)"/>
     
-    <!-- Flame Badge Header: sitting directly on top crest of the ring -->
-    <g class="flame">
-      <circle cx="72" cy="14" r="13" fill="{card_bg}" stroke="{orange}" stroke-width="1.5"/>
-      <path d="M 72 5 C 72 5 77 12 77 16 C 77 19 75 21 72 21 C 69 21 67 19 67 16 C 67 12 72 5 72 5 Z" fill="{orange}"/>
-    </g>
+    <!-- Clean Crisp Flame Icon at top of ring -->
+    <path d="M 68 36 C 68 36 74 44 74 49 C 74 52 71.5 55 68 55 C 64.5 55 62 52 62 49 C 62 44 68 36 68 36 Z" fill="{orange}"/>
     
-    <!-- Number inside ring -->
-    <text x="72" y="80" text-anchor="middle" class="stat-num-orange">{stats.current_days}</text>
-    <text x="72" y="97" text-anchor="middle" class="stat-sub">DIAS</text>
+    <!-- Number and label inside ring -->
+    <text x="68" y="80" text-anchor="middle" class="stat-num-orange">{stats.current_days}</text>
+    <text x="68" y="96" text-anchor="middle" class="stat-sub">DIAS</text>
 
     <!-- Info beside ring -->
-    <text x="132" y="42" class="stat-label" fill="{orange}">SEQUÊNCIA ATUAL</text>
-    <text x="132" y="70" class="stat-num" style="font-size: 24px;">{stats.current_weeks} <tspan font-size="13" font-weight="500" fill="{muted}">semanas</tspan></text>
-    <text x="135" y="90" class="stat-sub">consecutivas ativas</text>
-    <text x="135" y="118" class="stat-sub">Recorde diário: <tspan font-weight="700" fill="{text}">{stats.longest_days} dias</tspan></text>
+    <text x="126" y="38" class="stat-label" fill="{orange}">SEQUÊNCIA ATUAL</text>
+    <text x="126" y="66" class="stat-num" style="font-size: 24px;">{stats.current_weeks} <tspan font-size="13" font-weight="500" fill="{muted}">semanas</tspan></text>
+    <text x="126" y="86" class="stat-sub">consecutivas ativas</text>
+    <line x1="126" y1="98" x2="252" y2="98" stroke="{border}" stroke-width="1"/>
+    <text x="126" y="118" class="stat-sub">Recorde: <tspan font-weight="700" fill="{text}">{stats.longest_days} dias</tspan></text>
   </g>
 
   <!-- Column 3: Recent Activity (Last 35 Days Chart + Record Info) -->
   <g transform="translate(506, 48)">
     <rect width="316" height="135" rx="12" fill="{card_bg}" stroke="{border}" stroke-width="0.8"/>
-    <text x="20" y="28" class="stat-label">ÚLTIMOS 35 DIAS</text>
-    <text x="296" y="28" text-anchor="end" class="stat-sub">Recorde: {stats.longest_weeks} sem.</text>
+    <text x="18" y="28" class="stat-label">ÚLTIMOS 35 DIAS</text>
+    <text x="298" y="28" text-anchor="end" class="stat-sub">Recorde: {stats.longest_weeks} sem.</text>
   </g>
 
   <!-- Bars inside Column 3 -->
   {''.join(bars)}
-  <text x="802" y="166" text-anchor="end" class="stat-sub">Atualização automática</text>
+  <text x="804" y="166" text-anchor="end" class="stat-sub">Atualização automática</text>
 </svg>'''
 
 
