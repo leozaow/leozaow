@@ -30,6 +30,7 @@ jobs:
           git config user.email github-actions@github.com
           git add -A .
           if git commit -m "chore: refresh 3D contribution graph"; then
-            git pull --rebase origin main
-            git push
+            for i in {1..5}; do
+              git pull --rebase origin main && git push && break || sleep 3
+            done
           fi
