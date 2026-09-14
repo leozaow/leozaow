@@ -1,0 +1,35 @@
+name: Generate self-hosted streak card
+
+on:
+  schedule:
+    - cron: "37 6 * * *"
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  streak:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Generate streak SVGs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
+          TZ: America/Sao_Paulo
+        run: python scripts/generate_streak.py
+
+      - name: Commit generated cards
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add assets/streak.light.svg assets/streak.dark.svg
+          if git commit -m "chore: refresh streak card"; then
+            git push
+          fi

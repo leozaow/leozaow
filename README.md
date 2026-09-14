@@ -1,8 +1,10 @@
-<div align="center">
-
-# Leandro Barbosa
-
-### `FROM RULES → SYSTEMS`
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./assets/hero-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="./assets/hero-light.svg">
+    <img alt="Leandro Barbosa — From rules to systems" src="./assets/hero-light.svg" width="100%">
+  </picture>
+</p>
 
 <p align="center">
   <a href="https://www.linkedin.com/in/leozaow/">
@@ -12,8 +14,6 @@
     <img src="https://img.shields.io/badge/Curr%C3%ADculo_Lattes-005CA9?style=flat-square&logo=googlescholar&logoColor=white" alt="Currículo Lattes">
   </a>
 </p>
-
-</div>
 
 ```console
 $ sysinfo --whoami
@@ -39,10 +39,38 @@ I build at the crossroads of **domain expertise** and **agentic leverage**:
 
 <br>
 
----
+### 🕹️ Contributions, but make it playable
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/leozaow/leozaow/output/pacman-contribution-graph-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/leozaow/leozaow/output/pacman-contribution-graph.svg">
+  <img alt="Pac-Man contribution graph" src="https://raw.githubusercontent.com/leozaow/leozaow/output/pacman-contribution-graph.svg" width="100%">
+</picture>
+
+<br>
+
+### 🧊 Activity in 3D
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./profile-3d-contrib/profile-night-green.svg">
+  <source media="(prefers-color-scheme: light)" srcset="./profile-3d-contrib/profile-green-animate.svg">
+  <img alt="3D GitHub contribution calendar" src="./profile-3d-contrib/profile-green-animate.svg" width="100%">
+</picture>
+
+<br>
+
+### 🔥 Build streak
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./assets/streak.dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="./assets/streak.light.svg">
+    <img alt="Self-hosted GitHub build streak" src="./assets/streak.light.svg" width="100%">
+  </picture>
+</p>
+
+<br>
 
 <div align="center">
-
-<sub><em>“Law gives me constraints · Public management gives me context · AI agents give me leverage.”</em></sub>
-
+  <sub><strong>Law</strong> gives me constraints · <strong>public management</strong> gives me context · <strong>AI agents</strong> give me leverage.</sub>
 </div>
