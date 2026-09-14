@@ -31,5 +31,6 @@ jobs:
           git config user.email github-actions@github.com
           git add assets/streak.light.svg assets/streak.dark.svg
           if git commit -m "chore: refresh streak card"; then
+            git pull --rebase origin main
             git push
           fi
