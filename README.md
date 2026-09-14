@@ -54,6 +54,6 @@
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="./assets/streak.dark.svg">
     <source media="(prefers-color-scheme: light)" srcset="./assets/streak.light.svg">
-    <img alt="GitHub Stats & Streak" src="./assets/streak.light.svg" width="100%">
+    <img alt="GitHub Stats & Streak" src="./assets/streak.light.svg">
   </picture>
 </p>

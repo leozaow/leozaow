@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Generate self-hosted GitHub streak cards for a profile README.
 
-No third-party stats service is required. The workflow uses GitHub GraphQL,
-computes the streak locally, and writes light/dark SVGs into assets/.
+Self-hosted generator matching the iconic github-readme-streak-stats design,
+computing streaks locally from GitHub GraphQL API, rendered into assets/.
 """
 
 from __future__ import annotations
@@ -20,6 +20,8 @@ from zoneinfo import ZoneInfo
 API = "https://api.github.com/graphql"
 TZ = ZoneInfo("America/Sao_Paulo")
 
+PT_MONTHS = ["Jan.", "Fev.", "Mar.", "Abr.", "Mai.", "Jun.", "Jul.", "Ago.", "Set.", "Out.", "Nov.", "Dez."]
+
 
 @dataclass
 class Stats:
@@ -29,7 +31,17 @@ class Stats:
     longest_weeks: int
     total: int
     active_days: int
-    last35: list[int]
+    start_date: date | None = None
+    current_start: date | None = None
+    current_end: date | None = None
+    longest_start: date | None = None
+    longest_end: date | None = None
+
+
+def fmt_date_year(d: date | None) -> str:
+    if not d:
+        return "Presente"
+    return f"{PT_MONTHS[d.month - 1]} {d.year}"
 
 
 def gql(token: str, query: str, variables: dict) -> dict:
@@ -103,7 +115,7 @@ def fetch_days(token: str, username: str, start: date, end: date) -> dict[date, 
 
 
 def _monday(d: date) -> date:
-    """Return the Monday of the ISO week containing *d*."""
+    """Return the Monday of the ISO week containing d."""
     return d - timedelta(days=d.weekday())
 
 
@@ -114,50 +126,59 @@ def _week_has_activity(days: dict[date, int], monday: date) -> bool:
 
 def compute(days: dict[date, int], today: date) -> Stats:
     if not days:
-        return Stats(0, 0, 0, 0, 0, 0, [0] * 35)
+        return Stats(0, 0, 0, 0, 0, 0)
 
     ordered = sorted(days)
+    start_date = ordered[0] if ordered else None
     total = sum(days.values())
     active_days = sum(1 for value in days.values() if value > 0)
 
     # --- Daily streaks ---
     longest_days = 0
     run = 0
+    run_start: date | None = None
+    longest_start: date | None = None
+    longest_end: date | None = None
     previous: date | None = None
+
     for d in ordered:
         if previous is not None and d != previous + timedelta(days=1):
             run = 0
+            run_start = None
         if days[d] > 0:
+            if run == 0:
+                run_start = d
             run += 1
-            longest_days = max(longest_days, run)
+            if run > longest_days:
+                longest_days = run
+                longest_start = run_start
+                longest_end = d
         else:
             run = 0
+            run_start = None
         previous = d
 
     # Current daily streak: don't punish an unfinished today.
     cursor = today
     if days.get(cursor, 0) == 0:
         cursor -= timedelta(days=1)
+    current_end = cursor
     current_days = 0
     while days.get(cursor, 0) > 0:
         current_days += 1
         cursor -= timedelta(days=1)
+    current_start = cursor + timedelta(days=1) if current_days > 0 else today
 
     # --- Weekly streaks ---
-    # A week (Mon-Sun) is active if it has ≥1 contribution.
-    # The current (incomplete) week doesn't break the streak if it has no
-    # activity yet — we simply don't count it. If it has activity, it counts.
     first_monday = _monday(min(ordered))
     today_monday = _monday(today)
 
-    # Build list of all weeks from first to current.
     week_mondays: list[date] = []
     m = first_monday
     while m <= today_monday:
         week_mondays.append(m)
         m += timedelta(weeks=1)
 
-    # Longest weekly streak (across all history).
     longest_weeks = 0
     run = 0
     for m in week_mondays:
@@ -167,8 +188,6 @@ def compute(days: dict[date, int], today: date) -> Stats:
         else:
             run = 0
 
-    # Current weekly streak: walk backwards from the most recent active week.
-    # If the current week has no activity yet, start from last week.
     start_idx = len(week_mondays) - 1
     if not _week_has_activity(days, week_mondays[start_idx]):
         start_idx -= 1
@@ -179,119 +198,149 @@ def compute(days: dict[date, int], today: date) -> Stats:
         else:
             break
 
-    # Last 35 days bar chart.
-    start35 = today - timedelta(days=34)
-    last35 = [days.get(start35 + timedelta(days=i), 0) for i in range(35)]
-
-    return Stats(current_days, longest_days, current_weeks, longest_weeks, total, active_days, last35)
+    return Stats(
+        current_days=current_days,
+        longest_days=longest_days,
+        current_weeks=current_weeks,
+        longest_weeks=longest_weeks,
+        total=total,
+        active_days=active_days,
+        start_date=start_date,
+        current_start=current_start,
+        current_end=current_end,
+        longest_start=longest_start,
+        longest_end=longest_end,
+    )
 
 
 def render(stats: Stats, username: str, theme: str) -> str:
     dark = theme == "dark"
     bg = "#0d1117" if dark else "#ffffff"
-    card_bg = "#161b22" if dark else "#f6f8fa"
     border = "#30363d" if dark else "#d0d7de"
     text = "#f0f6fc" if dark else "#1f2328"
     muted = "#8c959f" if dark else "#57606a"
-    orange = "#fb8500"
-    green = "#3fb950" if dark else "#1a7f37"
-    blue = "#58a6ff" if dark else "#0969da"
-    purple = "#a371f7" if dark else "#8250df"
+    orange = "#fb8c00"
 
-    maxv = max(stats.last35) if stats.last35 else 1
-    maxv = max(maxv, 1)
-    bars = []
-    x0, baseline, width, gap = 535, 138, 5, 3
-    for i, v in enumerate(stats.last35):
-        h = 4 if v == 0 else 8 + int(42 * (v / maxv))
-        x = x0 + i * (width + gap)
-        y = baseline - h
-        opacity = 0.18 if v == 0 else min(1.0, 0.38 + (v / maxv) * 0.62)
-        bar_color = orange if i >= (35 - stats.current_days) else green
-        bars.append(
-            f'<rect x="{x}" y="{y}" width="{width}" height="{h}" rx="2.5" fill="{bar_color}" opacity="{opacity:.2f}">'
-            f'<animate attributeName="height" from="2" to="{h}" dur="0.55s" begin="{i*0.015:.3f}s" fill="freeze"/>'
-            f'<animate attributeName="y" from="{baseline-2}" to="{y}" dur="0.55s" begin="{i*0.015:.3f}s" fill="freeze"/>'
-            '</rect>'
-        )
+    total_range = f"{fmt_date_year(stats.start_date)} – Presente" if stats.start_date else "Presente"
+    current_weeks_label = f"{stats.current_weeks} semanas consecutivas"
+    longest_weeks_label = f"Recorde: {stats.longest_weeks} semanas"
 
-    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="850" height="205" viewBox="0 0 850 205" role="img" aria-label="Estatísticas e Sequência GitHub de {escape(username)}">
+    font_stack = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Ubuntu, 'Helvetica Neue', Helvetica, Arial, sans-serif"
+
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     style="isolation: isolate;" viewBox="0 0 495 195" width="495px" height="195px" direction="ltr" role="img" aria-label="Estatísticas e Sequência GitHub de {escape(username)}">
   <defs>
-    <linearGradient id="headerLine" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="{orange}"/>
-      <stop offset="30%" stop-color="#ffb703"/>
-      <stop offset="70%" stop-color="{blue}"/>
-      <stop offset="100%" stop-color="{green}"/>
-    </linearGradient>
-    <filter id="ringGlow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="3" result="blur"/>
-      <feMerge>
-        <feMergeNode in="blur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
     <style>
-      .badge-title {{ font: 700 12px ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: 1.5px; fill: {muted}; }}
-      .stat-num {{ font: 800 32px 'Segoe UI', Ubuntu, -apple-system, sans-serif; fill: {text}; }}
-      .stat-num-orange {{ font: 800 34px 'Segoe UI', Ubuntu, -apple-system, sans-serif; fill: {orange}; }}
-      .stat-label {{ font: 700 11px ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: 0.8px; fill: {muted}; }}
-      .flame {{ animation: pulseFlame 2s ease-in-out infinite; transform-origin: 72px 14px; }}
-      @keyframes pulseFlame {{ 0%, 100% {{ transform: scale(1); }} 50% {{ transform: scale(1.15); }} }}
+      @keyframes currstreak {{
+        0% {{ font-size: 3px; opacity: 0.2; }}
+        80% {{ font-size: 34px; opacity: 1; }}
+        100% {{ font-size: 28px; opacity: 1; }}
+      }}
+      @keyframes fadein {{
+        0% {{ opacity: 0; }}
+        100% {{ opacity: 1; }}
+      }}
+      @keyframes flamePulse {{
+        0%, 100% {{
+          transform: scale(1);
+          filter: drop-shadow(0 0 2px rgba(251, 140, 0, 0.45));
+        }}
+        50% {{
+          transform: scale(1.08);
+          filter: drop-shadow(0 0 7px rgba(251, 140, 0, 0.9));
+        }}
+      }}
     </style>
+    <clipPath id="outer_rectangle">
+      <rect width="495" height="195" rx="8"/>
+    </clipPath>
+    <mask id="mask_out_ring_behind_fire">
+      <rect width="495" height="195" fill="white"/>
+      <ellipse id="mask-ellipse" cx="247.5" cy="32" rx="14" ry="18" fill="black"/>
+    </mask>
   </defs>
 
-  <!-- Card Background -->
-  <rect x="1" y="1" width="848" height="203" rx="16" fill="{bg}" stroke="{border}"/>
-  <rect x="1" y="1" width="848" height="4" rx="2" fill="url(#headerLine)"/>
+  <g clip-path="url(#outer_rectangle)">
+    <!-- Background Card -->
+    <rect stroke="{border}" fill="{bg}" rx="8" x="0.5" y="0.5" width="494" height="194"/>
 
-  <!-- Card Title -->
-  <text x="28" y="32" class="badge-title">GITHUB STATS &amp; STREAK</text>
-  <text x="822" y="32" text-anchor="end" class="stat-sub">TZ: America/Sao_Paulo</text>
+    <!-- Clean Vertical Dividers -->
+    <line x1="165" y1="28" x2="165" y2="170" stroke="{border}" stroke-width="1"/>
+    <line x1="330" y1="28" x2="330" y2="170" stroke="{border}" stroke-width="1"/>
 
-  <!-- Column 1: Total Contributions -->
-  <g transform="translate(28, 48)">
-    <rect width="180" height="135" rx="12" fill="{card_bg}" stroke="{border}" stroke-width="0.8"/>
-    <!-- Icon: Chart icon -->
-    <path d="M 20 38 L 20 22 M 28 38 L 28 14 M 36 38 L 36 30" stroke="{blue}" stroke-width="2.5" stroke-linecap="round"/>
-    <text x="50" y="32" class="stat-label">TOTAL</text>
-    <text x="20" y="80" class="stat-num">{stats.total:,}</text>
-    <text x="20" y="104" class="stat-sub">CONTRIBUIÇÕES</text>
-    <text x="20" y="122" class="stat-sub" fill="{green}">{stats.active_days} dias com atividade</text>
+    <!-- Column 1: Total Contributions -->
+    <g style="isolation: isolate;">
+      <g transform="translate(82.5, 48)">
+        <text x="0" y="32" text-anchor="middle" fill="{text}" font-family="{font_stack}" font-weight="700" font-size="28px" style="opacity: 0; animation: fadein 0.5s linear forwards 0.5s;">
+          {stats.total:,}
+        </text>
+      </g>
+      <g transform="translate(82.5, 84)">
+        <text x="0" y="32" text-anchor="middle" fill="{text}" font-family="{font_stack}" font-weight="600" font-size="14px" style="opacity: 0; animation: fadein 0.5s linear forwards 0.6s;">
+          Total de Contribuições
+        </text>
+      </g>
+      <g transform="translate(82.5, 114)">
+        <text x="0" y="32" text-anchor="middle" fill="{muted}" font-family="{font_stack}" font-weight="400" font-size="12px" style="opacity: 0; animation: fadein 0.5s linear forwards 0.7s;">
+          {total_range}
+        </text>
+      </g>
+    </g>
+
+    <!-- Column 2: Current Streak (Centerpiece) -->
+    <g style="isolation: isolate;">
+      <!-- Streak Ring with Masked Gap -->
+      <g mask="url(#mask_out_ring_behind_fire)">
+        <circle cx="247.5" cy="71" r="40" fill="none" stroke="{orange}" stroke-width="5" style="opacity: 0; animation: fadein 0.5s linear forwards 0.3s;"/>
+      </g>
+
+      <!-- Animated Fire Icon with Pulsing Flame Effect -->
+      <g transform="translate(247.5, 19.5)" style="transform-origin: 247.5px 33px; animation: flamePulse 2.2s ease-in-out infinite, fadein 0.5s linear forwards 0.5s;">
+        <path d="M -12 -0.5 L 15 -0.5 L 15 23.5 L -12 23.5 L -12 -0.5 Z" fill="none"/>
+        <path d="M 1.5 0.67 C 1.5 0.67 2.24 3.32 2.24 5.47 C 2.24 7.53 0.89 9.2 -1.17 9.2 C -3.23 9.2 -4.79 7.53 -4.79 5.47 L -4.76 5.11 C -6.78 7.51 -8 10.62 -8 13.99 C -8 18.41 -4.42 22 0 22 C 4.42 22 8 18.41 8 13.99 C 8 8.6 5.41 3.79 1.5 0.67 Z M -0.29 19 C -2.07 19 -3.51 17.6 -3.51 15.86 C -3.51 14.24 -2.46 13.1 -0.7 12.74 C 1.07 12.38 2.9 11.53 3.92 10.16 C 4.31 11.45 4.51 12.81 4.51 14.2 C 4.51 16.85 2.36 19 -0.29 19 Z" fill="{orange}"/>
+      </g>
+
+      <!-- Current Streak Big Number -->
+      <g transform="translate(247.5, 48)">
+        <text x="0" y="32" text-anchor="middle" fill="{text}" font-family="{font_stack}" font-weight="700" font-size="28px" style="animation: currstreak 0.6s linear forwards;">
+          {stats.current_days}
+        </text>
+      </g>
+
+      <!-- Current Streak Label -->
+      <g transform="translate(247.5, 108)">
+        <text x="0" y="32" text-anchor="middle" fill="{orange}" font-family="{font_stack}" font-weight="700" font-size="14px" style="opacity: 0; animation: fadein 0.5s linear forwards 0.8s;">
+          Sequência Atual
+        </text>
+      </g>
+
+      <!-- Current Streak Range & Weeks -->
+      <g transform="translate(247.5, 145)">
+        <text x="0" y="21" text-anchor="middle" fill="{muted}" font-family="{font_stack}" font-weight="400" font-size="12px" style="opacity: 0; animation: fadein 0.5s linear forwards 0.9s;">
+          {current_weeks_label}
+        </text>
+      </g>
+    </g>
+
+    <!-- Column 3: Longest Streak -->
+    <g style="isolation: isolate;">
+      <g transform="translate(412.5, 48)">
+        <text x="0" y="32" text-anchor="middle" fill="{text}" font-family="{font_stack}" font-weight="700" font-size="28px" style="opacity: 0; animation: fadein 0.5s linear forwards 0.7s;">
+          {stats.longest_days}
+        </text>
+      </g>
+      <g transform="translate(412.5, 84)">
+        <text x="0" y="32" text-anchor="middle" fill="{text}" font-family="{font_stack}" font-weight="600" font-size="14px" style="opacity: 0; animation: fadein 0.5s linear forwards 0.8s;">
+          Maior Sequência
+        </text>
+      </g>
+      <g transform="translate(412.5, 114)">
+        <text x="0" y="32" text-anchor="middle" fill="{muted}" font-family="{font_stack}" font-weight="400" font-size="12px" style="opacity: 0; animation: fadein 0.5s linear forwards 0.9s;">
+          {longest_weeks_label}
+        </text>
+      </g>
+    </g>
   </g>
-
-    <!-- Column 2: Current Streak (Highlighted Centerpiece) -->
-  <g transform="translate(222, 48)">
-    <rect width="270" height="135" rx="12" fill="{card_bg}" stroke="{orange}" stroke-width="1.2" opacity="0.95"/>
-    
-    <!-- Circular Flame Badge (Centered at cx=68, cy=67, r=42) -->
-    <circle cx="68" cy="67" r="42" fill="none" stroke="{border}" stroke-width="4"/>
-    <circle cx="68" cy="67" r="42" fill="none" stroke="{orange}" stroke-width="4" stroke-dasharray="264" stroke-dashoffset="66" stroke-linecap="round" filter="url(#ringGlow)"/>
-    
-    <!-- Clean Crisp Flame Icon at top of ring -->
-    <path d="M 68 36 C 68 36 74 44 74 49 C 74 52 71.5 55 68 55 C 64.5 55 62 52 62 49 C 62 44 68 36 68 36 Z" fill="{orange}"/>
-    
-    <!-- Number and label inside ring -->
-    <text x="68" y="80" text-anchor="middle" class="stat-num-orange">{stats.current_days}</text>
-    <text x="68" y="96" text-anchor="middle" class="stat-sub">DIAS</text>
-
-    <!-- Info beside ring -->
-    <text x="126" y="38" class="stat-label" fill="{orange}">SEQUÊNCIA ATUAL</text>
-    <text x="126" y="66" class="stat-num" style="font-size: 24px;">{stats.current_weeks} <tspan font-size="13" font-weight="500" fill="{muted}">semanas</tspan></text>
-    <text x="126" y="86" class="stat-sub">consecutivas ativas</text>
-    <line x1="126" y1="98" x2="252" y2="98" stroke="{border}" stroke-width="1"/>
-    <text x="126" y="118" class="stat-sub">Recorde: <tspan font-weight="700" fill="{text}">{stats.longest_days} dias</tspan></text>
-  </g>
-
-  <!-- Column 3: Recent Activity (Last 35 Days Chart + Record Info) -->
-  <g transform="translate(506, 48)">
-    <rect width="316" height="135" rx="12" fill="{card_bg}" stroke="{border}" stroke-width="0.8"/>
-    <text x="18" y="28" class="stat-label">ÚLTIMOS 35 DIAS</text>
-    <text x="298" y="28" text-anchor="end" class="stat-sub">Recorde: {stats.longest_weeks} sem.</text>
-  </g>
-
-  <!-- Bars inside Column 3 -->
-  {''.join(bars)}
-  <text x="804" y="166" text-anchor="end" class="stat-sub">Atualização automática</text>
 </svg>'''
 
 
@@ -299,11 +348,9 @@ def demo_days(today: date) -> dict[date, int]:
     out = {}
     for i in range(540):
         d = today - timedelta(days=539 - i)
-        # deterministic pseudo-pattern for local preview only
         v = ((i * 7 + i // 9) % 11)
         out[d] = 0 if v < 4 else (v - 3)
-    # force a visible current streak
-    for i in range(12):
+    for i in range(4):
         out[today - timedelta(days=i)] = 1 + (i % 5)
     return out
 
