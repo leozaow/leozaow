@@ -141,7 +141,7 @@
     <circle cx="1010" cy="220" r="24" fill="#3fb950" class="pulse-4"/>
     <circle cx="1010" cy="220" r="14" fill="#161b22" stroke="#3fb950" stroke-width="2.5"/>
     <circle cx="1010" cy="220" r="6" fill="#3fb950" filter="url(#subtleglow)"/>
-    <text x="1010" y="165" text-anchor="middle" class="node-title">SISTEMAS REAIS</text>
+    <text x="1010" y="165" text-anchor="middle" class="node-title">SOLUÇÕES EM SISTEMAS</text>
     <text x="1010" y="180" text-anchor="middle" class="node-sub">Software em Produção</text>
   </g>
 
@@ -162,5 +162,5 @@
   <rect x="70" y="295" width="1060" height="46" rx="10" fill="#161b22" stroke="#30363d"/>
   <text x="95" y="323" class="bar-label">STACK CORE</text>
   <circle cx="215" cy="319" r="5" fill="#3fb950" class="dot"/>
-  <text x="235" y="323" class="bar-text">OPENAI CODEX × GOOGLE ANTIGRAVITY · AGENTES AUTÔNOMOS</text>
+  <text x="235" y="323" class="bar-text">OPENAI CODEX × GOOGLE ANTIGRAVITY</text>
 </svg>

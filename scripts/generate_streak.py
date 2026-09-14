@@ -235,9 +235,8 @@ def render(stats: Stats, username: str, theme: str) -> str:
       .stat-num {{ font: 800 32px 'Segoe UI', Ubuntu, -apple-system, sans-serif; fill: {text}; }}
       .stat-num-orange {{ font: 800 34px 'Segoe UI', Ubuntu, -apple-system, sans-serif; fill: {orange}; }}
       .stat-label {{ font: 700 11px ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: 0.8px; fill: {muted}; }}
-      .stat-sub {{ font: 500 10px ui-monospace, SFMono-Regular, Consolas, monospace; fill: {muted}; }}
-      .flame {{ animation: pulseFlame 1.8s ease-in-out infinite; transform-origin: 295px 105px; }}
-      @keyframes pulseFlame {{ 0%, 100% {{ transform: scale(1); }} 50% {{ transform: scale(1.1); }} }}
+      .flame {{ animation: pulseFlame 2s ease-in-out infinite; transform-origin: 72px 14px; }}
+      @keyframes pulseFlame {{ 0%, 100% {{ transform: scale(1); }} 50% {{ transform: scale(1.15); }} }}
     </style>
   </defs>
 
@@ -264,20 +263,23 @@ def render(stats: Stats, username: str, theme: str) -> str:
   <g transform="translate(222, 48)">
     <rect width="270" height="135" rx="12" fill="{card_bg}" stroke="{orange}" stroke-width="1.2" opacity="0.95"/>
     
-    <!-- Circular Flame Badge (Inspired by ulsklyc & Cjaker) -->
-    <circle cx="72" cy="67" r="42" fill="none" stroke="{border}" stroke-width="4"/>
-    <circle cx="72" cy="67" r="42" fill="none" stroke="{orange}" stroke-width="4" stroke-dasharray="264" stroke-dashoffset="66" stroke-linecap="round" filter="url(#ringGlow)"/>
+    <!-- Circular Flame Badge (Positioned at center cx=72, cy=72, r=40) -->
+    <circle cx="72" cy="72" r="40" fill="none" stroke="{border}" stroke-width="4"/>
+    <circle cx="72" cy="72" r="40" fill="none" stroke="{orange}" stroke-width="4" stroke-dasharray="251" stroke-dashoffset="62" stroke-linecap="round" filter="url(#ringGlow)"/>
     
-    <!-- SVG Flame Icon -->
-    <path class="flame" d="M 72 38 C 72 38 78 48 78 54 C 78 58 75 61 72 61 C 69 61 66 58 66 54 C 66 48 72 38 72 38 Z" fill="{orange}"/>
+    <!-- Flame Badge Header: sitting directly on top crest of the ring -->
+    <g class="flame">
+      <circle cx="72" cy="14" r="13" fill="{card_bg}" stroke="{orange}" stroke-width="1.5"/>
+      <path d="M 72 5 C 72 5 77 12 77 16 C 77 19 75 21 72 21 C 69 21 67 19 67 16 C 67 12 72 5 72 5 Z" fill="{orange}"/>
+    </g>
     
     <!-- Number inside ring -->
     <text x="72" y="80" text-anchor="middle" class="stat-num-orange">{stats.current_days}</text>
-    <text x="72" y="96" text-anchor="middle" class="stat-sub">DIAS</text>
+    <text x="72" y="97" text-anchor="middle" class="stat-sub">DIAS</text>
 
     <!-- Info beside ring -->
-    <text x="135" y="42" class="stat-label" fill="{orange}">SEQUÊNCIA ATUAL</text>
-    <text x="135" y="70" class="stat-num" style="font-size: 24px;">{stats.current_weeks} <tspan font-size="13" font-weight="500" fill="{muted}">semanas</tspan></text>
+    <text x="132" y="42" class="stat-label" fill="{orange}">SEQUÊNCIA ATUAL</text>
+    <text x="132" y="70" class="stat-num" style="font-size: 24px;">{stats.current_weeks} <tspan font-size="13" font-weight="500" fill="{muted}">semanas</tspan></text>
     <text x="135" y="90" class="stat-sub">consecutivas ativas</text>
     <text x="135" y="118" class="stat-sub">Recorde diário: <tspan font-weight="700" fill="{text}">{stats.longest_days} dias</tspan></text>
   </g>
