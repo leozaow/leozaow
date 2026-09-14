@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
-  <title id="title">Leandro Barbosa — From rules to systems</title>
-  <desc id="desc">Animated GitHub profile banner connecting legal context, public process, AI agents and working systems.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="300" viewBox="0 0 1200 300" role="img" aria-labelledby="title desc">
+  <title id="title">Leandro Barbosa</title>
+  <desc id="desc">GitHub profile banner.</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#ffffff"/>
@@ -15,68 +15,33 @@
     <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
       <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#d0d7de" stroke-width="1" opacity=".42"/>
     </pattern>
-    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="6" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
     <style>
       .name{font:700 48px 'Segoe UI',Ubuntu,sans-serif;letter-spacing:1.2px;fill:#1f2328}
-      .tag{font:600 21px 'Segoe UI',Ubuntu,sans-serif;fill:#57606a;letter-spacing:3px}
-      .node{font:700 14px ui-monospace,SFMono-Regular,Consolas,monospace;fill:#24292f;letter-spacing:.8px}
+      .sub{font:600 18px 'Segoe UI',Ubuntu,sans-serif;fill:#57606a;letter-spacing:2.5px}
       .small{font:600 14px ui-monospace,SFMono-Regular,Consolas,monospace;fill:#57606a;letter-spacing:.9px}
       .agent{font:700 14px ui-monospace,SFMono-Regular,Consolas,monospace;fill:#1f2328;letter-spacing:.8px}
-      .pulse{animation:pulse 2.3s ease-in-out infinite;transform-origin:center}
-      @keyframes pulse{0%,100%{opacity:.45}50%{opacity:1}}
+      .dot{animation:blink 1.7s ease-in-out infinite}
+      @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
     </style>
   </defs>
 
-  <rect x="1" y="1" width="1198" height="358" rx="24" fill="url(#bg)" stroke="#d0d7de"/>
-  <rect x="1" y="1" width="1198" height="358" rx="24" fill="url(#grid)"/>
+  <rect x="1" y="1" width="1198" height="298" rx="24" fill="url(#bg)" stroke="#d0d7de"/>
+  <rect x="1" y="1" width="1198" height="298" rx="24" fill="url(#grid)"/>
 
-  <circle cx="1080" cy="70" r="115" fill="#0969da" opacity=".035"/>
-  <circle cx="1030" cy="280" r="140" fill="#8250df" opacity=".03"/>
-  <circle cx="180" cy="310" r="120" fill="#1a7f37" opacity=".025"/>
+  <circle cx="1080" cy="60" r="115" fill="#0969da" opacity=".035"/>
+  <circle cx="1030" cy="240" r="140" fill="#8250df" opacity=".03"/>
+  <circle cx="180" cy="260" r="120" fill="#1a7f37" opacity=".025"/>
 
-  <text x="70" y="88" class="name">LEANDRO BARBOSA</text>
-  <text x="72" y="128" class="tag">FROM RULES → SYSTEMS</text>
+  <text x="70" y="90" class="name">LEANDRO BARBOSA</text>
+  <text x="72" y="128" class="sub">DIREITO · GESTÃO PÚBLICA · AGENTES DE IA</text>
 
-  <line x1="112" y1="219" x2="1085" y2="219" stroke="#d0d7de" stroke-width="2"/>
-  <line x1="112" y1="219" x2="1085" y2="219" stroke="url(#accent)" stroke-width="2" opacity=".55" stroke-dasharray="9 12">
+  <line x1="70" y1="168" x2="1130" y2="168" stroke="#d0d7de" stroke-width="1"/>
+  <line x1="70" y1="168" x2="1130" y2="168" stroke="url(#accent)" stroke-width="1" opacity=".5" stroke-dasharray="9 12">
     <animate attributeName="stroke-dashoffset" from="0" to="-84" dur="4s" repeatCount="indefinite"/>
   </line>
 
-  <g>
-    <circle cx="150" cy="219" r="8" fill="#0969da"/>
-    <circle cx="150" cy="219" r="17" fill="none" stroke="#0969da" opacity=".22" class="pulse"/>
-    <text x="112" y="188" class="node">LEGAL CONTEXT</text>
-  </g>
-
-  <g>
-    <circle cx="430" cy="219" r="8" fill="#54aeff"/>
-    <circle cx="430" cy="219" r="17" fill="none" stroke="#54aeff" opacity=".22" class="pulse" style="animation-delay:.35s"/>
-    <text x="366" y="188" class="node">PUBLIC PROCESS</text>
-  </g>
-
-  <g>
-    <circle cx="720" cy="219" r="8" fill="#8250df"/>
-    <circle cx="720" cy="219" r="17" fill="none" stroke="#8250df" opacity=".22" class="pulse" style="animation-delay:.7s"/>
-    <text x="674" y="188" class="node">AI AGENTS</text>
-  </g>
-
-  <g>
-    <circle cx="1010" cy="219" r="8" fill="#1a7f37"/>
-    <circle cx="1010" cy="219" r="17" fill="none" stroke="#1a7f37" opacity=".22" class="pulse" style="animation-delay:1.05s"/>
-    <text x="946" y="188" class="node">WORKING SYSTEM</text>
-  </g>
-
-  <circle r="5" fill="#1f2328" filter="url(#glow)">
-    <animateMotion dur="5.5s" repeatCount="indefinite" path="M150,219 C265,219 315,219 430,219 S605,219 720,219 S895,219 1010,219"/>
-  </circle>
-
-  <rect x="70" y="277" width="1060" height="48" rx="12" fill="#ffffff" stroke="#d0d7de"/>
-  <text x="92" y="307" class="small">CURRENT MODE</text>
-  <rect x="236" y="291" width="10" height="10" rx="5" fill="#1a7f37">
-    <animate attributeName="opacity" values="1;.25;1" dur="1.7s" repeatCount="indefinite"/>
-  </rect>
-  <text x="260" y="307" class="agent">VIBE CODING  //  OPENAI CODEX × GOOGLE ANTIGRAVITY</text>
+  <rect x="70" y="222" width="1060" height="48" rx="12" fill="#ffffff" stroke="#d0d7de"/>
+  <text x="92" y="252" class="small">ENGINE</text>
+  <rect x="168" y="240" width="10" height="10" rx="5" fill="#1a7f37" class="dot"/>
+  <text x="192" y="252" class="agent">OPENAI CODEX × GOOGLE ANTIGRAVITY</text>
 </svg>

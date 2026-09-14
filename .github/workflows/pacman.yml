@@ -4,9 +4,6 @@ on:
   schedule:
     - cron: "11 6 * * *"
   workflow_dispatch:
-  push:
-    branches:
-      - main
 
 jobs:
   generate:

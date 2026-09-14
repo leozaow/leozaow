@@ -23,8 +23,10 @@ TZ = ZoneInfo("America/Sao_Paulo")
 
 @dataclass
 class Stats:
-    current: int
-    longest: int
+    current_days: int
+    longest_days: int
+    current_weeks: int
+    longest_weeks: int
     total: int
     active_days: int
     last35: list[int]
@@ -100,15 +102,26 @@ def fetch_days(token: str, username: str, start: date, end: date) -> dict[date, 
     return out
 
 
+def _monday(d: date) -> date:
+    """Return the Monday of the ISO week containing *d*."""
+    return d - timedelta(days=d.weekday())
+
+
+def _week_has_activity(days: dict[date, int], monday: date) -> bool:
+    """Return True if any day Mon-Sun in the given week has contributions."""
+    return any(days.get(monday + timedelta(days=i), 0) > 0 for i in range(7))
+
+
 def compute(days: dict[date, int], today: date) -> Stats:
     if not days:
-        return Stats(0, 0, 0, 0, [0] * 35)
+        return Stats(0, 0, 0, 0, 0, 0, [0] * 35)
 
     ordered = sorted(days)
     total = sum(days.values())
     active_days = sum(1 for value in days.values() if value > 0)
 
-    longest = 0
+    # --- Daily streaks ---
+    longest_days = 0
     run = 0
     previous: date | None = None
     for d in ordered:
@@ -116,30 +129,66 @@ def compute(days: dict[date, int], today: date) -> Stats:
             run = 0
         if days[d] > 0:
             run += 1
-            longest = max(longest, run)
+            longest_days = max(longest_days, run)
         else:
             run = 0
         previous = d
 
-    # Do not punish an unfinished current day. If today is still empty,
-    # calculate the live streak from yesterday.
+    # Current daily streak: don't punish an unfinished today.
     cursor = today
     if days.get(cursor, 0) == 0:
         cursor -= timedelta(days=1)
-    current = 0
+    current_days = 0
     while days.get(cursor, 0) > 0:
-        current += 1
+        current_days += 1
         cursor -= timedelta(days=1)
 
+    # --- Weekly streaks ---
+    # A week (Mon-Sun) is active if it has ≥1 contribution.
+    # The current (incomplete) week doesn't break the streak if it has no
+    # activity yet — we simply don't count it. If it has activity, it counts.
+    first_monday = _monday(min(ordered))
+    today_monday = _monday(today)
+
+    # Build list of all weeks from first to current.
+    week_mondays: list[date] = []
+    m = first_monday
+    while m <= today_monday:
+        week_mondays.append(m)
+        m += timedelta(weeks=1)
+
+    # Longest weekly streak (across all history).
+    longest_weeks = 0
+    run = 0
+    for m in week_mondays:
+        if _week_has_activity(days, m):
+            run += 1
+            longest_weeks = max(longest_weeks, run)
+        else:
+            run = 0
+
+    # Current weekly streak: walk backwards from the most recent active week.
+    # If the current week has no activity yet, start from last week.
+    start_idx = len(week_mondays) - 1
+    if not _week_has_activity(days, week_mondays[start_idx]):
+        start_idx -= 1
+    current_weeks = 0
+    for i in range(start_idx, -1, -1):
+        if _week_has_activity(days, week_mondays[i]):
+            current_weeks += 1
+        else:
+            break
+
+    # Last 35 days bar chart.
     start35 = today - timedelta(days=34)
     last35 = [days.get(start35 + timedelta(days=i), 0) for i in range(35)]
-    return Stats(current, longest, total, active_days, last35)
+
+    return Stats(current_days, longest_days, current_weeks, longest_weeks, total, active_days, last35)
 
 
 def render(stats: Stats, username: str, theme: str) -> str:
     dark = theme == "dark"
     bg = "#0d1117" if dark else "#ffffff"
-    panel = "#161b22" if dark else "#f6f8fa"
     border = "#30363d" if dark else "#d0d7de"
     text = "#f0f6fc" if dark else "#1f2328"
     muted = "#8c959f" if dark else "#57606a"
@@ -157,13 +206,13 @@ def render(stats: Stats, username: str, theme: str) -> str:
         y = baseline - h
         opacity = 0.18 if v == 0 else min(1.0, 0.38 + (v / maxv) * 0.62)
         bars.append(
-            f'<rect x="{x}" y="{y}" width="{width}" height="{h}" rx="3" fill="{green}" opacity="{opacity:.2f}">' \
-            f'<animate attributeName="height" from="2" to="{h}" dur="0.55s" begin="{i*0.015:.3f}s" fill="freeze"/>' \
-            f'<animate attributeName="y" from="{baseline-2}" to="{y}" dur="0.55s" begin="{i*0.015:.3f}s" fill="freeze"/>' \
+            f'<rect x="{x}" y="{y}" width="{width}" height="{h}" rx="3" fill="{green}" opacity="{opacity:.2f}">'
+            f'<animate attributeName="height" from="2" to="{h}" dur="0.55s" begin="{i*0.015:.3f}s" fill="freeze"/>'
+            f'<animate attributeName="y" from="{baseline-2}" to="{y}" dur="0.55s" begin="{i*0.015:.3f}s" fill="freeze"/>'
             '</rect>'
         )
 
-    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="846" height="190" viewBox="0 0 846 190" role="img" aria-label="GitHub build streak for {escape(username)}">
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="846" height="190" viewBox="0 0 846 190" role="img" aria-label="Sequ\u00eancia GitHub de {escape(username)}">
   <defs>
     <linearGradient id="line" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0" stop-color="{blue}"/><stop offset="0.5" stop-color="{purple}"/><stop offset="1" stop-color="{green}"/>
@@ -177,24 +226,28 @@ def render(stats: Stats, username: str, theme: str) -> str:
   </defs>
   <rect x="1" y="1" width="844" height="188" rx="16" fill="{bg}" stroke="{border}"/>
   <rect x="18" y="18" width="810" height="3" rx="2" fill="url(#line)" opacity=".85"/>
-  <text x="28" y="48" class="title">BUILD STREAK // SELF-HOSTED</text>
+  <text x="28" y="48" class="title">SEQU\u00caNCIA // GITHUB</text>
 
   <g transform="translate(28,68)">
-    <text x="0" y="32" class="big">{stats.current}</text>
-    <text x="0" y="55" class="label">CURRENT DAYS</text>
+    <text x="0" y="32" class="big">{stats.current_days}</text>
+    <text x="0" y="55" class="label">DIAS SEGUIDOS</text>
   </g>
-  <g transform="translate(190,68)">
-    <text x="0" y="32" class="big">{stats.longest}</text>
-    <text x="0" y="55" class="label">LONGEST STREAK</text>
+  <g transform="translate(160,68)">
+    <text x="0" y="32" class="big">{stats.current_weeks}</text>
+    <text x="0" y="55" class="label">SEMANAS SEGUIDAS</text>
   </g>
-  <g transform="translate(370,68)">
+  <g transform="translate(340,68)">
+    <text x="0" y="32" class="big">{stats.longest_days}</text>
+    <text x="0" y="55" class="label">MAIOR SEQU\u00caNCIA</text>
+  </g>
+  <g transform="translate(470,68)">
     <text x="0" y="32" class="big">{stats.total:,}</text>
-    <text x="0" y="55" class="label">CONTRIBUTIONS</text>
+    <text x="0" y="55" class="label">CONTRIBUI\u00c7\u00d5ES</text>
   </g>
 
-  <text x="525" y="71" class="label">LAST 35 DAYS</text>
+  <text x="525" y="71" class="label">\u00daLTIMOS 35 DIAS</text>
   {''.join(bars)}
-  <text x="525" y="164" class="small">GitHub data · America/Sao_Paulo</text>
+  <text x="525" y="164" class="small">GitHub · America/Sao_Paulo</text>
 </svg>'''
 
 
@@ -231,7 +284,11 @@ def main() -> int:
     stats = compute(days, today)
     for theme in ("light", "dark"):
         (outdir / f"streak.{theme}.svg").write_text(render(stats, username, theme), encoding="utf-8")
-    print(f"current={stats.current} longest={stats.longest} total={stats.total} active_days={stats.active_days}")
+    print(
+        f"current_days={stats.current_days} longest_days={stats.longest_days} "
+        f"current_weeks={stats.current_weeks} longest_weeks={stats.longest_weeks} "
+        f"total={stats.total} active_days={stats.active_days}"
+    )
     return 0
 
 
