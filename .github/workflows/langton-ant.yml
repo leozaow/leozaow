@@ -1,0 +1,73 @@
+name: Generate Langton's Ant contribution graph
+
+on:
+  schedule:
+    # Runs daily at 06:18 UTC (distinct from streak at 06:37 UTC)
+    - cron: "18 6 * * *"
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'scripts/langton_sim.py'
+      - 'scripts/langton_render.py'
+      - 'scripts/generate_langton.py'
+      - 'tests/**'
+      - '.github/workflows/langton-ant.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  langton:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository (main)
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run test suite
+        run: python -m unittest discover -s tests -p "test_*.py"
+
+      - name: Generate Langton's Ant SVGs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
+        run: |
+          python scripts/generate_langton.py --output-dir dist
+
+      - name: Publish to output branch preserving existing assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Fetch and checkout output branch into a work directory
+          git fetch origin output:output || git checkout --orphan output
+          git worktree add ../output-branch output
+          
+          # Copy new Langton SVGs without removing Pac-Man or other files
+          cp dist/langton-contribution-graph.svg ../output-branch/
+          cp dist/langton-contribution-graph-dark.svg ../output-branch/
+          
+          cd ../output-branch
+          git add langton-contribution-graph.svg langton-contribution-graph-dark.svg
+          
+          if git diff --staged --quiet; then
+            echo "No changes to commit in output branch."
+          else
+            git commit -m "chore: update langton contribution graph SVGs [skip ci]"
+            for i in {1..5}; do
+              git push origin output && break || (git pull --rebase origin output && sleep 3)
+            done
+          fi
+          
+          cd -
+          git worktree remove ../output-branch

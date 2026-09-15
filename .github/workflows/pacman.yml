@@ -1,8 +1,10 @@
 name: Generate Pac-Man contribution graph
 
+# Schedule temporariamente suspenso para experimento com Langton's Ant.
+# workflow_dispatch mantido para rollback imediato caso desejado.
 on:
-  schedule:
-    - cron: "11 6 * * *"
+  # schedule:
+  #   - cron: "11 6 * * *"
   workflow_dispatch:
 
 jobs:
