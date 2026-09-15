@@ -5,6 +5,7 @@ Diretrizes essenciais para agentes autônomos de IA que operam neste repositóri
 ## 🎯 Objetivo & Contexto
 - **Perfil do Repositório:** Perfil de GitHub pessoal/portfólio (`leozaow/leozaow`), automações, badges e scripts.
 - **Autonomia com Foco:** Atue de forma proativa e direta na resolução da tarefa solicitada.
+- **Especificações dedicadas:** Quando a tarefa envolver a Formiga de Langton/contribution graph, leia e cumpra integralmente `LANGTON_ANT_SPEC.md` antes de editar.
 
 ## 🛠️ Regras de Execução
 1. **Escopo Preciso:** Altere apenas arquivos pertinentes à tarefa solicitada. Não modifique configurações ou arquivos não relacionados.
