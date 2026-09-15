@@ -8,12 +8,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'scripts/langton_sim.py'
-      - 'scripts/langton_render.py'
-      - 'scripts/generate_langton.py'
-      - 'tests/**'
-      - '.github/workflows/langton-ant.yml'
 
 permissions:
   contents: write
