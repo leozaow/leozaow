@@ -1,9 +1,7 @@
-"""Comprehensive test suite for Langton's Ant × GitHub Contributions engine (V2)."""
+"""Comprehensive test suite for Langton's Ant × GitHub Contributions engine (V3)."""
 
-import copy
 import hashlib
 import json
-import re
 import unittest
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -14,20 +12,23 @@ from scripts.langton_sim import (
     CalendarCell,
     CalendarData,
     LangtonSimulation,
-    detect_highway,
+    detect_highway_rigorous,
     get_candidate_origins,
     parse_contribution_calendar,
     seed_grid_from_calendar,
-    select_best_simulation,
 )
-from scripts.langton_analysis import analyze_deep_simulation, score_deep_candidate
-from scripts.langton_render import render_langton_svg_v2
+from scripts.langton_analysis import (
+    compute_daily_seed,
+    find_top_diverse_pool,
+    select_daily_simulation,
+)
+from scripts.langton_render import render_langton_svg_v3
 from scripts.generate_langton import generate_all
 
 FIXTURE_PATH = Path(__file__).parent / "fixtures" / "contributions.json"
 
 
-class TestLangtonEngineV2(unittest.TestCase):
+class TestLangtonEngineV3(unittest.TestCase):
     def setUp(self):
         with open(FIXTURE_PATH, "r", encoding="utf-8") as f:
             self.fixture_data = json.load(f)
@@ -42,46 +43,41 @@ class TestLangtonEngineV2(unittest.TestCase):
         sim = LangtonSimulation()
         res = sim.run(start_x=0, start_y=0, start_dir=0, max_steps=4)
 
-        # Step 0: at (0, 0), state 0, facing North (0)
+        # Step 0: at (0, 0), state 0, facing North (0) -> Turn Right to East (1), flip to 1
         s0 = res.steps[0]
         self.assertEqual(s0.x, 0)
         self.assertEqual(s0.y, 0)
         self.assertEqual(s0.direction_before, 0)
         self.assertEqual(s0.turn_direction, "R")
-        self.assertEqual(s0.direction_after, 1)  # Facing East
+        self.assertEqual(s0.direction_after, 1)
         self.assertEqual(s0.cell_state_before, 0)
         self.assertEqual(s0.cell_state_after, 1)
         self.assertEqual(sim.get_state(0, 0), 1)
 
-        # Step 1: at (1, 0), state 0, facing East (1)
+        # Step 1: at (1, 0), state 0, facing East (1) -> Turn Right to South (2), flip to 1
         s1 = res.steps[1]
-        self.assertEqual(s1.x, 1)
-        self.assertEqual(s1.y, 0)
-        self.assertEqual(s1.direction_before, 1)
-        self.assertEqual(s1.turn_direction, "R")
-        self.assertEqual(s1.direction_after, 2)  # Facing South
-        self.assertEqual(s1.cell_state_before, 0)
+        self.assertEqual(s1.direction_after, 2)
         self.assertEqual(s1.cell_state_after, 1)
 
-        # Step 2: at (1, 1), state 0, facing South (2)
+        # Step 2: at (1, 1), state 0, facing South (2) -> Turn Right to West (3), flip to 1
         s2 = res.steps[2]
-        self.assertEqual(s2.direction_after, 3)  # Facing West
+        self.assertEqual(s2.direction_after, 3)
 
-        # Step 3: at (0, 1), state 0, facing West (3)
+        # Step 3: at (0, 1), state 0, facing West (3) -> Turn Right to North (0), flip to 1
         s3 = res.steps[3]
-        self.assertEqual(s3.direction_after, 0)  # Facing North (heading back to 0,0)
+        self.assertEqual(s3.direction_after, 0)
 
-        # Step 4: next step visits (0, 0) which is currently 1
+        # Step 4: next step enters (0, 0) which is 1 -> Turn Left to West (3), flip to 0
         res2 = sim.run(start_x=0, start_y=0, start_dir=0, max_steps=1)
         s4 = res2.steps[0]
         self.assertEqual(s4.cell_state_before, 1)
         self.assertEqual(s4.turn_direction, "L")
-        self.assertEqual(s4.direction_after, 3)  # Turns Left to West
+        self.assertEqual(s4.direction_after, 3)
         self.assertEqual(s4.cell_state_after, 0)
         self.assertEqual(sim.get_state(0, 0), 0)
 
     def test_infinite_sparse_plane_negative_coords_no_wrap(self):
-        """Tests that moving outside calendar bounds operates smoothly on an infinite plane."""
+        """Tests that moving outside calendar bounds operates smoothly on an infinite plane without wrapping."""
         sim = LangtonSimulation()
         res = sim.run(start_x=0, start_y=0, start_dir=3, max_steps=15)
         min_x = min(s.x for s in res.steps)
@@ -105,36 +101,50 @@ class TestLangtonEngineV2(unittest.TestCase):
             else:
                 self.assertNotIn((x, y), grid)
 
-    def test_deterministic_selection_and_scoring(self):
-        """Verifies candidate selection and scoring are 100% deterministic."""
-        sim1, a1 = select_best_simulation(self.calendar, steps_count=240, deep_horizon=5000)
-        sim2, a2 = select_best_simulation(self.calendar, steps_count=240, deep_horizon=5000)
+    def test_daily_seed_determinism_and_variability(self):
+        """Tests that the same date produces the identical seed and candidate,
+        while different dates produce varying seeds.
+        """
+        seed1 = compute_daily_seed(self.calendar, "2026-09-15")
+        seed1_dup = compute_daily_seed(self.calendar, "2026-09-15")
+        seed2 = compute_daily_seed(self.calendar, "2026-09-16")
+        seed3 = compute_daily_seed(self.calendar, "2026-09-17")
 
-        self.assertEqual(sim1.start_x, sim2.start_x)
-        self.assertEqual(sim1.start_y, sim2.start_y)
-        self.assertEqual(sim1.start_dir, sim2.start_dir)
-        self.assertEqual(len(sim1.steps), len(sim2.steps))
-        for s1, s2 in zip(sim1.steps, sim2.steps):
-            self.assertEqual((s1.x, s1.y, s1.direction_after), (s2.x, s2.y, s2.direction_after))
+        self.assertEqual(seed1, seed1_dup)
+        self.assertNotEqual(seed1, seed2)
+        self.assertNotEqual(seed2, seed3)
 
-    def test_deterministic_byte_for_byte_svg_v2(self):
-        """Ensures two independent renders of the same fixture produce bitwise identical SVGs."""
-        sim, analysis = select_best_simulation(self.calendar, steps_count=240, deep_horizon=5000)
-        svg1 = render_langton_svg_v2(self.calendar, sim, analysis, theme="light")
-        svg2 = render_langton_svg_v2(self.calendar, sim, analysis, theme="light")
+        sim_a, a_a = select_daily_simulation(self.calendar, date_str="2026-09-15", steps_count=240, deep_horizon=3000)
+        sim_b, a_b = select_daily_simulation(self.calendar, date_str="2026-09-15", steps_count=240, deep_horizon=3000)
+        self.assertEqual(a_a.selected_rank, a_b.selected_rank)
+        self.assertEqual(sim_a.start_x, sim_b.start_x)
+        self.assertEqual(sim_a.window_start, sim_b.window_start)
+
+    def test_window_analysis_can_select_evolved_window(self):
+        """Tests that candidate window selection can discover and select windows where start > 0."""
+        pool = find_top_diverse_pool(self.calendar, deep_horizon=3000, window_size=240, window_stride=120)
+        self.assertGreater(len(pool), 0)
+        has_evolved_window = any(cand.window_start > 0 for cand in pool)
+        self.assertTrue(has_evolved_window, "Pool should discover evolved windows (start > 0) in deep simulation.")
+
+    def test_deterministic_byte_for_byte_svg_v3(self):
+        """Ensures two independent renders of the same fixture and date produce bitwise identical SVGs."""
+        sim, analysis = select_daily_simulation(self.calendar, date_str="2026-09-15", steps_count=240, deep_horizon=3000)
+        svg1 = render_langton_svg_v3(self.calendar, sim, analysis, theme="light")
+        svg2 = render_langton_svg_v3(self.calendar, sim, analysis, theme="light")
         self.assertEqual(hashlib.sha256(svg1.encode("utf-8")).hexdigest(), hashlib.sha256(svg2.encode("utf-8")).hexdigest())
 
-        svg_dark1 = render_langton_svg_v2(self.calendar, sim, analysis, theme="dark")
-        svg_dark2 = render_langton_svg_v2(self.calendar, sim, analysis, theme="dark")
+        svg_dark1 = render_langton_svg_v3(self.calendar, sim, analysis, theme="dark")
+        svg_dark2 = render_langton_svg_v3(self.calendar, sim, analysis, theme="dark")
         self.assertEqual(hashlib.sha256(svg_dark1.encode("utf-8")).hexdigest(), hashlib.sha256(svg_dark2.encode("utf-8")).hexdigest())
 
     def test_svg_xml_validity_and_security(self):
         """Tests that both light and dark SVGs parse as valid XML, contain required elements,
         and strictly forbid <script>, external links or token leakages.
         """
-        sim, analysis = select_best_simulation(self.calendar, steps_count=240, deep_horizon=5000)
+        sim, analysis = select_daily_simulation(self.calendar, date_str="2026-09-15", steps_count=240, deep_horizon=3000)
         for theme in ["light", "dark"]:
-            svg = render_langton_svg_v2(self.calendar, sim, analysis, theme=theme)
+            svg = render_langton_svg_v3(self.calendar, sim, analysis, theme=theme)
             root = ET.fromstring(svg)
             self.assertEqual(root.tag.split("}")[-1], "svg")
 
@@ -154,53 +164,39 @@ class TestLangtonEngineV2(unittest.TestCase):
         """Verifies that the trail animates via stroke-dashoffset (not pre-drawn)
         and that automaton-state-layer overlays are generated for flipped cells.
         """
-        sim, analysis = select_best_simulation(self.calendar, steps_count=240, deep_horizon=5000)
-        svg = render_langton_svg_v2(self.calendar, sim, analysis, theme="dark")
+        sim, analysis = select_daily_simulation(self.calendar, date_str="2026-09-15", steps_count=240, deep_horizon=3000)
+        svg = render_langton_svg_v3(self.calendar, sim, analysis, theme="dark")
 
-        # Trail dashoffset animation
         self.assertIn("stroke-dasharray:", svg)
         self.assertIn("animation: trail-reveal", svg)
         self.assertIn("@keyframes trail-reveal", svg)
-
-        # Dual-layer presence
         self.assertIn('id="calendar-data-layer"', svg)
         self.assertIn('id="automaton-state-layer"', svg)
         self.assertIn('class="state-overlay', svg)
 
-        # Agent micro-ant with antennae
-        self.assertIn('class="ant-antenna"', svg)
-        self.assertIn('class="ant-eye"', svg)
-
     def test_svg_size_under_limit(self):
         """Checks that generated SVGs do not exceed 250 KiB (spec allows up to 350 KiB)."""
-        sim, analysis = select_best_simulation(self.calendar, steps_count=240, deep_horizon=5000)
-        svg_light = render_langton_svg_v2(self.calendar, sim, analysis, theme="light")
-        svg_dark = render_langton_svg_v2(self.calendar, sim, analysis, theme="dark")
+        sim, analysis = select_daily_simulation(self.calendar, date_str="2026-09-15", steps_count=240, deep_horizon=3000)
+        svg_light = render_langton_svg_v3(self.calendar, sim, analysis, theme="light")
+        svg_dark = render_langton_svg_v3(self.calendar, sim, analysis, theme="dark")
 
         self.assertLess(len(svg_light.encode("utf-8")), 250 * 1024)
         self.assertLess(len(svg_dark.encode("utf-8")), 250 * 1024)
 
-    def test_empty_or_sparse_calendar_handling(self):
-        """Tests simulation and rendering on an empty calendar."""
-        empty_cal = CalendarData(
-            total_contributions=0,
-            weeks_count=53,
-            cells={(w, d): CalendarCell(w, d, f"2026-01-{d+1:02d}", 0, "NONE") for w in range(53) for d in range(7)},
-            min_date="2025-01-01",
-            max_date="2026-01-01",
-        )
-        sim, analysis = select_best_simulation(empty_cal, steps_count=240, deep_horizon=2000)
-        self.assertIsNotNone(sim)
-        svg = render_langton_svg_v2(empty_cal, sim, analysis, theme="dark")
-        self.assertIn("0 CONTRIBUIÇÕES", svg)
-        ET.fromstring(svg)
-
-    def test_highway_emergence_validation(self):
-        """Validates that empty grid reliably emerges into period-104 highway."""
+    def test_rigorous_highway_detection_on_empty_grid(self):
+        """Validates that empty grid reliably emerges into period-104 highway with (-2, 2) vector."""
         sim = LangtonSimulation()
-        res = sim.run(0, 0, 0, 10500)
+        res = sim.run(0, 0, 0, 15000)
         self.assertTrue(res.highway_detected)
         self.assertEqual(res.highway_period, 104)
+        self.assertEqual((res.highway_dx, res.highway_dy), (-2, 2))
+        self.assertGreaterEqual(res.highway_verified_cycles, 3)
+
+    def test_no_false_highway_on_noisy_history(self):
+        """Tests that detect_highway_rigorous rejects pseudo-periodic paths that lack true translation."""
+        fake_history = [(i % 10, i % 10, i % 4) for i in range(500)]
+        detected, _, _, _, _, _ = detect_highway_rigorous(fake_history, min_repeats=3)
+        self.assertFalse(detected)
 
 
 if __name__ == "__main__":

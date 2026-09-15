@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""SVG renderer for Langton's Ant × GitHub Contributions (V2).
+"""SVG renderer for Langton's Ant × GitHub Contributions (V3).
 
 Generates a self-contained, high-fidelity, living animated SVG (light & dark mode)
 featuring:
@@ -7,7 +7,7 @@ featuring:
 2. Progressive trail emergence via synchronized CSS dashoffset (no pre-drawn path).
 3. Cybernetic micro-ant with visible orientation, head, body, and sensory pulse.
 4. Active cell interaction with persisting state flips and glow proportional to commits.
-5. Rich metadata telemetry and micro-legend explaining the RL emergence.
+5. Rich metadata telemetry reflecting the exact simulation window slice and daily seed.
 6. 100% deterministic, standalone XML, lightweight, zero JavaScript.
 """
 
@@ -96,14 +96,14 @@ def get_cell_level_index(level: str) -> int:
     return mapping.get(level, 0)
 
 
-def render_langton_svg_v2(
+def render_langton_svg_v3(
     calendar: CalendarData,
     simulation: SimulationResult,
     analysis: Optional[DeepAnalysis] = None,
     theme: str = "light",
     duration_s: float = 16.0,
 ) -> str:
-    """Renders the V2 standalone animated SVG for Langton's Ant."""
+    """Renders the V3 standalone animated SVG for Langton's Ant with window slice tracking."""
     palette = DARK_PALETTE if theme == "dark" else LIGHT_PALETTE
     weeks_count = max(calendar.weeks_count, 53)
 
@@ -121,7 +121,6 @@ def render_langton_svg_v2(
         return (PAD_LEFT + gx * STEP_PITCH, PAD_TOP + gy * STEP_PITCH)
 
     # 1. Coordinate Trail & Path Length Calculation
-    # We generate a polyline/path and calculate cumulative length for stroke-dashoffset animation
     path_segments: List[Tuple[float, float]] = []
     cum_lengths: List[float] = [0.0]
 
@@ -143,12 +142,7 @@ def render_langton_svg_v2(
         path_d_parts.append(f"L {cx:.1f},{cy:.1f}")
     path_d = " ".join(path_d_parts)
 
-    # 2. Keyframe Generation: Ant Movement, Rotation & Sensor State
-    # Timeline phases:
-    # 0%..3%: Initialization / Seeding pause
-    # 3%..92%: Active Langton traversal (trail emerges, cells flip)
-    # 92%..97%: Macro display of resulting pattern
-    # 97%..100%: Elegant fade reset
+    # 2. Timeline Phases (0%..3% Seeding, 3%..92% Traversal, 92%..97% Pattern display, 97%..100% Reset)
     t_ant_start = 3.0
     t_ant_end = 92.0
     t_ant_span = t_ant_end - t_ant_start
@@ -156,7 +150,6 @@ def render_langton_svg_v2(
     ant_keyframes: List[str] = []
     trail_keyframes: List[str] = []
 
-    # Initial frame
     start_cx, start_cy = path_segments[0]
     start_angle = DIR_ANGLES[simulation.steps[0].direction_after]
     ant_keyframes.append(
@@ -171,16 +164,13 @@ def render_langton_svg_v2(
 
     for i, step in enumerate(simulation.steps):
         frac = i / (total_steps - 1) if total_steps > 1 else 1.0
-        # Time percent
         t_pct = t_ant_start + frac * t_ant_span
         cx, cy = path_segments[i]
-        # Use direction_after so the ant points towards where it is going!
         angle = DIR_ANGLES[step.direction_after]
 
         ant_keyframes.append(
             f"{t_pct:.2f}% {{ transform: translate({cx:.1f}px, {cy:.1f}px) rotate({angle}deg); opacity: 1; }}"
         )
-        # Trail dashoffset reveals up to cumulative length at this step
         current_offset = total_trail_len - cum_lengths[i]
         trail_keyframes.append(
             f"{t_pct:.2f}% {{ stroke-dashoffset: {current_offset:.1f}; opacity: 0.85; }}"
@@ -188,16 +178,15 @@ def render_langton_svg_v2(
 
     # Wrap & Fade
     ant_keyframes.append(f"{t_ant_end:.2f}% {{ opacity: 1; }}")
-    ant_keyframes.append(f"97.00% {{ opacity: 0; }}")
-    ant_keyframes.append(f"100.00% {{ opacity: 0; }}")
+    ant_keyframes.append("97.00% { opacity: 0; }")
+    ant_keyframes.append("100.00% { opacity: 0; }")
 
     trail_keyframes.append(f"{t_ant_end:.2f}% {{ stroke-dashoffset: 0; opacity: 0.85; }}")
-    trail_keyframes.append(f"97.00% {{ stroke-dashoffset: 0; opacity: 0; }}")
+    trail_keyframes.append("97.00% { stroke-dashoffset: 0; opacity: 0; }")
     trail_keyframes.append(f"100.00% {{ stroke-dashoffset: {total_trail_len:.1f}; opacity: 0; }}")
 
     # 3. Dynamic Cell State & Overlays (Persistent Flips)
-    # Track step history per cell
-    cell_steps_map: Dict[Tuple[int, int], List[Tuple[float, int, int]]] = {}  # (t_pct, state_after, commit_count)
+    cell_steps_map: Dict[Tuple[int, int], List[Tuple[float, int, int]]] = {}
     for i, step in enumerate(simulation.steps):
         frac = i / (total_steps - 1) if total_steps > 1 else 1.0
         t_pct = t_ant_start + frac * t_ant_span
@@ -223,35 +212,31 @@ def render_langton_svg_v2(
             )
 
             flips = cell_steps_map.get((w, d), [])
-            if flips:
+            # Initial state at start of window slice
+            init_state = simulation.initial_grid_snapshot.get((w, d), 1 if cell.count > 0 else 0)
+
+            if flips or (init_state == 1 and cell.count == 0):
                 cid = f"fl_{anim_cell_counter}"
                 anim_cell_counter += 1
 
-                # Generate keyframe for overlay
-                # The overlay indicates the automaton binary state (border/pip or glow)
-                # When state is 1, overlay shows crisp border & indicator pip
-                # When state is 0, overlay hides or becomes neutral
                 kf_overlay: List[str] = []
-                kf_overlay.append("0.00% { opacity: 0; transform: scale(0.9); }")
-                kf_overlay.append(f"{t_ant_start:.2f}% {{ opacity: 0; transform: scale(0.9); }}")
+                init_op = 1 if init_state == 1 else 0
+                kf_overlay.append(f"0.00% {{ opacity: {init_op}; transform: scale(1.0); }}")
+                kf_overlay.append(f"{t_ant_start:.2f}% {{ opacity: {init_op}; transform: scale(1.0); }}")
 
-                for t_pct, state_after, c_cnt in flips:
+                for t_pct, state_after, _ in flips:
                     t_before = max(t_ant_start, t_pct - 0.05)
-                    # Instant transition at arrival
                     if state_after == 1:
-                        # Becomes active
                         kf_overlay.append(f"{t_before:.2f}% {{ opacity: 0; transform: scale(0.85); }}")
                         kf_overlay.append(f"{t_pct:.2f}% {{ opacity: 1; transform: scale(1.0); }}")
                     else:
-                        # Becomes inactive
                         kf_overlay.append(f"{t_before:.2f}% {{ opacity: 1; transform: scale(1.0); }}")
                         kf_overlay.append(f"{t_pct:.2f}% {{ opacity: 0; transform: scale(0.85); }}")
 
-                # Persist until reset
-                final_state = flips[-1][1]
+                final_state = flips[-1][1] if flips else init_state
                 final_op = 1 if final_state == 1 else 0
                 kf_overlay.append(f"{t_ant_end:.2f}% {{ opacity: {final_op}; }}")
-                kf_overlay.append(f"97.00% {{ opacity: 0; }}")
+                kf_overlay.append("97.00% { opacity: 0; }")
                 kf_overlay.append("100.00% { opacity: 0; }")
 
                 cell_styles.append(f"@keyframes {cid} {{ {' '.join(kf_overlay)} }}")
@@ -259,19 +244,18 @@ def render_langton_svg_v2(
                     f".{cid} {{ animation: {cid} {duration_s:.1f}s cubic-bezier(0.2, 0, 0, 1) infinite; transform-origin: {px + CELL_SIZE/2.0:.1f}px {py + CELL_SIZE/2.0:.1f}px; }}"
                 )
 
-                # Overlay element: rounded stroke with inner state indicator
                 stroke_color = palette["state_flip_on"] if cell.count > 0 else palette["accent"]
                 overlay_state_rects.append(
                     f'<rect class="state-overlay {cid}" x="{px:.1f}" y="{py:.1f}" width="{CELL_SIZE}" height="{CELL_SIZE}" rx="{CORNER_RADIUS}" ry="{CORNER_RADIUS}" fill="none" stroke="{stroke_color}" stroke-width="1.4"/>'
                 )
 
-    # 4. Ghost Grid for Out-of-Bounds Steps (Infinite plane glimpse)
+    # 4. Ghost Grid for Out-of-Bounds Steps
     ghost_rects: List[str] = []
     seen_oob: Set[Tuple[int, int]] = set()
     for step in simulation.steps:
         if not (0 <= step.x < weeks_count and 0 <= step.y < 7):
             pos = (step.x, step.y)
-            if pos not in seen_oob and (-3 <= step.x <= weeks_count + 3) and (-3 <= step.y <= 9):
+            if pos not in seen_oob and (-4 <= step.x <= weeks_count + 4) and (-4 <= step.y <= 10):
                 seen_oob.add(pos)
                 gpx, gpy = to_svg_xy(step.x, step.y)
                 ghost_rects.append(
@@ -300,11 +284,16 @@ def render_langton_svg_v2(
     ]
 
     # 6. Telemetry & Micro-Legend
-    hw_label = f" · HIGHWAY p={analysis.highway_period}" if (analysis and analysis.highway_detected) else ""
-    telemetry_left = f"LANGTON'S ANT V2 · {calendar.total_contributions} CONTRIBUIÇÕES REAIS{hw_label}"
-    telemetry_right = f"ORIGEM: W{simulation.start_x:02d}:D{simulation.start_y} [{DIR_NAMES[simulation.start_dir]}] · {total_steps} PASSOS"
+    w_start = simulation.window_start
+    w_end = simulation.window_end
+    window_label = f"PASSOS {w_start:04d}–{w_end:04d}"
+    if w_start > 0:
+        window_label += " [JANELA EVOLUÍDA]"
 
-    # Assemble CSS
+    hw_label = f" · HIGHWAY p={analysis.highway_period}" if (analysis and analysis.highway_detected) else ""
+    telemetry_left = f"LANGTON'S ANT V3 · {calendar.total_contributions} CONTRIBUIÇÕES REAIS{hw_label}"
+    telemetry_right = f"ORIGEM: W{simulation.start_x:02d}:D{simulation.start_y} [{DIR_NAMES[simulation.start_dir]}] · {window_label}"
+
     css = f"""
     svg {{
       font-family: {FONT_STACK};
@@ -358,24 +347,18 @@ def render_langton_svg_v2(
     }}
     """
 
-    # Micro-Ant Cybernetic Agent Graphic (Center at 0, 0, pointing North / up)
-    # Head with 2 sensory antennae and eyes
     ant_svg = f"""
     <g class="ant-agent">
-      <!-- Cybernetic Autonomous Agent (Ant V2) -->
-      <!-- Antennae -->
+      <!-- Cybernetic Autonomous Agent (Ant V3) -->
       <line class="ant-antenna" x1="-1.6" y1="-3.0" x2="-3.2" y2="-6.2"/>
       <line class="ant-antenna" x1="1.6" y1="-3.0" x2="3.2" y2="-6.2"/>
-      <!-- Body segments: Abdomen, Thorax, Head -->
       <path class="ant-body" d="M 0,-4.8 L 3.4,2.8 L 0,1.2 L -3.4,2.8 Z"/>
       <circle class="ant-body" cx="0" cy="4.2" r="2.2"/>
-      <!-- Sensor Eyes -->
       <circle class="ant-eye" cx="-1.2" cy="-1.8" r="0.75"/>
       <circle class="ant-eye" cx="1.2" cy="-1.8" r="0.75"/>
     </g>
     """
 
-    # Legend elements at bottom right
     legend_x = svg_width - PAD_RIGHT - 110.0
     legend_y = svg_height - PAD_BOTTOM + 9.0
     legend_elements = [
@@ -391,11 +374,10 @@ def render_langton_svg_v2(
         f'<text class="lbl-axis" x="{legend_x + 68.0:.1f}" y="{legend_y + 8.0:.1f}">Mais</text>'
     )
 
-    # Complete SVG Assembly
     svg_content = f"""<svg width="{svg_width}" height="{svg_height}" viewBox="0 0 {svg_width} {svg_height}" xmlns="http://www.w3.org/2000/svg">
-  <title>Langton's Ant × GitHub Contributions V2 ({theme.capitalize()})</title>
+  <title>Langton's Ant × GitHub Contributions V3 ({theme.capitalize()})</title>
   <desc>Deterministic Langton's Ant RL simulation seeded by real GitHub contributions. Total commits: {calendar.total_contributions}.</desc>
-  <!-- Generated by leozaow/leozaow Langton contribution renderer V2 -->
+  <!-- Generated by leozaow/leozaow Langton contribution renderer V3 -->
   <style>
     {css}
   </style>
@@ -429,7 +411,7 @@ def render_langton_svg_v2(
   <!-- Progressive Emergence Trail -->
   <path class="trail" d="{path_d}"/>
 
-  <!-- Autonomous Agent (Langton's Ant V2) -->
+  <!-- Autonomous Agent (Langton's Ant V3) -->
   {ant_svg}
 
   <!-- Footer Micro-Legend & Rule Telemetry -->

@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-"""Langton's Ant simulation engine for GitHub contribution graphs (V2).
+"""Langton's Ant simulation engine for GitHub contribution graphs (V3).
 
 Implements the classic 2D Langton's Ant automaton with RL rules on an infinite
 sparse grid, seeded by a GitHub contribution calendar.
+Supports deep multi-thousand step simulations and window slice execution.
 """
 
 from __future__ import annotations
 
+import hashlib
 import math
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Set, Tuple
@@ -66,18 +68,24 @@ class SimulationResult:
     start_x: int
     start_y: int
     start_dir: int
+    window_start: int
+    window_end: int
     steps: List[AntStep]
-    final_grid: Dict[Tuple[int, int], int]
+    initial_grid_snapshot: Dict[Tuple[int, int], int]  # grid state at window_start
+    final_grid_snapshot: Dict[Tuple[int, int], int]    # grid state at window_end
     visited_cells: Set[Tuple[int, int]]
     highway_detected: bool = False
     highway_period: int = 0
+    highway_dx: int = 0
+    highway_dy: int = 0
+    highway_verified_cycles: int = 0
+    highway_start_step: Optional[int] = None
 
 
 class LangtonSimulation:
     """Simulates Langton's Ant on an infinite sparse plane seeded by a contribution calendar."""
 
     def __init__(self, initial_grid: Optional[Dict[Tuple[int, int], int]] = None):
-        # Sparse grid storing binary state: 0 (inactive/white) or 1 (active/black)
         self.grid: Dict[Tuple[int, int], int] = dict(initial_grid) if initial_grid else {}
 
     def get_state(self, x: int, y: int) -> int:
@@ -96,114 +104,164 @@ class LangtonSimulation:
         start_dir: int,
         max_steps: int,
         calendar: Optional[CalendarData] = None,
+        record_window: Optional[Tuple[int, int]] = None,
     ) -> SimulationResult:
         """Runs the simulation for max_steps from (start_x, start_y) facing start_dir.
 
-        Classic RL rule:
-        - At cell with state 0: Turn RIGHT (+1 mod 4), flip to 1, move forward 1 step.
-        - At cell with state 1: Turn LEFT (-1 mod 4), flip to 0, move forward 1 step.
+        If record_window is given as (w_start, w_end), steps are only recorded in that range
+        to preserve CPU memory during multi-thousand deep simulations.
         """
         x = start_x
         y = start_y
         direction = start_dir % 4
 
+        w_start, w_end = record_window if record_window else (0, max_steps)
         steps: List[AntStep] = []
         visited_cells: Set[Tuple[int, int]] = set()
+        initial_window_grid: Dict[Tuple[int, int], int] = {}
+        all_recorded_positions: List[Tuple[int, int, int]] = []  # (x, y, dir_after) for highway check
 
         for step_idx in range(max_steps):
-            visited_cells.add((x, y))
+            if step_idx == w_start:
+                initial_window_grid = dict(self.grid)
+
             state_before = self.get_state(x, y)
             dir_before = direction
 
-            # RL rule:
+            # Classic RL rule:
             if state_before == 0:
                 turn = "R"
-                dir_after = (dir_before + 1) % 4
+                dir_after = (dir_before + 1) & 3
                 state_after = 1
             else:
                 turn = "L"
-                dir_after = (dir_before - 1) % 4
+                dir_after = (dir_before - 1) & 3
                 state_after = 0
 
-            # Flip cell in the infinite sparse grid
             self.set_state(x, y, state_after)
 
-            # Metadata for calendar tracking
-            is_cal = False
-            is_commit = False
-            c_count = 0
-            if calendar:
-                cell = calendar.cells.get((x, y))
-                if cell:
-                    is_cal = True
-                    is_commit = cell.count > 0
-                    c_count = cell.count
+            if w_start <= step_idx < w_end:
+                visited_cells.add((x, y))
+                is_cal = False
+                is_commit = False
+                c_count = 0
+                if calendar:
+                    cell = calendar.cells.get((x, y))
+                    if cell:
+                        is_cal = True
+                        is_commit = cell.count > 0
+                        c_count = cell.count
 
-            steps.append(
-                AntStep(
-                    step_index=step_idx,
-                    x=x,
-                    y=y,
-                    direction_before=dir_before,
-                    turn_direction=turn,
-                    direction_after=dir_after,
-                    cell_state_before=state_before,
-                    cell_state_after=state_after,
-                    is_calendar_cell=is_cal,
-                    is_original_commit=is_commit,
-                    commit_count=c_count,
+                steps.append(
+                    AntStep(
+                        step_index=step_idx,
+                        x=x,
+                        y=y,
+                        direction_before=dir_before,
+                        turn_direction=turn,
+                        direction_after=dir_after,
+                        cell_state_before=state_before,
+                        cell_state_after=state_after,
+                        is_calendar_cell=is_cal,
+                        is_original_commit=is_commit,
+                        commit_count=c_count,
+                    )
                 )
-            )
 
-            # Move to next cell
+            # Record for highway checking
+            all_recorded_positions.append((x, y, dir_after))
+
             direction = dir_after
             dx, dy = DIRECTIONS[direction]
             x += dx
             y += dy
 
-        # Detect potential highway (periodicity by translation)
-        highway_detected, period = detect_highway(steps)
+        final_window_grid = dict(self.grid)
+
+        # Rigorous Highway Detection
+        hw_detected, hw_period, hw_dx, hw_dy, hw_cycles, hw_start = detect_highway_rigorous(
+            all_recorded_positions, min_repeats=3
+        )
 
         return SimulationResult(
             start_x=start_x,
             start_y=start_y,
             start_dir=start_dir % 4,
+            window_start=w_start,
+            window_end=w_end,
             steps=steps,
-            final_grid=self.grid,
+            initial_grid_snapshot=initial_window_grid,
+            final_grid_snapshot=final_window_grid,
             visited_cells=visited_cells,
-            highway_detected=highway_detected,
-            highway_period=period,
+            highway_detected=hw_detected,
+            highway_period=hw_period,
+            highway_dx=hw_dx,
+            highway_dy=hw_dy,
+            highway_verified_cycles=hw_cycles,
+            highway_start_step=hw_start,
         )
 
 
-def detect_highway(steps: List[AntStep], min_repeats: int = 2) -> Tuple[bool, int]:
-    """Detects if the trajectory has entered a periodic translational highway (e.g. period 104)."""
-    n = len(steps)
-    if n < 208:
-        return False, 0
+def detect_highway_rigorous(
+    history: List[Tuple[int, int, int]],  # (x, y, dir_after)
+    min_repeats: int = 3,
+) -> Tuple[bool, int, int, int, int, Optional[int]]:
+    """Rigorously detects translational highway with at least min_repeats consecutive periods.
 
+    Returns: (detected, period, dx, dy, verified_cycles, start_step)
+    """
+    n = len(history)
     for p in [104, 52]:
-        if n < p * min_repeats:
+        needed = p * min_repeats
+        if n < needed:
             continue
-        dx_base = steps[-1].x - steps[-1 - p].x
-        dy_base = steps[-1].y - steps[-1 - p].y
-        if dx_base == 0 and dy_base == 0:
-            continue  # Pure cycle, not highway
 
-        is_highway = True
-        for i in range(n - 1, n - 1 - p, -1):
-            dx = steps[i].x - steps[i - p].x
-            dy = steps[i].y - steps[i - p].y
-            dir1 = steps[i].direction_after
-            dir2 = steps[i - p].direction_after
-            if dx != dx_base or dy != dy_base or dir1 != dir2:
-                is_highway = False
+        # Check last cycle displacement
+        dx_base = history[-1][0] - history[-1 - p][0]
+        dy_base = history[-1][1] - history[-1 - p][1]
+        if dx_base == 0 and dy_base == 0:
+            continue  # stationary cycle
+
+        # Check all steps in the last min_repeats cycles
+        valid = True
+        for cycle in range(1, min_repeats):
+            offset = cycle * p
+            for i in range(n - 1 - offset, n - 1 - offset - p, -1):
+                if i - p < 0:
+                    valid = False
+                    break
+                dx = history[i][0] - history[i - p][0]
+                dy = history[i][1] - history[i - p][1]
+                dir1 = history[i][2]
+                dir2 = history[i - p][2]
+                if dx != dx_base or dy != dy_base or dir1 != dir2:
+                    valid = False
+                    break
+            if not valid:
                 break
 
-        if is_highway:
-            return True, p
+        if valid:
+            # Count total verified consecutive cycles backward
+            total_cycles = min_repeats
+            curr_tail = n - 1 - (min_repeats * p)
+            while curr_tail - p >= 0:
+                cycle_ok = True
+                for j in range(curr_tail, curr_tail - p, -1):
+                    dx = history[j][0] - history[j - p][0]
+                    dy = history[j][1] - history[j - p][1]
+                    if dx != dx_base or dy != dy_base or history[j][2] != history[j - p][2]:
+                        cycle_ok = False
+                        break
+                if cycle_ok:
+                    total_cycles += 1
+                    curr_tail -= p
+                else:
+                    break
 
-    return False, 0
+            start_estimate = curr_tail
+            return True, p, dx_base, dy_base, total_cycles, start_estimate
+
+    return False, 0, 0, 0, 0, None
 
 
 def parse_contribution_calendar(payload: dict) -> CalendarData:
@@ -259,11 +317,7 @@ def seed_grid_from_calendar(calendar: CalendarData) -> Dict[Tuple[int, int], int
 
 
 def get_candidate_origins(calendar: CalendarData) -> List[Tuple[int, int]]:
-    """Deterministically identifies candidate starting positions.
-
-    Tests all active contribution cells (up to 40), geometric center, centroid,
-    and high-density cluster centers.
-    """
+    """Deterministically identifies candidate starting positions across all active cells and key centers."""
     active_cells = [(pos, cell) for pos, cell in calendar.cells.items() if cell.count > 0]
     candidates: List[Tuple[int, int]] = []
 
@@ -275,7 +329,7 @@ def get_candidate_origins(calendar: CalendarData) -> List[Tuple[int, int]]:
         candidates.append((max_w // 2 + 2, 3))
         return list(dict.fromkeys(candidates))
 
-    # All active cells in chronological order
+    # All active cells sorted by date
     sorted_active = sorted(active_cells, key=lambda it: it[1].date)
     for pos, _ in sorted_active:
         candidates.append(pos)
@@ -290,55 +344,3 @@ def get_candidate_origins(calendar: CalendarData) -> List[Tuple[int, int]]:
         candidates.append((cx, cy))
 
     return list(dict.fromkeys(candidates))
-
-
-def select_best_simulation(
-    calendar: CalendarData,
-    steps_count: int = 240,
-    deep_horizon: int = 10000,
-) -> Tuple[SimulationResult, "DeepAnalysis"]:
-    """Selects the best origin and trajectory using multi-scale simulation and deterministic scoring."""
-    from scripts.langton_analysis import analyze_deep_simulation, score_deep_candidate
-
-    base_grid = seed_grid_from_calendar(calendar)
-    candidates = get_candidate_origins(calendar)
-
-    best_score = -float("inf")
-    best_sim: Optional[SimulationResult] = None
-    best_analysis: Optional["DeepAnalysis"] = None
-    best_candidate_key = None
-
-    for cand_idx, (cx, cy) in enumerate(candidates):
-        for direction in [0, 1, 2, 3]:  # N, E, S, W
-            # Run deep simulation
-            sim = LangtonSimulation(initial_grid=base_grid)
-            res = sim.run(start_x=cx, start_y=cy, start_dir=direction, max_steps=deep_horizon, calendar=calendar)
-            
-            score = score_deep_candidate(res, calendar, display_steps=steps_count)
-
-            # Deterministic tie-breaker
-            key = (score, -cand_idx, -direction)
-            if best_candidate_key is None or key > best_candidate_key:
-                best_candidate_key = key
-                best_score = score
-                # Create visual slice result
-                visual_sim = SimulationResult(
-                    start_x=res.start_x,
-                    start_y=res.start_y,
-                    start_dir=res.start_dir,
-                    steps=res.steps[:steps_count],
-                    final_grid=res.final_grid,
-                    visited_cells=set((s.x, s.y) for s in res.steps[:steps_count]),
-                    highway_detected=res.highway_detected,
-                    highway_period=res.highway_period,
-                )
-                best_sim = visual_sim
-                best_analysis = analyze_deep_simulation(calendar, res, display_steps=steps_count)
-
-    if best_sim is None or best_analysis is None:
-        sim = LangtonSimulation(initial_grid=base_grid)
-        res = sim.run(start_x=max_w // 2, start_y=3, start_dir=1, max_steps=steps_count, calendar=calendar)
-        analysis = analyze_deep_simulation(calendar, res, display_steps=steps_count)
-        return res, analysis
-
-    return best_sim, best_analysis

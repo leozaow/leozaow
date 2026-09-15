@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""CLI tool to fetch GitHub contribution data and generate Langton's Ant SVGs (V2).
+"""CLI tool to fetch GitHub contribution data and generate Langton's Ant SVGs (V3).
 
-Supports both production mode (querying GitHub GraphQL API with GITHUB_TOKEN)
-and local/test mode (reading from a JSON fixture file).
+Supports production mode (GraphQL) and fixture mode, deep multi-thousand step simulation,
+sliding window discovery, and deterministic daily variability controlled by date and calendar seed.
 """
 
 from __future__ import annotations
@@ -12,8 +12,10 @@ import json
 import os
 import sys
 import urllib.request
+from datetime import datetime
 from pathlib import Path
 from typing import Optional, Tuple
+from zoneinfo import ZoneInfo
 
 # Ensure repository root is in sys.path
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -24,12 +26,12 @@ from scripts.langton_sim import (
     CalendarData,
     SimulationResult,
     parse_contribution_calendar,
-    select_best_simulation,
 )
-from scripts.langton_analysis import DeepAnalysis
-from scripts.langton_render import render_langton_svg_v2
+from scripts.langton_analysis import DeepAnalysis, select_daily_simulation
+from scripts.langton_render import render_langton_svg_v3
 
 API_URL = "https://api.github.com/graphql"
+DEFAULT_TZ = ZoneInfo("America/Sao_Paulo")
 
 GRAPHQL_QUERY = """
 query($login: String!) {
@@ -60,7 +62,7 @@ def fetch_contributions_graphql(token: str, username: str) -> dict:
         headers={
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
-            "User-Agent": "leozaow-langton-renderer-v2",
+            "User-Agent": "leozaow-langton-renderer-v3",
         },
         method="POST",
     )
@@ -81,28 +83,32 @@ def fetch_contributions_graphql(token: str, username: str) -> dict:
 def generate_all(
     calendar_payload: dict,
     output_dir: Path,
+    date_str: str,
     steps_count: int = 240,
     deep_horizon: int = 10000,
+    pool_capacity: int = 12,
     duration_s: float = 16.0,
     debug_json: bool = False,
     dry_run: bool = False,
 ) -> Tuple[Path, Path]:
-    """Runs deep simulation and outputs the V2 light and dark SVGs."""
+    """Runs deep simulation and outputs the V3 light and dark SVGs."""
     calendar = parse_contribution_calendar(calendar_payload)
-    simulation, analysis = select_best_simulation(
-        calendar,
+    simulation, analysis = select_daily_simulation(
+        calendar=calendar,
+        date_str=date_str,
         steps_count=steps_count,
         deep_horizon=deep_horizon,
+        pool_capacity=pool_capacity,
     )
 
-    svg_light = render_langton_svg_v2(
+    svg_light = render_langton_svg_v3(
         calendar=calendar,
         simulation=simulation,
         analysis=analysis,
         theme="light",
         duration_s=duration_s,
     )
-    svg_dark = render_langton_svg_v2(
+    svg_dark = render_langton_svg_v3(
         calendar=calendar,
         simulation=simulation,
         analysis=analysis,
@@ -116,15 +122,18 @@ def generate_all(
     active_days = sum(1 for c in calendar.cells.values() if c.count > 0)
     visible_in_cal = sum(1 for s in simulation.steps if 0 <= s.x < calendar.weeks_count and 0 <= s.y < 7)
 
-    # Detailed structured logs required by Section 4
-    print("=== Langton's Ant V2 Generation Telemetry ===")
+    print("=== Langton's Ant V3 Generation Telemetry ===")
     print(f"totalContributions:              {calendar.total_contributions}")
     print(f"activeDays:                      {active_days}")
     print(f"calendarStart:                   {calendar.min_date}")
     print(f"calendarEnd:                     {calendar.max_date}")
+    print(f"targetDate:                      {date_str}")
+    print(f"dailySeed:                       {analysis.daily_seed[:16]}...")
+    print(f"candidatePoolSize:               {analysis.pool_size}")
+    print(f"selectedCandidateRank:           #{analysis.selected_rank + 1} of {analysis.pool_size}")
     print(f"startPosition:                   W{simulation.start_x:02d}:D{simulation.start_y}")
-    print(f"startDirection:                  {simulation.start_dir}")
-    print(f"simulationSteps:                 {steps_count}")
+    print(f"startDirection:                  {simulation.start_dir} [{analysis.candidate_direction}]")
+    print(f"windowSlice:                     steps [{simulation.window_start}..{simulation.window_end}]")
     print(f"deepHorizonSimulated:            {analysis.total_simulated}")
     print(f"visibleSteps:                    {visible_in_cal}")
     print(f"uniqueVisited:                   {len(simulation.visited_cells)}")
@@ -132,6 +141,10 @@ def generate_all(
     print(f"highwayDetected:                 {analysis.highway_detected}")
     if analysis.highway_detected:
         print(f"highwayPeriod:                   {analysis.highway_period}")
+        print(f"highwayVector:                   ({analysis.highway_dx}, {analysis.highway_dy})")
+        print(f"highwayVerifiedCycles:           {analysis.highway_verified_cycles}")
+        if analysis.highway_start_step is not None:
+            print(f"highwayStartStep:                {analysis.highway_start_step}")
     print("=============================================")
 
     if not dry_run:
@@ -141,28 +154,43 @@ def generate_all(
 
         if debug_json:
             debug_info = {
-                "totalContributions": calendar.total_contributions,
-                "activeDays": active_days,
-                "calendarStart": calendar.min_date,
-                "calendarEnd": calendar.max_date,
-                "stepsSimulated": analysis.total_simulated,
-                "displaySteps": steps_count,
-                "start": {
-                    "x": simulation.start_x,
-                    "y": simulation.start_y,
-                    "dir": simulation.start_dir,
+                "version": 3,
+                "calendar": {
+                    "totalContributions": calendar.total_contributions,
+                    "activeDays": active_days,
+                    "calendarStart": calendar.min_date,
+                    "calendarEnd": calendar.max_date,
                 },
-                "visibleSteps": visible_in_cal,
-                "uniqueVisited": len(simulation.visited_cells),
-                "activeContributionCellsVisited": analysis.commits_visited,
-                "boundingBox": {
-                    "min_x": analysis.bounding_box[0],
-                    "max_x": analysis.bounding_box[1],
-                    "min_y": analysis.bounding_box[2],
-                    "max_y": analysis.bounding_box[3],
+                "selection": {
+                    "targetDate": date_str,
+                    "dailySeed": analysis.daily_seed,
+                    "poolSize": analysis.pool_size,
+                    "selectedRank": analysis.selected_rank,
+                    "origin": {"x": simulation.start_x, "y": simulation.start_y},
+                    "direction": analysis.candidate_direction,
+                    "windowStart": simulation.window_start,
+                    "windowEnd": simulation.window_end,
                 },
-                "highwayDetected": analysis.highway_detected,
-                "highwayPeriod": analysis.highway_period,
+                "simulation": {
+                    "deepHorizonSimulated": analysis.total_simulated,
+                    "displaySteps": steps_count,
+                    "visibleSteps": visible_in_cal,
+                    "uniqueVisited": len(simulation.visited_cells),
+                    "activeContributionCellsVisited": analysis.commits_visited,
+                    "boundingBox": {
+                        "min_x": analysis.bounding_box[0],
+                        "max_x": analysis.bounding_box[1],
+                        "min_y": analysis.bounding_box[2],
+                        "max_y": analysis.bounding_box[3],
+                    },
+                },
+                "highway": {
+                    "detected": analysis.highway_detected,
+                    "period": analysis.highway_period,
+                    "vector": [analysis.highway_dx, analysis.highway_dy],
+                    "verifiedCycles": analysis.highway_verified_cycles,
+                    "startEstimate": analysis.highway_start_step,
+                },
                 "phases": [
                     {
                         "start": p.start_step,
@@ -181,17 +209,24 @@ def generate_all(
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Generate Langton's Ant contribution SVGs V2.")
+    parser = argparse.ArgumentParser(description="Generate Langton's Ant contribution SVGs V3.")
     parser.add_argument("--input", "-i", type=Path, help="Path to input JSON fixture.")
     parser.add_argument("--output-dir", "-o", type=Path, default=Path("dist"), help="Directory to save SVGs.")
     parser.add_argument("--username", "-u", type=str, help="GitHub username.")
+    parser.add_argument("--date", "-d", type=str, help="Date string YYYY-MM-DD for deterministic daily variability.")
     parser.add_argument("--steps", type=int, default=240, help="Number of display simulation steps.")
     parser.add_argument("--deep-horizon", type=int, default=10000, help="Deep simulation horizon.")
+    parser.add_argument("--pool-size", type=int, default=12, help="Diverse candidate pool size.")
     parser.add_argument("--duration", type=float, default=16.0, help="Animation loop duration in seconds.")
     parser.add_argument("--debug-json", action="store_true", help="Save debug metadata JSON.")
     parser.add_argument("--dry-run", action="store_true", help="Simulate without writing files.")
 
     args = parser.parse_args()
+
+    # Determine date
+    target_date = args.date
+    if not target_date:
+        target_date = datetime.now(DEFAULT_TZ).strftime("%Y-%m-%d")
 
     if args.input:
         if not args.input.is_file():
@@ -214,8 +249,10 @@ def main() -> int:
     light_path, dark_path = generate_all(
         calendar_payload=payload,
         output_dir=args.output_dir,
+        date_str=target_date,
         steps_count=args.steps,
         deep_horizon=args.deep_horizon,
+        pool_capacity=args.pool_size,
         duration_s=args.duration,
         debug_json=args.debug_json,
         dry_run=args.dry_run,
@@ -224,7 +261,7 @@ def main() -> int:
     if not args.dry_run:
         light_size = light_path.stat().st_size
         dark_size = dark_path.stat().st_size
-        print(f"Generated successfully:")
+        print("Generated successfully:")
         print(f"  - Light SVG: {light_path} ({light_size:,} bytes)")
         print(f"  - Dark SVG:  {dark_path} ({dark_size:,} bytes)")
 
