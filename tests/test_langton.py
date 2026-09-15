@@ -1,4 +1,4 @@
-"""Comprehensive test suite for Langton's Ant × GitHub Contributions engine (V3)."""
+"""Comprehensive test suite for Langton's Ant × GitHub Contributions engine (V4)."""
 
 import hashlib
 import json
@@ -28,7 +28,7 @@ from scripts.generate_langton import generate_all
 FIXTURE_PATH = Path(__file__).parent / "fixtures" / "contributions.json"
 
 
-class TestLangtonEngineV3(unittest.TestCase):
+class TestLangtonEngineV4(unittest.TestCase):
     def setUp(self):
         with open(FIXTURE_PATH, "r", encoding="utf-8") as f:
             self.fixture_data = json.load(f)
@@ -122,12 +122,20 @@ class TestLangtonEngineV3(unittest.TestCase):
 
     def test_window_analysis_can_select_evolved_window(self):
         """Tests that candidate window selection can discover and select windows where start > 0."""
-        pool = find_top_diverse_pool(self.calendar, deep_horizon=3000, window_size=240, window_stride=120)
+        pool = find_top_diverse_pool(self.calendar, deep_horizon=3000, window_size=240, window_stride=100)
         self.assertGreater(len(pool), 0)
         has_evolved_window = any(cand.window_start > 0 for cand in pool)
         self.assertTrue(has_evolved_window, "Pool should discover evolved windows (start > 0) in deep simulation.")
 
-    def test_deterministic_byte_for_byte_svg_v3(self):
+    def test_pool_diversity(self):
+        """Tests that candidate pool contains distinct origins or distinct windows."""
+        pool = find_top_diverse_pool(self.calendar, deep_horizon=3000, window_size=240, window_stride=100, pool_capacity=12)
+        self.assertGreaterEqual(len(pool), 4)
+        origins = set(c.origin for c in pool)
+        # Verify that multiple origins are explored
+        self.assertGreaterEqual(len(origins), 3)
+
+    def test_deterministic_byte_for_byte_svg_v4(self):
         """Ensures two independent renders of the same fixture and date produce bitwise identical SVGs."""
         sim, analysis = select_daily_simulation(self.calendar, date_str="2026-09-15", steps_count=240, deep_horizon=3000)
         svg1 = render_langton_svg_v3(self.calendar, sim, analysis, theme="light")
@@ -159,6 +167,23 @@ class TestLangtonEngineV3(unittest.TestCase):
             self.assertNotIn("gho_", svg)
             self.assertNotIn("ghp_", svg)
             self.assertNotIn("token", svg.lower())
+
+    def test_no_ghost_grid_or_rl_rule_microaulas_in_svg(self):
+        """V4 quality requirement: no ghost cells, no RL rule formulas or dashboard text."""
+        sim, analysis = select_daily_simulation(self.calendar, date_str="2026-09-15", steps_count=240, deep_horizon=3000)
+        svg = render_langton_svg_v3(self.calendar, sim, analysis, theme="light")
+
+        # Ghost grid removed
+        self.assertNotIn('id="ghost-grid"', svg)
+        self.assertNotIn('class="ghost-cell"', svg)
+
+        # Technical/microaula text removed
+        self.assertNotIn("Regra RL:", svg)
+        self.assertNotIn("Grid Infinito", svg)
+        self.assertNotIn("JANELA EVOLUÍDA", svg)
+
+        # Calendar clip path present
+        self.assertIn('clip-path="url(#calendar-clip)"', svg)
 
     def test_progressive_trail_and_dynamic_overlays_presence(self):
         """Verifies that the trail animates via stroke-dashoffset (not pre-drawn)

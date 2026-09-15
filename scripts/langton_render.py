@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
-"""SVG renderer for Langton's Ant × GitHub Contributions (V3).
+"""SVG renderer for Langton's Ant × GitHub Contributions (V4).
 
-Generates a self-contained, high-fidelity, living animated SVG (light & dark mode)
-featuring:
-1. Dual-layer visualization: original GitHub contributions + dynamic Langton state overlays.
-2. Progressive trail emergence via synchronized CSS dashoffset (no pre-drawn path).
-3. Cybernetic micro-ant with visible orientation, head, body, and sensory pulse.
-4. Active cell interaction with persisting state flips and glow proportional to commits.
-5. Rich metadata telemetry reflecting the exact simulation window slice and daily seed.
-6. 100% deterministic, standalone XML, lightweight, zero JavaScript.
+Renders a pure, native GitHub contribution calendar animated by Langton's Ant:
+1. Native GitHub contribution calendar styling, geometry, and font metrics.
+2. Clean header: minimal and dignified (no microaulas, no RL formulas, no technical noise).
+3. Complete elimination of ghost cells / out-of-bounds dashed rects that caused artifacts.
+4. Exact calendar clip path guaranteeing no trail or overlay escapes the 53×7 calendar bounds.
+5. Subtle, refined overlays: thin elegant strokes, gentle glow, no heavy blue boxes.
+6. Progressive trail emergence via synchronized CSS dashoffset.
+7. Autonomous agent (ant) with cybernetic silhouette.
+8. Native GitHub legend ("Menos" / "Mais").
+9. 100% deterministic, standalone XML, lightweight, zero JavaScript.
 """
 
 from __future__ import annotations
@@ -31,18 +33,18 @@ CELL_GAP = 3.0
 STEP_PITCH = CELL_SIZE + CELL_GAP  # 14.0 px
 CORNER_RADIUS = 2.0
 
-# Layout dimensions with extra room for ghost bounds and elegant headers
-PAD_LEFT = 34.0
-PAD_TOP = 32.0
+# Layout dimensions: refined margins matching native GitHub contribution graph
+PAD_LEFT = 32.0
+PAD_TOP = 28.0
 PAD_RIGHT = 16.0
-PAD_BOTTOM = 26.0
+PAD_BOTTOM = 22.0
 
-# Palette specifications
+# Palette specifications: native GitHub colors
 LIGHT_PALETTE = {
     "bg": "#ffffff",
     "border": "#d0d7de",
-    "text": "#24292f",
-    "text_muted": "#57606a",
+    "text": "#1f2328",
+    "text_muted": "#656d76",
     "cell_0": "#ebedf0",
     "cell_1": "#9be9a8",
     "cell_2": "#40c463",
@@ -50,20 +52,18 @@ LIGHT_PALETTE = {
     "cell_4": "#216e39",
     "ant_body": "#0969da",
     "ant_eye": "#ffffff",
-    "ant_glow": "rgba(9, 105, 218, 0.45)",
+    "ant_glow": "rgba(9, 105, 218, 0.40)",
     "trail": "#0969da",
-    "trail_glow": "rgba(9, 105, 218, 0.25)",
+    "trail_glow": "rgba(9, 105, 218, 0.20)",
     "state_flip_on": "#1f883d",
-    "state_flip_off": "#afb8c1",
     "accent": "#0969da",
-    "ghost_cell": "rgba(235, 237, 240, 0.6)",
 }
 
 DARK_PALETTE = {
     "bg": "#0d1117",
     "border": "#30363d",
-    "text": "#e6edf3",
-    "text_muted": "#7d8590",
+    "text": "#f0f6fc",
+    "text_muted": "#848d97",
     "cell_0": "#161b22",
     "cell_1": "#0e4429",
     "cell_2": "#006d32",
@@ -71,18 +71,16 @@ DARK_PALETTE = {
     "cell_4": "#39d353",
     "ant_body": "#58a6ff",
     "ant_eye": "#ffffff",
-    "ant_glow": "rgba(88, 166, 255, 0.55)",
+    "ant_glow": "rgba(88, 166, 255, 0.45)",
     "trail": "#58a6ff",
-    "trail_glow": "rgba(88, 166, 255, 0.35)",
+    "trail_glow": "rgba(88, 166, 255, 0.25)",
     "state_flip_on": "#3fb950",
-    "state_flip_off": "#30363d",
     "accent": "#58a6ff",
-    "ghost_cell": "rgba(22, 27, 34, 0.6)",
 }
 
 MONTH_NAMES_PT = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
 WEEKDAY_LABELS = [(1, "Seg"), (3, "Qua"), (5, "Sex")]
-FONT_STACK = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Ubuntu, 'Helvetica Neue', Helvetica, Arial, sans-serif"
+FONT_STACK = "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif"
 
 
 def get_cell_level_index(level: str) -> int:
@@ -103,7 +101,7 @@ def render_langton_svg_v3(
     theme: str = "light",
     duration_s: float = 16.0,
 ) -> str:
-    """Renders the V3 standalone animated SVG for Langton's Ant with window slice tracking."""
+    """Renders the V4 standalone animated SVG for Langton's Ant with native GitHub styling."""
     palette = DARK_PALETTE if theme == "dark" else LIGHT_PALETTE
     weeks_count = max(calendar.weeks_count, 53)
 
@@ -160,7 +158,7 @@ def render_langton_svg_v3(
     )
 
     trail_keyframes.append(f"0.00% {{ stroke-dashoffset: {total_trail_len:.1f}; opacity: 0; }}")
-    trail_keyframes.append(f"{t_ant_start:.2f}% {{ stroke-dashoffset: {total_trail_len:.1f}; opacity: 0.85; }}")
+    trail_keyframes.append(f"{t_ant_start:.2f}% {{ stroke-dashoffset: {total_trail_len:.1f}; opacity: 0.65; }}")
 
     for i, step in enumerate(simulation.steps):
         frac = i / (total_steps - 1) if total_steps > 1 else 1.0
@@ -173,7 +171,7 @@ def render_langton_svg_v3(
         )
         current_offset = total_trail_len - cum_lengths[i]
         trail_keyframes.append(
-            f"{t_pct:.2f}% {{ stroke-dashoffset: {current_offset:.1f}; opacity: 0.85; }}"
+            f"{t_pct:.2f}% {{ stroke-dashoffset: {current_offset:.1f}; opacity: 0.65; }}"
         )
 
     # Wrap & Fade
@@ -181,11 +179,11 @@ def render_langton_svg_v3(
     ant_keyframes.append("97.00% { opacity: 0; }")
     ant_keyframes.append("100.00% { opacity: 0; }")
 
-    trail_keyframes.append(f"{t_ant_end:.2f}% {{ stroke-dashoffset: 0; opacity: 0.85; }}")
+    trail_keyframes.append(f"{t_ant_end:.2f}% {{ stroke-dashoffset: 0; opacity: 0.65; }}")
     trail_keyframes.append("97.00% { stroke-dashoffset: 0; opacity: 0; }")
     trail_keyframes.append(f"100.00% {{ stroke-dashoffset: {total_trail_len:.1f}; opacity: 0; }}")
 
-    # 3. Dynamic Cell State & Overlays (Persistent Flips)
+    # 3. Dynamic Cell State & Overlays (Refined subtle stroke)
     cell_steps_map: Dict[Tuple[int, int], List[Tuple[float, int, int]]] = {}
     for i, step in enumerate(simulation.steps):
         frac = i / (total_steps - 1) if total_steps > 1 else 1.0
@@ -220,49 +218,36 @@ def render_langton_svg_v3(
                 anim_cell_counter += 1
 
                 kf_overlay: List[str] = []
-                init_op = 1 if init_state == 1 else 0
-                kf_overlay.append(f"0.00% {{ opacity: {init_op}; transform: scale(1.0); }}")
-                kf_overlay.append(f"{t_ant_start:.2f}% {{ opacity: {init_op}; transform: scale(1.0); }}")
+                init_op = 0.85 if init_state == 1 else 0.0
+                kf_overlay.append(f"0.00% {{ opacity: {init_op:.2f}; }}")
+                kf_overlay.append(f"{t_ant_start:.2f}% {{ opacity: {init_op:.2f}; }}")
 
                 for t_pct, state_after, _ in flips:
                     t_before = max(t_ant_start, t_pct - 0.05)
                     if state_after == 1:
-                        kf_overlay.append(f"{t_before:.2f}% {{ opacity: 0; transform: scale(0.85); }}")
-                        kf_overlay.append(f"{t_pct:.2f}% {{ opacity: 1; transform: scale(1.0); }}")
+                        kf_overlay.append(f"{t_before:.2f}% {{ opacity: 0.0; }}")
+                        kf_overlay.append(f"{t_pct:.2f}% {{ opacity: 0.9; }}")
                     else:
-                        kf_overlay.append(f"{t_before:.2f}% {{ opacity: 1; transform: scale(1.0); }}")
-                        kf_overlay.append(f"{t_pct:.2f}% {{ opacity: 0; transform: scale(0.85); }}")
+                        kf_overlay.append(f"{t_before:.2f}% {{ opacity: 0.9; }}")
+                        kf_overlay.append(f"{t_pct:.2f}% {{ opacity: 0.0; }}")
 
                 final_state = flips[-1][1] if flips else init_state
-                final_op = 1 if final_state == 1 else 0
-                kf_overlay.append(f"{t_ant_end:.2f}% {{ opacity: {final_op}; }}")
-                kf_overlay.append("97.00% { opacity: 0; }")
-                kf_overlay.append("100.00% { opacity: 0; }")
+                final_op = 0.9 if final_state == 1 else 0.0
+                kf_overlay.append(f"{t_ant_end:.2f}% {{ opacity: {final_op:.2f}; }}")
+                kf_overlay.append("97.00% { opacity: 0.0; }")
+                kf_overlay.append("100.00% { opacity: 0.0; }")
 
                 cell_styles.append(f"@keyframes {cid} {{ {' '.join(kf_overlay)} }}")
                 cell_styles.append(
-                    f".{cid} {{ animation: {cid} {duration_s:.1f}s cubic-bezier(0.2, 0, 0, 1) infinite; transform-origin: {px + CELL_SIZE/2.0:.1f}px {py + CELL_SIZE/2.0:.1f}px; }}"
+                    f".{cid} {{ animation: {cid} {duration_s:.1f}s cubic-bezier(0.2, 0, 0, 1) infinite; }}"
                 )
 
                 stroke_color = palette["state_flip_on"] if cell.count > 0 else palette["accent"]
                 overlay_state_rects.append(
-                    f'<rect class="state-overlay {cid}" x="{px:.1f}" y="{py:.1f}" width="{CELL_SIZE}" height="{CELL_SIZE}" rx="{CORNER_RADIUS}" ry="{CORNER_RADIUS}" fill="none" stroke="{stroke_color}" stroke-width="1.4"/>'
+                    f'<rect class="state-overlay {cid}" x="{px:.1f}" y="{py:.1f}" width="{CELL_SIZE}" height="{CELL_SIZE}" rx="{CORNER_RADIUS}" ry="{CORNER_RADIUS}" fill="none" stroke="{stroke_color}" stroke-width="1.0"/>'
                 )
 
-    # 4. Ghost Grid for Out-of-Bounds Steps
-    ghost_rects: List[str] = []
-    seen_oob: Set[Tuple[int, int]] = set()
-    for step in simulation.steps:
-        if not (0 <= step.x < weeks_count and 0 <= step.y < 7):
-            pos = (step.x, step.y)
-            if pos not in seen_oob and (-4 <= step.x <= weeks_count + 4) and (-4 <= step.y <= 10):
-                seen_oob.add(pos)
-                gpx, gpy = to_svg_xy(step.x, step.y)
-                ghost_rects.append(
-                    f'<rect class="ghost-cell" x="{gpx:.1f}" y="{gpy:.1f}" width="{CELL_SIZE}" height="{CELL_SIZE}" rx="{CORNER_RADIUS}" ry="{CORNER_RADIUS}"/>'
-                )
-
-    # 5. Month & Weekday Labels
+    # 4. Month & Weekday Labels (Authentic GitHub placement)
     month_labels: List[Tuple[float, str]] = []
     last_month = None
     for w in range(weeks_count):
@@ -274,7 +259,7 @@ def render_langton_svg_v3(
                 last_month = m
 
     month_elements = [
-        f'<text class="lbl-axis" x="{mx:.1f}" y="{PAD_TOP - 9.0:.1f}">{text}</text>'
+        f'<text class="lbl-axis" x="{mx:.1f}" y="{PAD_TOP - 7.0:.1f}">{text}</text>'
         for mx, text in month_labels
     ]
 
@@ -283,16 +268,9 @@ def render_langton_svg_v3(
         for d_idx, text in WEEKDAY_LABELS
     ]
 
-    # 6. Telemetry & Micro-Legend
-    w_start = simulation.window_start
-    w_end = simulation.window_end
-    window_label = f"PASSOS {w_start:04d}–{w_end:04d}"
-    if w_start > 0:
-        window_label += " [JANELA EVOLUÍDA]"
-
-    hw_label = f" · HIGHWAY p={analysis.highway_period}" if (analysis and analysis.highway_detected) else ""
-    telemetry_left = f"LANGTON'S ANT V3 · {calendar.total_contributions} CONTRIBUIÇÕES REAIS{hw_label}"
-    telemetry_right = f"ORIGEM: W{simulation.start_x:02d}:D{simulation.start_y} [{DIR_NAMES[simulation.start_dir]}] · {window_label}"
+    # 5. Clean, Native Header: Title left, count right (no microaulas, no technical noise)
+    header_left = "Contribuições · Formiga de Langton"
+    header_right = f"{calendar.total_contributions} contribuições no último ano"
 
     css = f"""
     svg {{
@@ -301,23 +279,22 @@ def render_langton_svg_v3(
       user-select: none;
     }}
     .bg {{ fill: {palette['bg']}; stroke: {palette['border']}; stroke-width: 1px; rx: 6px; }}
-    .lbl-title {{ fill: {palette['accent']}; font-weight: 600; font-size: 9px; letter-spacing: 0.5px; }}
-    .lbl-sub {{ fill: {palette['text_muted']}; font-size: 8.5px; }}
+    .lbl-title {{ fill: {palette['text']}; font-weight: 600; font-size: 9.5px; }}
+    .lbl-sub {{ fill: {palette['text_muted']}; font-size: 9px; }}
     .lbl-axis {{ fill: {palette['text_muted']}; font-size: 8.5px; }}
-    .ghost-cell {{ fill: {palette['ghost_cell']}; stroke: {palette['border']}; stroke-dasharray: 2,2; stroke-width: 0.6px; }}
     .trail {{
       fill: none;
       stroke: {palette['trail']};
-      stroke-width: 1.6px;
+      stroke-width: 1.2px;
       stroke-linecap: round;
       stroke-linejoin: round;
       stroke-dasharray: {total_trail_len:.1f};
-      filter: drop-shadow(0 0 1.5px {palette['trail_glow']});
+      filter: drop-shadow(0 0 1px {palette['trail_glow']});
       animation: trail-reveal {duration_s:.1f}s linear infinite;
     }}
     .state-overlay {{
       opacity: 0;
-      will-change: opacity, transform;
+      will-change: opacity;
     }}
     .ant-agent {{
       animation: ant-walk {duration_s:.1f}s linear infinite;
@@ -325,7 +302,7 @@ def render_langton_svg_v3(
     }}
     .ant-body {{
       fill: {palette['ant_body']};
-      filter: drop-shadow(0 0 3px {palette['ant_glow']});
+      filter: drop-shadow(0 0 2px {palette['ant_glow']});
     }}
     .ant-antenna {{
       stroke: {palette['ant_body']};
@@ -342,25 +319,26 @@ def render_langton_svg_v3(
     {" ".join(cell_styles)}
     @media (prefers-reduced-motion: reduce) {{
       .ant-agent, .trail, .state-overlay {{ animation: none !important; }}
-      .trail {{ stroke-dashoffset: 0 !important; opacity: 0.45 !important; }}
-      .state-overlay {{ opacity: 0.75 !important; }}
+      .trail {{ stroke-dashoffset: 0 !important; opacity: 0.35 !important; }}
+      .state-overlay {{ opacity: 0.5 !important; }}
     }}
     """
 
     ant_svg = f"""
     <g class="ant-agent">
-      <!-- Cybernetic Autonomous Agent (Ant V3) -->
-      <line class="ant-antenna" x1="-1.6" y1="-3.0" x2="-3.2" y2="-6.2"/>
-      <line class="ant-antenna" x1="1.6" y1="-3.0" x2="3.2" y2="-6.2"/>
-      <path class="ant-body" d="M 0,-4.8 L 3.4,2.8 L 0,1.2 L -3.4,2.8 Z"/>
-      <circle class="ant-body" cx="0" cy="4.2" r="2.2"/>
-      <circle class="ant-eye" cx="-1.2" cy="-1.8" r="0.75"/>
-      <circle class="ant-eye" cx="1.2" cy="-1.8" r="0.75"/>
+      <!-- Autonomous Agent (Langton's Ant V4) -->
+      <line class="ant-antenna" x1="-1.6" y1="-3.0" x2="-3.2" y2="-6.0"/>
+      <line class="ant-antenna" x1="1.6" y1="-3.0" x2="3.2" y2="-6.0"/>
+      <path class="ant-body" d="M 0,-4.5 L 3.2,2.6 L 0,1.2 L -3.2,2.6 Z"/>
+      <circle class="ant-body" cx="0" cy="4.0" r="2.0"/>
+      <circle class="ant-eye" cx="-1.1" cy="-1.6" r="0.7"/>
+      <circle class="ant-eye" cx="1.1" cy="-1.6" r="0.7"/>
     </g>
     """
 
-    legend_x = svg_width - PAD_RIGHT - 110.0
-    legend_y = svg_height - PAD_BOTTOM + 9.0
+    # Native GitHub Legend ("Menos" [5 rects] "Mais")
+    legend_x = svg_width - PAD_RIGHT - 105.0
+    legend_y = svg_height - PAD_BOTTOM + 6.0
     legend_elements = [
         f'<text class="lbl-axis" x="{legend_x - 6.0:.1f}" y="{legend_y + 8.0:.1f}" text-anchor="end">Menos</text>'
     ]
@@ -375,17 +353,23 @@ def render_langton_svg_v3(
     )
 
     svg_content = f"""<svg width="{svg_width}" height="{svg_height}" viewBox="0 0 {svg_width} {svg_height}" xmlns="http://www.w3.org/2000/svg">
-  <title>Langton's Ant × GitHub Contributions V3 ({theme.capitalize()})</title>
+  <title>Langton's Ant × GitHub Contributions ({theme.capitalize()})</title>
   <desc>Deterministic Langton's Ant RL simulation seeded by real GitHub contributions. Total commits: {calendar.total_contributions}.</desc>
-  <!-- Generated by leozaow/leozaow Langton contribution renderer V3 -->
+  <!-- Generated by leozaow/leozaow Langton contribution renderer V4 -->
+  <defs>
+    <!-- Calendar Clip: strictly clips dynamic animation layers to the 53x7 calendar grid -->
+    <clipPath id="calendar-clip">
+      <rect x="{PAD_LEFT:.1f}" y="{PAD_TOP:.1f}" width="{grid_width:.1f}" height="{grid_height:.1f}" rx="{CORNER_RADIUS}"/>
+    </clipPath>
+  </defs>
   <style>
     {css}
   </style>
   <rect width="100%" height="100%" class="bg"/>
 
-  <!-- Telemetry Header -->
-  <text class="lbl-title" x="{PAD_LEFT:.1f}" y="{PAD_TOP - 18.0:.1f}">{telemetry_left}</text>
-  <text class="lbl-sub" x="{svg_width - PAD_RIGHT:.1f}" y="{PAD_TOP - 18.0:.1f}" text-anchor="end">{telemetry_right}</text>
+  <!-- Native Header -->
+  <text class="lbl-title" x="{PAD_LEFT:.1f}" y="{PAD_TOP - 16.0:.1f}">{header_left}</text>
+  <text class="lbl-sub" x="{svg_width - PAD_RIGHT:.1f}" y="{PAD_TOP - 16.0:.1f}" text-anchor="end">{header_right}</text>
 
   <!-- Month Labels -->
   {"".join(month_elements)}
@@ -393,29 +377,26 @@ def render_langton_svg_v3(
   <!-- Weekday Labels -->
   {"".join(weekday_elements)}
 
-  <!-- Ghost Cells (Infinite Sparse Plane Glimpse) -->
-  <g id="ghost-grid">
-    {"".join(ghost_rects)}
-  </g>
-
   <!-- Data Layer: Base Contribution Calendar -->
   <g id="calendar-data-layer">
     {"".join(base_calendar_rects)}
   </g>
 
-  <!-- Automaton State Layer: Dynamically Flipped Overlays -->
-  <g id="automaton-state-layer">
-    {"".join(overlay_state_rects)}
+  <!-- Dynamic Layers (Clipped strictly to calendar canvas) -->
+  <g id="calendar-dynamic-layer" clip-path="url(#calendar-clip)">
+    <!-- Automaton State Layer: Dynamically Flipped Overlays -->
+    <g id="automaton-state-layer">
+      {"".join(overlay_state_rects)}
+    </g>
+
+    <!-- Progressive Emergence Trail -->
+    <path class="trail" d="{path_d}"/>
   </g>
 
-  <!-- Progressive Emergence Trail -->
-  <path class="trail" d="{path_d}"/>
-
-  <!-- Autonomous Agent (Langton's Ant V3) -->
+  <!-- Autonomous Agent (Langton's Ant V4) -->
   {ant_svg}
 
-  <!-- Footer Micro-Legend & Rule Telemetry -->
-  <text class="lbl-sub" x="{PAD_LEFT:.1f}" y="{svg_height - PAD_BOTTOM + 18.0:.1f}">Regra RL: 0 ↻ (+90° Dir, 0→1) · 1 ↺ (-90° Esq, 1→0) · Grid Infinito Esparso</text>
+  <!-- Footer Micro-Legend -->
   {"".join(legend_elements)}
 </svg>"""
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""CLI tool to fetch GitHub contribution data and generate Langton's Ant SVGs (V3).
+"""CLI tool to fetch GitHub contribution data and generate Langton's Ant SVGs (V4).
 
 Supports production mode (GraphQL) and fixture mode, deep multi-thousand step simulation,
 sliding window discovery, and deterministic daily variability controlled by date and calendar seed.
@@ -62,7 +62,7 @@ def fetch_contributions_graphql(token: str, username: str) -> dict:
         headers={
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
-            "User-Agent": "leozaow-langton-renderer-v3",
+            "User-Agent": "leozaow-langton-renderer-v4",
         },
         method="POST",
     )
@@ -91,7 +91,7 @@ def generate_all(
     debug_json: bool = False,
     dry_run: bool = False,
 ) -> Tuple[Path, Path]:
-    """Runs deep simulation and outputs the V3 light and dark SVGs."""
+    """Runs deep simulation and outputs the V4 light and dark SVGs."""
     calendar = parse_contribution_calendar(calendar_payload)
     simulation, analysis = select_daily_simulation(
         calendar=calendar,
@@ -122,7 +122,7 @@ def generate_all(
     active_days = sum(1 for c in calendar.cells.values() if c.count > 0)
     visible_in_cal = sum(1 for s in simulation.steps if 0 <= s.x < calendar.weeks_count and 0 <= s.y < 7)
 
-    print("=== Langton's Ant V3 Generation Telemetry ===")
+    print("=== Langton's Ant V4 Generation Telemetry ===")
     print(f"totalContributions:              {calendar.total_contributions}")
     print(f"activeDays:                      {active_days}")
     print(f"calendarStart:                   {calendar.min_date}")
@@ -154,7 +154,7 @@ def generate_all(
 
         if debug_json:
             debug_info = {
-                "version": 3,
+                "version": 4,
                 "calendar": {
                     "totalContributions": calendar.total_contributions,
                     "activeDays": active_days,
@@ -209,7 +209,7 @@ def generate_all(
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Generate Langton's Ant contribution SVGs V3.")
+    parser = argparse.ArgumentParser(description="Generate Langton's Ant contribution SVGs V4.")
     parser.add_argument("--input", "-i", type=Path, help="Path to input JSON fixture.")
     parser.add_argument("--output-dir", "-o", type=Path, default=Path("dist"), help="Directory to save SVGs.")
     parser.add_argument("--username", "-u", type=str, help="GitHub username.")
