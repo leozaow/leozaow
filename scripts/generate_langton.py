@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""CLI tool to fetch GitHub contribution data and generate Langton's Ant SVGs (V4).
+"""CLI tool to fetch GitHub contribution data and generate Langton's Ant SVGs.
 
 Supports production mode (GraphQL) and fixture mode, deep multi-thousand step simulation,
-sliding window discovery, and deterministic daily variability controlled by date and calendar seed.
+sliding window discovery across the full horizon, and deterministic daily variability.
 """
 
 from __future__ import annotations
@@ -28,7 +28,7 @@ from scripts.langton_sim import (
     parse_contribution_calendar,
 )
 from scripts.langton_analysis import DeepAnalysis, select_daily_simulation
-from scripts.langton_render import render_langton_svg_v3
+from scripts.langton_render import render_langton_svg
 
 API_URL = "https://api.github.com/graphql"
 DEFAULT_TZ = ZoneInfo("America/Sao_Paulo")
@@ -91,7 +91,7 @@ def generate_all(
     debug_json: bool = False,
     dry_run: bool = False,
 ) -> Tuple[Path, Path]:
-    """Runs deep simulation and outputs the V4 light and dark SVGs."""
+    """Runs two-pass deep simulation and outputs the light and dark SVGs."""
     calendar = parse_contribution_calendar(calendar_payload)
     simulation, analysis = select_daily_simulation(
         calendar=calendar,
@@ -101,14 +101,14 @@ def generate_all(
         pool_capacity=pool_capacity,
     )
 
-    svg_light = render_langton_svg_v3(
+    svg_light = render_langton_svg(
         calendar=calendar,
         simulation=simulation,
         analysis=analysis,
         theme="light",
         duration_s=duration_s,
     )
-    svg_dark = render_langton_svg_v3(
+    svg_dark = render_langton_svg(
         calendar=calendar,
         simulation=simulation,
         analysis=analysis,
@@ -122,30 +122,33 @@ def generate_all(
     active_days = sum(1 for c in calendar.cells.values() if c.count > 0)
     visible_in_cal = sum(1 for s in simulation.steps if 0 <= s.x < calendar.weeks_count and 0 <= s.y < 7)
 
-    print("=== Langton's Ant V4 Generation Telemetry ===")
-    print(f"totalContributions:              {calendar.total_contributions}")
-    print(f"activeDays:                      {active_days}")
-    print(f"calendarStart:                   {calendar.min_date}")
-    print(f"calendarEnd:                     {calendar.max_date}")
-    print(f"targetDate:                      {date_str}")
-    print(f"dailySeed:                       {analysis.daily_seed[:16]}...")
-    print(f"candidatePoolSize:               {analysis.pool_size}")
-    print(f"selectedCandidateRank:           #{analysis.selected_rank + 1} of {analysis.pool_size}")
-    print(f"startPosition:                   W{simulation.start_x:02d}:D{simulation.start_y}")
-    print(f"startDirection:                  {simulation.start_dir} [{analysis.candidate_direction}]")
-    print(f"windowSlice:                     steps [{simulation.window_start}..{simulation.window_end}]")
-    print(f"deepHorizonSimulated:            {analysis.total_simulated}")
-    print(f"visibleSteps:                    {visible_in_cal}")
-    print(f"uniqueVisited:                   {len(simulation.visited_cells)}")
-    print(f"activeContributionCellsVisited:  {analysis.commits_visited}")
-    print(f"highwayDetected:                 {analysis.highway_detected}")
+    print("=== Langton's Ant Generation Telemetry ===")
+    print(f"totalContributions:                  {calendar.total_contributions}")
+    print(f"activeDays:                          {active_days}")
+    print(f"calendarStart:                       {calendar.min_date}")
+    print(f"calendarEnd:                         {calendar.max_date}")
+    print(f"targetDate:                          {date_str}")
+    print(f"dailySeed:                           {analysis.daily_seed[:16]}...")
+    print(f"candidatePoolSize:                   {analysis.pool_size}")
+    print(f"selectedCandidateRank:               #{analysis.selected_rank + 1} of {analysis.pool_size}")
+    print(f"startPosition:                       W{simulation.start_x:02d}:D{simulation.start_y}")
+    print(f"startDirection:                      {simulation.start_dir} [{analysis.candidate_direction}]")
+    print(f"searchHorizon:                       {analysis.total_simulated}")
+    print(f"selectedWindow:                      steps [{simulation.window_start}..{simulation.window_end}]")
+    print(f"renderedSteps:                       {steps_count}")
+    print(f"visibleSteps:                        {visible_in_cal}")
+    print(f"uniqueVisitedCells:                  {len(simulation.visited_cells)}")
+    print(f"uniqueActiveContributionCellsVisited: {analysis.unique_active_cells_visited}")
+    print(f"activeContributionInteractions:      {analysis.active_contribution_interactions}")
+    print(f"maxConsecutiveOobRun:                {analysis.max_oob_run}")
+    print(f"highwayDetected:                     {analysis.highway_detected}")
     if analysis.highway_detected:
-        print(f"highwayPeriod:                   {analysis.highway_period}")
-        print(f"highwayVector:                   ({analysis.highway_dx}, {analysis.highway_dy})")
-        print(f"highwayVerifiedCycles:           {analysis.highway_verified_cycles}")
+        print(f"highwayPeriod:                       {analysis.highway_period}")
+        print(f"highwayVector:                       ({analysis.highway_dx}, {analysis.highway_dy})")
+        print(f"highwayVerifiedCycles:               {analysis.highway_verified_cycles}")
         if analysis.highway_start_step is not None:
-            print(f"highwayStartStep:                {analysis.highway_start_step}")
-    print("=============================================")
+            print(f"highwayStartStep:                    {analysis.highway_start_step}")
+    print("==========================================")
 
     if not dry_run:
         output_dir.mkdir(parents=True, exist_ok=True)
@@ -172,11 +175,13 @@ def generate_all(
                     "windowEnd": simulation.window_end,
                 },
                 "simulation": {
-                    "deepHorizonSimulated": analysis.total_simulated,
+                    "searchHorizon": analysis.total_simulated,
                     "displaySteps": steps_count,
                     "visibleSteps": visible_in_cal,
-                    "uniqueVisited": len(simulation.visited_cells),
-                    "activeContributionCellsVisited": analysis.commits_visited,
+                    "uniqueVisitedCells": len(simulation.visited_cells),
+                    "uniqueActiveContributionCellsVisited": analysis.unique_active_cells_visited,
+                    "activeContributionInteractions": analysis.active_contribution_interactions,
+                    "maxConsecutiveOobRun": analysis.max_oob_run,
                     "boundingBox": {
                         "min_x": analysis.bounding_box[0],
                         "max_x": analysis.bounding_box[1],
@@ -209,7 +214,7 @@ def generate_all(
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Generate Langton's Ant contribution SVGs V4.")
+    parser = argparse.ArgumentParser(description="Generate Langton's Ant contribution SVGs.")
     parser.add_argument("--input", "-i", type=Path, help="Path to input JSON fixture.")
     parser.add_argument("--output-dir", "-o", type=Path, default=Path("dist"), help="Directory to save SVGs.")
     parser.add_argument("--username", "-u", type=str, help="GitHub username.")

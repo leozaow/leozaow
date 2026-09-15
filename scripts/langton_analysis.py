@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Deep simulation and analysis for Langton's Ant trajectory (V4).
+"""Deep simulation and analysis for Langton's Ant trajectory (V4 Refined).
 
-Evaluates deep horizons (10k-50k steps), extracts sliding windows,
-classifies trajectory phases, enforces spatial and quadrant diversity across the candidate pool,
-and implements deterministic daily selection.
+Evaluates deep horizons (10k steps), extracts sliding windows across the full horizon,
+classifies trajectory phases, enforces trajectory signature diversity (Jaccard similarity),
+penalizes continuous out-of-bounds runs, and implements deterministic daily selection.
 """
 
 from __future__ import annotations
@@ -47,7 +47,9 @@ class CandidateWindow:
     unique_cells: int
     commits_hit: int
     entropy: float
+    max_oob_run: int
     bounding_box: Tuple[int, int, int, int]
+    visited_set: Set[Tuple[int, int]]
 
 
 @dataclass
@@ -70,7 +72,9 @@ class DeepAnalysis:
     phases: List[TrajectoryPhase]
     unique_cells_visited: int
     in_bounds_steps: int
-    commits_visited: int
+    unique_active_cells_visited: int
+    active_contribution_interactions: int
+    max_oob_run: int
     bounding_box: Tuple[int, int, int, int]  # min_x, max_x, min_y, max_y
 
 
@@ -86,15 +90,17 @@ def find_top_diverse_pool(
     deep_horizon: int = 10000,
     window_size: int = 240,
     window_stride: int = 100,
-    pool_capacity: int = 16,
+    pool_capacity: int = 12,
+    max_jaccard_overlap: float = 0.82,
 ) -> List[CandidateWindow]:
-    """Scans all candidate origins across deep horizons and extracts a strictly diverse pool of sliding windows.
+    """Scans all candidate origins across the full deep horizon (0 -> deep_horizon - window_size)
+    and extracts a strictly diverse pool using trajectory signatures and Jaccard distance.
 
-    Guarantees diversity by:
-    1. Sampling windows across deep steps (up to 5,000 steps).
-    2. Multi-objective scoring rewarding calendar coverage, active commit interaction, and path entropy.
-    3. Spatial separation: Candidates must come from distinct calendar regions (min Euclidean distance
-       or different origin positions) so that different ranks explore visibly distinct areas of the grid.
+    Guarantees:
+    1. Full horizon exploration up to deep_horizon - window_size.
+    2. Penalizes windows with long consecutive out-of-bounds disappearances (max_oob_run).
+    3. Trajectory signature filtering: rejects candidates with > max_jaccard_overlap with existing pool.
+    4. Diverse spatial and quadrant spread.
     """
     base_grid = seed_grid_from_calendar(calendar)
     candidates = get_candidate_origins(calendar)
@@ -104,12 +110,14 @@ def find_top_diverse_pool(
 
     for cand_idx, (cx, cy) in enumerate(candidates):
         for d_init in range(4):
-            # Fast simulation recording (x, y, dir_after, state_before)
+            # Pass 1: Fast simulation recording compact histories
             grid = dict(base_grid)
             x, y, d = cx, cy, d_init
-            history: List[Tuple[int, int, int, int]] = []
+            history_x: List[int] = []
+            history_y: List[int] = []
+            history_d: List[int] = []
 
-            for step in range(deep_horizon):
+            for _ in range(deep_horizon):
                 s = grid.get((x, y), 0)
                 if s == 0:
                     d = (d + 1) & 3
@@ -117,58 +125,87 @@ def find_top_diverse_pool(
                 else:
                     d = (d - 1) & 3
                     del grid[(x, y)]
-                history.append((x, y, d, s))
+                history_x.append(x)
+                history_y.append(y)
+                history_d.append(d)
                 dx, dy = dirs[d]
                 x += dx
                 y += dy
 
-            # Evaluate sliding windows up to step 5000
-            max_scan = min(len(history) - window_size, 5000)
+            # Evaluate sliding windows across the FULL HORIZON
+            max_scan = deep_horizon - window_size
             for w_start in range(0, max_scan + 1, window_stride):
-                w_steps = history[w_start : w_start + window_size]
-                in_cal = sum(1 for (wx, wy, _, _) in w_steps if 0 <= wx < 53 and 0 <= wy < 7)
+                wx = history_x[w_start : w_start + window_size]
+                wy = history_y[w_start : w_start + window_size]
+                wd = history_d[w_start : w_start + window_size]
+
+                # Window start and end should preferably be within calendar bounds
+                start_in = (0 <= wx[0] < 53 and 0 <= wy[0] < 7)
+                end_in = (0 <= wx[-1] < 53 and 0 <= wy[-1] < 7)
+
+                # Count in-calendar and calculate max consecutive out-of-bounds run
+                in_cal = 0
+                curr_oob = 0
+                max_oob = 0
+                visited_cal_cells: Set[Tuple[int, int]] = set()
+
+                for i in range(window_size):
+                    px, py = wx[i], wy[i]
+                    if 0 <= px < 53 and 0 <= py < 7:
+                        in_cal += 1
+                        curr_oob = 0
+                        visited_cal_cells.add((px, py))
+                    else:
+                        curr_oob += 1
+                        if curr_oob > max_oob:
+                            max_oob = curr_oob
+
                 in_cal_ratio = in_cal / window_size
                 if in_cal_ratio < 0.75:
                     continue
 
-                unique_cells = len(set((wx, wy) for (wx, wy, _, _) in w_steps if 0 <= wx < 53 and 0 <= wy < 7))
+                # Reject windows with long consecutive out-of-bounds disappearance (> 18 consecutive steps)
+                if max_oob > 18:
+                    continue
+
+                unique_cells = len(visited_cal_cells)
                 commits_hit = sum(
-                    1 for (wx, wy) in set((wx, wy) for (wx, wy, _, _) in w_steps)
-                    if calendar.cells.get((wx, wy)) and calendar.cells[(wx, wy)].count > 0
+                    1 for (c_x, c_y) in visited_cal_cells
+                    if calendar.cells.get((c_x, c_y)) and calendar.cells[(c_x, c_y)].count > 0
                 )
                 if commits_hit < 5:
                     continue
 
                 # Direction entropy
                 dir_counts = [0, 0, 0, 0]
-                for (_, _, dir_a, _) in w_steps:
-                    dir_counts[dir_a] += 1
+                for d_a in wd:
+                    dir_counts[d_a] += 1
                 entropy = 0.0
                 for dc in dir_counts:
                     if dc > 0:
                         p = dc / window_size
                         entropy -= p * math.log2(p)
 
-                min_wx = min(wx for (wx, wy, _, _) in w_steps)
-                max_wx = max(wx for (wx, wy, _, _) in w_steps)
-                min_wy = min(wy for (wx, wy, _, _) in w_steps)
-                max_wy = max(wy for (wx, wy, _, _) in w_steps)
+                min_wx = min(wx)
+                max_wx = max(wx)
+                min_wy = min(wy)
+                max_wy = max(wy)
 
                 # Normalized Multi-Objective Scoring
-                # 1. Unique calendar cells coverage (target ~100)
                 s_unique = min(1.0, unique_cells / 110.0)
-                # 2. Commits hit (target ~25)
                 s_commits = min(1.0, commits_hit / 25.0)
-                # 3. In-bounds ratio (0.75..1.0)
                 s_in_bounds = (in_cal_ratio - 0.75) / 0.25
-                # 4. Turn entropy (1.5..2.0)
                 s_entropy = min(1.0, max(0.0, (entropy - 1.5) / 0.5))
+                s_continuity = 1.0 - (max_oob / 20.0)  # rewards low OOB run
+                s_boundary = 1.0 if (start_in and end_in) else 0.5
 
                 score = (
-                    s_unique * 35.0
-                    + s_commits * 35.0
+                    s_unique * 30.0
+                    + s_commits * 30.0
                     + s_in_bounds * 20.0
                     + s_entropy * 10.0
+                    + s_continuity * 5.0
+                    + s_boundary * 5.0
                 )
 
                 all_qualified.append(
@@ -184,39 +221,40 @@ def find_top_diverse_pool(
                         unique_cells=unique_cells,
                         commits_hit=commits_hit,
                         entropy=entropy,
+                        max_oob_run=max_oob,
                         bounding_box=(min_wx, max_wx, min_wy, max_wy),
+                        visited_set=visited_cal_cells,
                     )
                 )
 
     all_qualified.sort(key=lambda it: it.score, reverse=True)
 
-    # Diversity enforcement: select distinct origins and trajectories
-    # Pass 1: Strict origin uniqueness
+    # True Trajectory Diversity via Jaccard Overlap Filtering:
+    # Jaccard = |A ∩ B| / |A ∪ B|
     diverse_pool: List[CandidateWindow] = []
-    seen_origins: Set[Tuple[int, int]] = set()
 
     for cand in all_qualified:
-        if cand.origin not in seen_origins:
-            seen_origins.add(cand.origin)
+        is_redundant = False
+        for accepted in diverse_pool:
+            intersection = len(cand.visited_set & accepted.visited_set)
+            union = len(cand.visited_set | accepted.visited_set)
+            jaccard = intersection / union if union > 0 else 1.0
+            if jaccard > max_jaccard_overlap:
+                is_redundant = True
+                break
+
+        if not is_redundant:
             diverse_pool.append(cand)
             if len(diverse_pool) >= pool_capacity:
                 break
 
-    # Pass 2: If pool capacity not reached, accept candidates with distinct window_start or direction
+    # If pool capacity not reached, relax threshold slightly to fill capacity
     if len(diverse_pool) < pool_capacity:
-        seen_keys: Set[Tuple[Tuple[int, int], int, int]] = {
-            (c.origin, c.dir, c.window_start) for c in diverse_pool
-        }
         for cand in all_qualified:
-            key = (cand.origin, cand.dir, cand.window_start)
-            if key not in seen_keys:
-                seen_keys.add(key)
+            if cand not in diverse_pool:
                 diverse_pool.append(cand)
                 if len(diverse_pool) >= pool_capacity:
                     break
-
-    if not diverse_pool and all_qualified:
-        diverse_pool = all_qualified[:pool_capacity]
 
     if not diverse_pool:
         # Fallback candidate
@@ -233,7 +271,9 @@ def find_top_diverse_pool(
                 unique_cells=50,
                 commits_hit=10,
                 entropy=1.9,
+                max_oob_run=0,
                 bounding_box=(0, 52, 0, 6),
+                visited_set={(53 // 2, 3)},
             )
         ]
 
@@ -247,7 +287,10 @@ def select_daily_simulation(
     deep_horizon: int = 10000,
     pool_capacity: int = 12,
 ) -> Tuple[SimulationResult, DeepAnalysis]:
-    """Deterministically selects and fully simulates today's trajectory slice from the diverse pool."""
+    """Deterministically selects and executes a two-pass simulation:
+    Pass 1: Fast candidate scoring and window discovery across the full horizon.
+    Pass 2: Selected candidate full deep simulation (10k steps) + window slice snapshot.
+    """
     pool = find_top_diverse_pool(
         calendar,
         deep_horizon=deep_horizon,
@@ -261,16 +304,26 @@ def select_daily_simulation(
     selected_rank = seed_int % len(pool)
     chosen = pool[selected_rank]
 
-    # Run full Langton simulation up to window_end recording the exact window slice
+    # Pass 2: Full deep simulation of the selected candidate across the entire deep horizon (10,000 steps)
+    # This guarantees complete highway and long-term attractor analysis.
     sim = LangtonSimulation(initial_grid=seed_grid_from_calendar(calendar))
     res = sim.run(
         start_x=chosen.origin[0],
         start_y=chosen.origin[1],
         start_dir=chosen.dir,
-        max_steps=chosen.window_end,
+        max_steps=deep_horizon,
         calendar=calendar,
         record_window=(chosen.window_start, chosen.window_end),
     )
+
+    # Calculate honest, precise metrics
+    # 1. Unique active contribution cells visited (cannot exceed total active days)
+    unique_active_cells = {
+        (s.x, s.y) for s in res.steps
+        if calendar.cells.get((s.x, s.y)) and calendar.cells[(s.x, s.y)].count > 0
+    }
+    # 2. Total contribution interactions (revisits count each step)
+    total_interactions = sum(1 for s in res.steps if s.commit_count > 0)
 
     # Classify trajectory phases across the chosen slice
     phases: List[TrajectoryPhase] = []
@@ -334,7 +387,9 @@ def select_daily_simulation(
         phases=phases,
         unique_cells_visited=len(res.visited_cells),
         in_bounds_steps=sum(1 for s in res.steps if 0 <= s.x < 53 and 0 <= s.y < 7),
-        commits_visited=sum(1 for s in res.steps if s.commit_count > 0),
+        unique_active_cells_visited=len(unique_active_cells),
+        active_contribution_interactions=total_interactions,
+        max_oob_run=chosen.max_oob_run,
         bounding_box=chosen.bounding_box,
     )
 

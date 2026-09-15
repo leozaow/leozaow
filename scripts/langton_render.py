@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""SVG renderer for Langton's Ant × GitHub Contributions (V4).
+"""SVG renderer for Langton's Ant × GitHub Contributions.
 
 Renders a pure, native GitHub contribution calendar animated by Langton's Ant:
 1. Native GitHub contribution calendar styling, geometry, and font metrics.
-2. Clean header: minimal and dignified (no microaulas, no RL formulas, no technical noise).
+2. Clean header: minimal and dignified (no microaulas, no RL formulas, no redundant title).
 3. Complete elimination of ghost cells / out-of-bounds dashed rects that caused artifacts.
 4. Exact calendar clip path guaranteeing no trail or overlay escapes the 53×7 calendar bounds.
-5. Subtle, refined overlays: thin elegant strokes, gentle glow, no heavy blue boxes.
-6. Progressive trail emergence via synchronized CSS dashoffset.
-7. Autonomous agent (ant) with cybernetic silhouette.
+5. Subtle Langton memory: ultra-thin inner stroke (0.75px, opacity ~0.35) preserving GitHub calendar supremacy.
+6. Strong Current Interaction: dynamic cell halo and sensor pulse moving with the ant.
+7. Fading tail: progressive trail with tail dash limiting clutter to recent trajectory.
 8. Native GitHub legend ("Menos" / "Mais").
 9. 100% deterministic, standalone XML, lightweight, zero JavaScript.
 """
@@ -33,9 +33,9 @@ CELL_GAP = 3.0
 STEP_PITCH = CELL_SIZE + CELL_GAP  # 14.0 px
 CORNER_RADIUS = 2.0
 
-# Layout dimensions: refined margins matching native GitHub contribution graph
+# Layout dimensions: refined compact margins matching native GitHub contribution graph
 PAD_LEFT = 32.0
-PAD_TOP = 28.0
+PAD_TOP = 20.0
 PAD_RIGHT = 16.0
 PAD_BOTTOM = 22.0
 
@@ -52,7 +52,7 @@ LIGHT_PALETTE = {
     "cell_4": "#216e39",
     "ant_body": "#0969da",
     "ant_eye": "#ffffff",
-    "ant_glow": "rgba(9, 105, 218, 0.40)",
+    "ant_glow": "rgba(9, 105, 218, 0.45)",
     "trail": "#0969da",
     "trail_glow": "rgba(9, 105, 218, 0.20)",
     "state_flip_on": "#1f883d",
@@ -71,7 +71,7 @@ DARK_PALETTE = {
     "cell_4": "#39d353",
     "ant_body": "#58a6ff",
     "ant_eye": "#ffffff",
-    "ant_glow": "rgba(88, 166, 255, 0.45)",
+    "ant_glow": "rgba(88, 166, 255, 0.50)",
     "trail": "#58a6ff",
     "trail_glow": "rgba(88, 166, 255, 0.25)",
     "state_flip_on": "#3fb950",
@@ -94,14 +94,14 @@ def get_cell_level_index(level: str) -> int:
     return mapping.get(level, 0)
 
 
-def render_langton_svg_v3(
+def render_langton_svg(
     calendar: CalendarData,
     simulation: SimulationResult,
     analysis: Optional[DeepAnalysis] = None,
     theme: str = "light",
     duration_s: float = 16.0,
 ) -> str:
-    """Renders the V4 standalone animated SVG for Langton's Ant with native GitHub styling."""
+    """Renders the standalone animated SVG for Langton's Ant with native GitHub styling."""
     palette = DARK_PALETTE if theme == "dark" else LIGHT_PALETTE
     weeks_count = max(calendar.weeks_count, 53)
 
@@ -134,6 +134,9 @@ def render_langton_svg_v3(
 
     total_trail_len = cum_lengths[-1] if cum_lengths else 1.0
 
+    # Fading tail length: ~30 steps = ~420 px
+    tail_len = 420.0
+
     # Path d string
     path_d_parts = [f"M {path_segments[0][0]:.1f},{path_segments[0][1]:.1f}"]
     for cx, cy in path_segments[1:]:
@@ -158,7 +161,7 @@ def render_langton_svg_v3(
     )
 
     trail_keyframes.append(f"0.00% {{ stroke-dashoffset: {total_trail_len:.1f}; opacity: 0; }}")
-    trail_keyframes.append(f"{t_ant_start:.2f}% {{ stroke-dashoffset: {total_trail_len:.1f}; opacity: 0.65; }}")
+    trail_keyframes.append(f"{t_ant_start:.2f}% {{ stroke-dashoffset: {total_trail_len:.1f}; opacity: 0.55; }}")
 
     for i, step in enumerate(simulation.steps):
         frac = i / (total_steps - 1) if total_steps > 1 else 1.0
@@ -171,7 +174,7 @@ def render_langton_svg_v3(
         )
         current_offset = total_trail_len - cum_lengths[i]
         trail_keyframes.append(
-            f"{t_pct:.2f}% {{ stroke-dashoffset: {current_offset:.1f}; opacity: 0.65; }}"
+            f"{t_pct:.2f}% {{ stroke-dashoffset: {current_offset:.1f}; opacity: 0.55; }}"
         )
 
     # Wrap & Fade
@@ -179,11 +182,11 @@ def render_langton_svg_v3(
     ant_keyframes.append("97.00% { opacity: 0; }")
     ant_keyframes.append("100.00% { opacity: 0; }")
 
-    trail_keyframes.append(f"{t_ant_end:.2f}% {{ stroke-dashoffset: 0; opacity: 0.65; }}")
+    trail_keyframes.append(f"{t_ant_end:.2f}% {{ stroke-dashoffset: 0; opacity: 0.55; }}")
     trail_keyframes.append("97.00% { stroke-dashoffset: 0; opacity: 0; }")
     trail_keyframes.append(f"100.00% {{ stroke-dashoffset: {total_trail_len:.1f}; opacity: 0; }}")
 
-    # 3. Dynamic Cell State & Overlays (Refined subtle stroke)
+    # 3. Dynamic Cell State & Overlays (Refined subtle inner stroke 0.75px, opacity ~0.35)
     cell_steps_map: Dict[Tuple[int, int], List[Tuple[float, int, int]]] = {}
     for i, step in enumerate(simulation.steps):
         frac = i / (total_steps - 1) if total_steps > 1 else 1.0
@@ -210,7 +213,6 @@ def render_langton_svg_v3(
             )
 
             flips = cell_steps_map.get((w, d), [])
-            # Initial state at start of window slice
             init_state = simulation.initial_grid_snapshot.get((w, d), 1 if cell.count > 0 else 0)
 
             if flips or (init_state == 1 and cell.count == 0):
@@ -218,7 +220,7 @@ def render_langton_svg_v3(
                 anim_cell_counter += 1
 
                 kf_overlay: List[str] = []
-                init_op = 0.85 if init_state == 1 else 0.0
+                init_op = 0.35 if init_state == 1 else 0.0
                 kf_overlay.append(f"0.00% {{ opacity: {init_op:.2f}; }}")
                 kf_overlay.append(f"{t_ant_start:.2f}% {{ opacity: {init_op:.2f}; }}")
 
@@ -226,13 +228,13 @@ def render_langton_svg_v3(
                     t_before = max(t_ant_start, t_pct - 0.05)
                     if state_after == 1:
                         kf_overlay.append(f"{t_before:.2f}% {{ opacity: 0.0; }}")
-                        kf_overlay.append(f"{t_pct:.2f}% {{ opacity: 0.9; }}")
+                        kf_overlay.append(f"{t_pct:.2f}% {{ opacity: 0.40; }}")
                     else:
-                        kf_overlay.append(f"{t_before:.2f}% {{ opacity: 0.9; }}")
+                        kf_overlay.append(f"{t_before:.2f}% {{ opacity: 0.40; }}")
                         kf_overlay.append(f"{t_pct:.2f}% {{ opacity: 0.0; }}")
 
                 final_state = flips[-1][1] if flips else init_state
-                final_op = 0.9 if final_state == 1 else 0.0
+                final_op = 0.40 if final_state == 1 else 0.0
                 kf_overlay.append(f"{t_ant_end:.2f}% {{ opacity: {final_op:.2f}; }}")
                 kf_overlay.append("97.00% { opacity: 0.0; }")
                 kf_overlay.append("100.00% { opacity: 0.0; }")
@@ -244,7 +246,7 @@ def render_langton_svg_v3(
 
                 stroke_color = palette["state_flip_on"] if cell.count > 0 else palette["accent"]
                 overlay_state_rects.append(
-                    f'<rect class="state-overlay {cid}" x="{px:.1f}" y="{py:.1f}" width="{CELL_SIZE}" height="{CELL_SIZE}" rx="{CORNER_RADIUS}" ry="{CORNER_RADIUS}" fill="none" stroke="{stroke_color}" stroke-width="1.0"/>'
+                    f'<rect class="state-overlay {cid}" x="{px:.1f}" y="{py:.1f}" width="{CELL_SIZE}" height="{CELL_SIZE}" rx="{CORNER_RADIUS}" ry="{CORNER_RADIUS}" fill="none" stroke="{stroke_color}" stroke-width="0.75"/>'
                 )
 
     # 4. Month & Weekday Labels (Authentic GitHub placement)
@@ -259,7 +261,7 @@ def render_langton_svg_v3(
                 last_month = m
 
     month_elements = [
-        f'<text class="lbl-axis" x="{mx:.1f}" y="{PAD_TOP - 7.0:.1f}">{text}</text>'
+        f'<text class="lbl-axis" x="{mx:.1f}" y="{PAD_TOP - 6.0:.1f}">{text}</text>'
         for mx, text in month_labels
     ]
 
@@ -268,10 +270,6 @@ def render_langton_svg_v3(
         for d_idx, text in WEEKDAY_LABELS
     ]
 
-    # 5. Clean, Native Header: Title left, count right (no microaulas, no technical noise)
-    header_left = "Contribuições · Formiga de Langton"
-    header_right = f"{calendar.total_contributions} contribuições no último ano"
-
     css = f"""
     svg {{
       font-family: {FONT_STACK};
@@ -279,8 +277,6 @@ def render_langton_svg_v3(
       user-select: none;
     }}
     .bg {{ fill: {palette['bg']}; stroke: {palette['border']}; stroke-width: 1px; rx: 6px; }}
-    .lbl-title {{ fill: {palette['text']}; font-weight: 600; font-size: 9.5px; }}
-    .lbl-sub {{ fill: {palette['text_muted']}; font-size: 9px; }}
     .lbl-axis {{ fill: {palette['text_muted']}; font-size: 8.5px; }}
     .trail {{
       fill: none;
@@ -288,7 +284,7 @@ def render_langton_svg_v3(
       stroke-width: 1.2px;
       stroke-linecap: round;
       stroke-linejoin: round;
-      stroke-dasharray: {total_trail_len:.1f};
+      stroke-dasharray: {tail_len:.1f} {total_trail_len:.1f};
       filter: drop-shadow(0 0 1px {palette['trail_glow']});
       animation: trail-reveal {duration_s:.1f}s linear infinite;
     }}
@@ -300,9 +296,16 @@ def render_langton_svg_v3(
       animation: ant-walk {duration_s:.1f}s linear infinite;
       will-change: transform, opacity;
     }}
+    .ant-halo {{
+      fill: none;
+      stroke: {palette['accent']};
+      stroke-width: 1.5px;
+      opacity: 0.85;
+      filter: drop-shadow(0 0 3px {palette['ant_glow']});
+    }}
     .ant-body {{
       fill: {palette['ant_body']};
-      filter: drop-shadow(0 0 2px {palette['ant_glow']});
+      filter: drop-shadow(0 0 2.5px {palette['ant_glow']});
     }}
     .ant-antenna {{
       stroke: {palette['ant_body']};
@@ -319,14 +322,16 @@ def render_langton_svg_v3(
     {" ".join(cell_styles)}
     @media (prefers-reduced-motion: reduce) {{
       .ant-agent, .trail, .state-overlay {{ animation: none !important; }}
-      .trail {{ stroke-dashoffset: 0 !important; opacity: 0.35 !important; }}
-      .state-overlay {{ opacity: 0.5 !important; }}
+      .trail {{ stroke-dashoffset: 0 !important; opacity: 0.30 !important; }}
+      .state-overlay {{ opacity: 0.35 !important; }}
     }}
     """
 
     ant_svg = f"""
     <g class="ant-agent">
-      <!-- Autonomous Agent (Langton's Ant V4) -->
+      <!-- Active cell interaction halo (Current Interaction) -->
+      <rect class="ant-halo" x="{-CELL_SIZE/2.0:.1f}" y="{-CELL_SIZE/2.0:.1f}" width="{CELL_SIZE}" height="{CELL_SIZE}" rx="{CORNER_RADIUS}"/>
+      <!-- Autonomous Agent Silhouette -->
       <line class="ant-antenna" x1="-1.6" y1="-3.0" x2="-3.2" y2="-6.0"/>
       <line class="ant-antenna" x1="1.6" y1="-3.0" x2="3.2" y2="-6.0"/>
       <path class="ant-body" d="M 0,-4.5 L 3.2,2.6 L 0,1.2 L -3.2,2.6 Z"/>
@@ -355,7 +360,7 @@ def render_langton_svg_v3(
     svg_content = f"""<svg width="{svg_width}" height="{svg_height}" viewBox="0 0 {svg_width} {svg_height}" xmlns="http://www.w3.org/2000/svg">
   <title>Langton's Ant × GitHub Contributions ({theme.capitalize()})</title>
   <desc>Deterministic Langton's Ant RL simulation seeded by real GitHub contributions. Total commits: {calendar.total_contributions}.</desc>
-  <!-- Generated by leozaow/leozaow Langton contribution renderer V4 -->
+  <!-- Generated by leozaow/leozaow Langton contribution renderer V4 Refined -->
   <defs>
     <!-- Calendar Clip: strictly clips dynamic animation layers to the 53x7 calendar grid -->
     <clipPath id="calendar-clip">
@@ -366,10 +371,6 @@ def render_langton_svg_v3(
     {css}
   </style>
   <rect width="100%" height="100%" class="bg"/>
-
-  <!-- Native Header -->
-  <text class="lbl-title" x="{PAD_LEFT:.1f}" y="{PAD_TOP - 16.0:.1f}">{header_left}</text>
-  <text class="lbl-sub" x="{svg_width - PAD_RIGHT:.1f}" y="{PAD_TOP - 16.0:.1f}" text-anchor="end">{header_right}</text>
 
   <!-- Month Labels -->
   {"".join(month_elements)}
@@ -389,15 +390,19 @@ def render_langton_svg_v3(
       {"".join(overlay_state_rects)}
     </g>
 
-    <!-- Progressive Emergence Trail -->
+    <!-- Fading Tail Trail -->
     <path class="trail" d="{path_d}"/>
-  </g>
 
-  <!-- Autonomous Agent (Langton's Ant V4) -->
-  {ant_svg}
+    <!-- Autonomous Agent with Current Interaction Halo -->
+    {ant_svg}
+  </g>
 
   <!-- Footer Micro-Legend -->
   {"".join(legend_elements)}
 </svg>"""
 
     return svg_content
+
+
+# Backward compatibility alias
+render_langton_svg_v3 = render_langton_svg

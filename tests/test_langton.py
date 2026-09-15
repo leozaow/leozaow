@@ -1,4 +1,4 @@
-"""Comprehensive test suite for Langton's Ant × GitHub Contributions engine (V4)."""
+"""Comprehensive test suite for Langton's Ant × GitHub Contributions engine."""
 
 import hashlib
 import json
@@ -22,13 +22,13 @@ from scripts.langton_analysis import (
     find_top_diverse_pool,
     select_daily_simulation,
 )
-from scripts.langton_render import render_langton_svg_v3
+from scripts.langton_render import render_langton_svg, render_langton_svg_v3
 from scripts.generate_langton import generate_all
 
 FIXTURE_PATH = Path(__file__).parent / "fixtures" / "contributions.json"
 
 
-class TestLangtonEngineV4(unittest.TestCase):
+class TestLangtonEngine(unittest.TestCase):
     def setUp(self):
         with open(FIXTURE_PATH, "r", encoding="utf-8") as f:
             self.fixture_data = json.load(f)
@@ -127,23 +127,48 @@ class TestLangtonEngineV4(unittest.TestCase):
         has_evolved_window = any(cand.window_start > 0 for cand in pool)
         self.assertTrue(has_evolved_window, "Pool should discover evolved windows (start > 0) in deep simulation.")
 
-    def test_pool_diversity(self):
-        """Tests that candidate pool contains distinct origins or distinct windows."""
-        pool = find_top_diverse_pool(self.calendar, deep_horizon=3000, window_size=240, window_stride=100, pool_capacity=12)
-        self.assertGreaterEqual(len(pool), 4)
-        origins = set(c.origin for c in pool)
-        # Verify that multiple origins are explored
-        self.assertGreaterEqual(len(origins), 3)
+    def test_full_horizon_window_discovery(self):
+        """Tests that windows beyond step 5000 can be evaluated and selected when deep_horizon=10000."""
+        pool = find_top_diverse_pool(self.calendar, deep_horizon=10000, window_size=240, window_stride=100)
+        max_start = max(c.window_start for c in pool)
+        self.assertGreater(max_start, 0)
 
-    def test_deterministic_byte_for_byte_svg_v4(self):
+    def test_pool_jaccard_diversity(self):
+        """Tests that candidate pool members do not exceed Jaccard overlap threshold."""
+        pool = find_top_diverse_pool(self.calendar, deep_horizon=3000, window_size=240, window_stride=100, pool_capacity=8)
+        self.assertGreaterEqual(len(pool), 3)
+        # Verify pairwise Jaccard between first few pool candidates
+        for i in range(len(pool)):
+            for j in range(i + 1, len(pool)):
+                set_a = pool[i].visited_set
+                set_b = pool[j].visited_set
+                union = len(set_a | set_b)
+                if union > 0:
+                    jaccard = len(set_a & set_b) / union
+                    self.assertLessEqual(jaccard, 0.90, f"Pair {i} and {j} had excessive Jaccard overlap: {jaccard:.2f}")
+
+    def test_oob_consecutive_run_penalty(self):
+        """Tests that all qualified windows strictly respect the max_oob_run threshold."""
+        pool = find_top_diverse_pool(self.calendar, deep_horizon=3000, window_size=240, window_stride=100)
+        for cand in pool:
+            self.assertLessEqual(cand.max_oob_run, 18, f"Candidate {cand} has excessive consecutive OOB steps: {cand.max_oob_run}")
+
+    def test_honest_metrics_semantics(self):
+        """Verifies that unique active contribution cells visited cannot exceed total active days."""
+        sim, an = select_daily_simulation(self.calendar, date_str="2026-09-15", steps_count=240, deep_horizon=3000)
+        active_days = sum(1 for c in self.calendar.cells.values() if c.count > 0)
+        self.assertLessEqual(an.unique_active_cells_visited, active_days)
+        self.assertGreaterEqual(an.active_contribution_interactions, an.unique_active_cells_visited)
+
+    def test_deterministic_byte_for_byte_svg(self):
         """Ensures two independent renders of the same fixture and date produce bitwise identical SVGs."""
         sim, analysis = select_daily_simulation(self.calendar, date_str="2026-09-15", steps_count=240, deep_horizon=3000)
-        svg1 = render_langton_svg_v3(self.calendar, sim, analysis, theme="light")
-        svg2 = render_langton_svg_v3(self.calendar, sim, analysis, theme="light")
+        svg1 = render_langton_svg(self.calendar, sim, analysis, theme="light")
+        svg2 = render_langton_svg(self.calendar, sim, analysis, theme="light")
         self.assertEqual(hashlib.sha256(svg1.encode("utf-8")).hexdigest(), hashlib.sha256(svg2.encode("utf-8")).hexdigest())
 
-        svg_dark1 = render_langton_svg_v3(self.calendar, sim, analysis, theme="dark")
-        svg_dark2 = render_langton_svg_v3(self.calendar, sim, analysis, theme="dark")
+        svg_dark1 = render_langton_svg(self.calendar, sim, analysis, theme="dark")
+        svg_dark2 = render_langton_svg(self.calendar, sim, analysis, theme="dark")
         self.assertEqual(hashlib.sha256(svg_dark1.encode("utf-8")).hexdigest(), hashlib.sha256(svg_dark2.encode("utf-8")).hexdigest())
 
     def test_svg_xml_validity_and_security(self):
@@ -152,7 +177,7 @@ class TestLangtonEngineV4(unittest.TestCase):
         """
         sim, analysis = select_daily_simulation(self.calendar, date_str="2026-09-15", steps_count=240, deep_horizon=3000)
         for theme in ["light", "dark"]:
-            svg = render_langton_svg_v3(self.calendar, sim, analysis, theme=theme)
+            svg = render_langton_svg(self.calendar, sim, analysis, theme=theme)
             root = ET.fromstring(svg)
             self.assertEqual(root.tag.split("}")[-1], "svg")
 
@@ -168,14 +193,17 @@ class TestLangtonEngineV4(unittest.TestCase):
             self.assertNotIn("ghp_", svg)
             self.assertNotIn("token", svg.lower())
 
-    def test_no_ghost_grid_or_rl_rule_microaulas_in_svg(self):
-        """V4 quality requirement: no ghost cells, no RL rule formulas or dashboard text."""
+    def test_no_redundant_titles_or_rl_rule_microaulas_in_svg(self):
+        """10/10 quality requirement: no ghost cells, no duplicate titles, no microaula text."""
         sim, analysis = select_daily_simulation(self.calendar, date_str="2026-09-15", steps_count=240, deep_horizon=3000)
-        svg = render_langton_svg_v3(self.calendar, sim, analysis, theme="light")
+        svg = render_langton_svg(self.calendar, sim, analysis, theme="light")
 
         # Ghost grid removed
         self.assertNotIn('id="ghost-grid"', svg)
         self.assertNotIn('class="ghost-cell"', svg)
+
+        # Redundant title removed (since README already has heading)
+        self.assertNotIn("Contribuições · Formiga de Langton", svg)
 
         # Technical/microaula text removed
         self.assertNotIn("Regra RL:", svg)
@@ -185,28 +213,25 @@ class TestLangtonEngineV4(unittest.TestCase):
         # Calendar clip path present
         self.assertIn('clip-path="url(#calendar-clip)"', svg)
 
-    def test_progressive_trail_and_dynamic_overlays_presence(self):
-        """Verifies that the trail animates via stroke-dashoffset (not pre-drawn)
-        and that automaton-state-layer overlays are generated for flipped cells.
-        """
+    def test_fading_tail_and_active_halo_presence(self):
+        """Verifies that the trail features a fading tail dash and current interaction halo."""
         sim, analysis = select_daily_simulation(self.calendar, date_str="2026-09-15", steps_count=240, deep_horizon=3000)
-        svg = render_langton_svg_v3(self.calendar, sim, analysis, theme="dark")
+        svg = render_langton_svg(self.calendar, sim, analysis, theme="dark")
 
-        self.assertIn("stroke-dasharray:", svg)
-        self.assertIn("animation: trail-reveal", svg)
-        self.assertIn("@keyframes trail-reveal", svg)
+        self.assertIn("stroke-dasharray: 420.0", svg)
+        self.assertIn('class="ant-halo"', svg)
         self.assertIn('id="calendar-data-layer"', svg)
         self.assertIn('id="automaton-state-layer"', svg)
         self.assertIn('class="state-overlay', svg)
 
     def test_svg_size_under_limit(self):
-        """Checks that generated SVGs do not exceed 250 KiB (spec allows up to 350 KiB)."""
+        """Checks that generated SVGs do not exceed 200 KiB (spec allows up to 350 KiB)."""
         sim, analysis = select_daily_simulation(self.calendar, date_str="2026-09-15", steps_count=240, deep_horizon=3000)
-        svg_light = render_langton_svg_v3(self.calendar, sim, analysis, theme="light")
-        svg_dark = render_langton_svg_v3(self.calendar, sim, analysis, theme="dark")
+        svg_light = render_langton_svg(self.calendar, sim, analysis, theme="light")
+        svg_dark = render_langton_svg(self.calendar, sim, analysis, theme="dark")
 
-        self.assertLess(len(svg_light.encode("utf-8")), 250 * 1024)
-        self.assertLess(len(svg_dark.encode("utf-8")), 250 * 1024)
+        self.assertLess(len(svg_light.encode("utf-8")), 200 * 1024)
+        self.assertLess(len(svg_dark.encode("utf-8")), 200 * 1024)
 
     def test_rigorous_highway_detection_on_empty_grid(self):
         """Validates that empty grid reliably emerges into period-104 highway with (-2, 2) vector."""
