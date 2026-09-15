@@ -39,12 +39,12 @@
 
 <br>
 
-### 🕹️ Contribuições
+### 🐜 Contribuições · Formiga de Langton
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/leozaow/leozaow/output/pacman-contribution-graph-dark.svg">
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/leozaow/leozaow/output/pacman-contribution-graph.svg">
-  <img alt="Pac-Man contribution graph" src="https://raw.githubusercontent.com/leozaow/leozaow/output/pacman-contribution-graph.svg" width="100%">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/leozaow/leozaow/output/langton-contribution-graph-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/leozaow/leozaow/output/langton-contribution-graph.svg">
+  <img alt="Formiga de Langton interagindo com meu calendário real de contribuições no GitHub" src="https://raw.githubusercontent.com/leozaow/leozaow/output/langton-contribution-graph.svg" width="100%">
 </picture>
 
 <br>
