@@ -13,6 +13,8 @@ Renders a pure, native GitHub contribution calendar animated by Langton's Ant:
 9. 100% deterministic, standalone XML, lightweight, zero JavaScript.
 10. Declarative SMIL native SVG animation engine (<animateTransform>, <animate>) guaranteed to
     run continuously in GitHub profile <img> / <picture> contexts and Camo proxies without freezing.
+11. Exact mathematical synchronization: trail head endpoint strictly coincides with the ant position
+    along the path throughout the entire trajectory (dash_offset = tail_len - path_distance).
 """
 
 from __future__ import annotations
@@ -96,6 +98,25 @@ def get_cell_level_index(level: str) -> int:
     return mapping.get(level, 0)
 
 
+def trail_dash_offset(
+    path_distance: float,
+    tail_length: float,
+) -> float:
+    """Calculates the stroke-dashoffset ensuring the visible dash window ends exactly at path_distance.
+
+    Invariant:
+      With stroke-dasharray="tail_length gap_length" (where gap_length >= total_path_length),
+      the dash pattern evaluates along path coordinate `s` with phase `s + stroke-dashoffset`.
+      For dash_offset = tail_length - path_distance, the dash condition:
+        0 <= s + (tail_length - path_distance) <= tail_length
+      simplifies identically to:
+        path_distance - tail_length <= s <= path_distance.
+      Therefore, the visible trail window is precisely [max(0, path_distance - tail_length), path_distance],
+      guaranteeing that the trail head endpoint strictly coincides with the ant position at path_distance.
+    """
+    return tail_length - path_distance
+
+
 def render_langton_svg(
     calendar: CalendarData,
     simulation: SimulationResult,
@@ -140,6 +161,8 @@ def render_langton_svg(
 
     # Fading tail length: ~30 steps = ~420 px
     tail_len = 420.0
+    # Gap length must be strictly >= total_trail_len to ensure pattern repetition never appears
+    gap_len = total_trail_len + tail_len + 100.0
 
     # Path d string
     path_d_parts = [f"M {path_segments[0][0]:.1f},{path_segments[0][1]:.1f}"]
@@ -147,13 +170,15 @@ def render_langton_svg(
         path_d_parts.append(f"L {cx:.1f},{cy:.1f}")
     path_d = " ".join(path_d_parts)
 
-    # 2. SMIL KeyTimes Timeline (0..0.02 idle/intro, 0.02..0.92 movement, 0.92..0.96 outro, 0.96..1.0 wrap)
+    # 2. Synchronized SMIL Timeline (0..0.02 idle/intro, 0.02..0.92 movement, 0.92..0.96 outro, 0.96..1.0 wrap)
+    # ant and trail strictly share identical timeline timestamps and keyTimes
     t_start = 0.02
     t_end = 0.92
     t_span = t_end - t_start
 
     start_cx, start_cy = path_segments[0]
     start_rot = DIR_ANGLES[simulation.steps[0].direction_after]
+    start_offset = trail_dash_offset(cum_lengths[0], tail_len)
 
     ant_times = [0.0, t_start]
     ant_translates = [f"{start_cx:.1f},{start_cy:.1f}", f"{start_cx:.1f},{start_cy:.1f}"]
@@ -161,7 +186,7 @@ def render_langton_svg(
     ant_opacities = ["0", "1"]
 
     trail_times = [0.0, t_start]
-    trail_offsets = [f"{total_trail_len:.1f}", f"{total_trail_len:.1f}"]
+    trail_offsets = [f"{start_offset:.1f}", f"{start_offset:.1f}"]
     trail_opacities = ["0", "0.55"]
 
     for i in range(1, total_steps):
@@ -176,12 +201,13 @@ def render_langton_svg(
         ant_opacities.append("1")
 
         trail_times.append(t)
-        trail_offsets.append(f"{(total_trail_len - cum_lengths[i]):.1f}")
+        trail_offsets.append(f"{trail_dash_offset(cum_lengths[i], tail_len):.1f}")
         trail_opacities.append("0.55")
 
     # Outro and wrap to origin
     last_cx, last_cy = path_segments[-1]
     last_rot = DIR_ANGLES[simulation.steps[-1].direction_after]
+    last_offset = trail_dash_offset(cum_lengths[-1], tail_len)
 
     ant_times.extend([0.96, 1.0])
     ant_translates.extend([f"{last_cx:.1f},{last_cy:.1f}", f"{start_cx:.1f},{start_cy:.1f}"])
@@ -189,7 +215,7 @@ def render_langton_svg(
     ant_opacities.extend(["0", "0"])
 
     trail_times.extend([0.96, 1.0])
-    trail_offsets.extend(["0.0", f"{total_trail_len:.1f}"])
+    trail_offsets.extend([f"{last_offset:.1f}", f"{start_offset:.1f}"])
     trail_opacities.extend(["0", "0"])
 
     kt_ant = ";".join(f"{t:.5f}" for t in ant_times)
@@ -246,7 +272,7 @@ def render_langton_svg(
 
                 overlay_state_rects.append(
                     f'<rect class="state-overlay" x="{px:.1f}" y="{py:.1f}" width="{CELL_SIZE}" height="{CELL_SIZE}" rx="{CORNER_RADIUS}" ry="{CORNER_RADIUS}" fill="none" stroke="{stroke_color}" stroke-width="0.75" opacity="0">'
-                    f'<animate attributeName="opacity" dur="{dur_ms}ms" repeatCount="indefinite" keyTimes="{kt_c}" values="{vals_c}"/>'
+                    f'<animate attributeName="opacity" dur="{dur_ms}ms" repeatCount="indefinite" keyTimes="{kt_c}" values="{vals_c}" calcMode="linear"/>'
                     f'</rect>'
                 )
 
@@ -286,7 +312,7 @@ def render_langton_svg(
       stroke-width: 1.2px;
       stroke-linecap: round;
       stroke-linejoin: round;
-      stroke-dasharray: {tail_len:.1f} {total_trail_len:.1f};
+      stroke-dasharray: {tail_len:.1f} {gap_len:.1f};
       filter: drop-shadow(0 0 1px {palette['trail_glow']});
     }}
     .ant-halo {{
@@ -310,9 +336,9 @@ def render_langton_svg(
 
     ant_svg = f"""
     <g class="ant-agent" transform="translate(0,0)" opacity="0">
-      <animate attributeName="opacity" dur="{dur_ms}ms" repeatCount="indefinite" keyTimes="{kt_ant}" values="{val_ant_op}"/>
-      <animateTransform attributeName="transform" type="translate" dur="{dur_ms}ms" repeatCount="indefinite" keyTimes="{kt_ant}" values="{val_trans}" additive="replace"/>
-      <animateTransform attributeName="transform" type="rotate" dur="{dur_ms}ms" repeatCount="indefinite" keyTimes="{kt_ant}" values="{val_rot}" additive="sum"/>
+      <animate attributeName="opacity" dur="{dur_ms}ms" repeatCount="indefinite" keyTimes="{kt_ant}" values="{val_ant_op}" calcMode="linear"/>
+      <animateTransform attributeName="transform" type="translate" dur="{dur_ms}ms" repeatCount="indefinite" keyTimes="{kt_ant}" values="{val_trans}" additive="replace" calcMode="linear"/>
+      <animateTransform attributeName="transform" type="rotate" dur="{dur_ms}ms" repeatCount="indefinite" keyTimes="{kt_ant}" values="{val_rot}" additive="sum" calcMode="linear"/>
 
       <!-- Active cell interaction halo (Current Interaction) -->
       <rect class="ant-halo" x="{-CELL_SIZE/2.0:.1f}" y="{-CELL_SIZE/2.0:.1f}" width="{CELL_SIZE}" height="{CELL_SIZE}" rx="{CORNER_RADIUS}"/>
@@ -375,10 +401,10 @@ def render_langton_svg(
       {"".join(overlay_state_rects)}
     </g>
 
-    <!-- Fading Tail Trail -->
-    <path class="trail" d="{path_d}" stroke-dashoffset="{total_trail_len:.1f}" opacity="0">
-      <animate attributeName="stroke-dashoffset" dur="{dur_ms}ms" repeatCount="indefinite" keyTimes="{kt_trail}" values="{val_tr_off}"/>
-      <animate attributeName="opacity" dur="{dur_ms}ms" repeatCount="indefinite" keyTimes="{kt_trail}" values="{val_tr_op}"/>
+    <!-- Fading Tail Trail (Painted directly beneath the ant agent) -->
+    <path class="trail" d="{path_d}" stroke-dashoffset="{start_offset:.1f}" opacity="0">
+      <animate attributeName="stroke-dashoffset" dur="{dur_ms}ms" repeatCount="indefinite" keyTimes="{kt_trail}" values="{val_tr_off}" calcMode="linear"/>
+      <animate attributeName="opacity" dur="{dur_ms}ms" repeatCount="indefinite" keyTimes="{kt_trail}" values="{val_tr_op}" calcMode="linear"/>
     </path>
 
     <!-- Autonomous Agent with Current Interaction Halo -->

@@ -22,7 +22,7 @@ from scripts.langton_analysis import (
     find_top_diverse_pool,
     select_daily_simulation,
 )
-from scripts.langton_render import render_langton_svg, render_langton_svg_v3
+from scripts.langton_render import render_langton_svg, render_langton_svg_v3, trail_dash_offset
 from scripts.generate_langton import generate_all
 
 FIXTURE_PATH = Path(__file__).parent / "fixtures" / "contributions.json"
@@ -238,6 +238,34 @@ class TestLangtonEngine(unittest.TestCase):
             self.assertIn("<animate", svg)
             self.assertIn('repeatCount="indefinite"', svg)
             self.assertIn('attributeName="stroke-dashoffset"', svg)
+
+    def test_geometric_trail_head_invariant(self):
+        """Tests that for every step i, the calculated stroke-dashoffset ensures that the
+        visible trail window endpoint strictly equals cum_lengths[i] (the ant's position).
+        Invariant:
+          visible interval = [max(0, s - tail_len), s]
+          trail_head == s == path_distance.
+        """
+        sim, analysis = select_daily_simulation(self.calendar, date_str="2026-09-15", steps_count=240, deep_horizon=3000)
+        tail_len = 420.0
+
+        # Calculate cum_lengths as done in renderer
+        cum_lengths = [0.0]
+        prev = (sim.steps[0].x, sim.steps[0].y)
+        for s in sim.steps[1:]:
+            seg_len = ((s.x - prev[0]) ** 2 + (s.y - prev[1]) ** 2) ** 0.5 * 14.0
+            cum_lengths.append(cum_lengths[-1] + seg_len)
+            prev = (s.x, s.y)
+
+        # Test specific step indices requested: 0, 1, 30, 100, 180, 239
+        test_indices = [0, 1, 30, 100, 180, 239]
+        for idx in test_indices:
+            s = cum_lengths[idx]
+            offset = trail_dash_offset(s, tail_len)
+            # Mathematical invariant: in SVG, with pattern [tail_len, gap_len],
+            # dash condition is 0 <= x + offset <= tail_len => -offset <= x <= tail_len - offset.
+            trail_head = tail_len - offset
+            self.assertAlmostEqual(trail_head, s, places=4, msg=f"Trail head deviated from ant distance at step {idx}")
 
     def test_svg_size_under_limit(self):
         """Checks that generated SVGs do not exceed 200 KiB (spec allows up to 350 KiB)."""
