@@ -215,12 +215,12 @@ def render_langton_svg(
             flips = cell_steps_map.get((w, d), [])
             init_state = simulation.initial_grid_snapshot.get((w, d), 1 if cell.count > 0 else 0)
 
-            if flips or (init_state == 1 and cell.count == 0):
+            if flips:
                 cid = f"fl_{anim_cell_counter}"
                 anim_cell_counter += 1
 
                 kf_overlay: List[str] = []
-                init_op = 0.35 if init_state == 1 else 0.0
+                init_op = 0.0
                 kf_overlay.append(f"0.00% {{ opacity: {init_op:.2f}; }}")
                 kf_overlay.append(f"{t_ant_start:.2f}% {{ opacity: {init_op:.2f}; }}")
 
@@ -293,6 +293,8 @@ def render_langton_svg(
       will-change: opacity;
     }}
     .ant-agent {{
+      transform: translate({start_cx:.1f}px, {start_cy:.1f}px) rotate({start_angle}deg);
+      opacity: 0;
       animation: ant-walk {duration_s:.1f}s linear infinite;
       will-change: transform, opacity;
     }}
@@ -322,8 +324,11 @@ def render_langton_svg(
     {" ".join(cell_styles)}
     @media (prefers-reduced-motion: reduce) {{
       .ant-agent, .trail, .state-overlay {{ animation: none !important; }}
-      .trail {{ stroke-dashoffset: 0 !important; opacity: 0.30 !important; }}
-      .state-overlay {{ opacity: 0.35 !important; }}
+      .trail, .state-overlay {{ opacity: 0 !important; }}
+      .ant-agent {{
+        opacity: 1 !important;
+        transform: translate({start_cx:.1f}px, {start_cy:.1f}px) rotate({start_angle}deg) !important;
+      }}
     }}
     """
 
