@@ -224,6 +224,21 @@ class TestLangtonEngine(unittest.TestCase):
         self.assertIn('id="automaton-state-layer"', svg)
         self.assertIn('class="state-overlay', svg)
 
+    def test_smil_declarative_animation_architecture(self):
+        """Verifies that animation uses native SVG SMIL exclusively, with zero CSS @keyframes or animation: rules."""
+        sim, analysis = select_daily_simulation(self.calendar, date_str="2026-09-15", steps_count=240, deep_horizon=3000)
+        for theme in ["light", "dark"]:
+            svg = render_langton_svg(self.calendar, sim, analysis, theme=theme)
+            self.assertNotIn("@keyframes", svg)
+            self.assertNotIn("animation:", svg)
+            self.assertNotIn("will-change", svg)
+            self.assertIn("<animateTransform", svg)
+            self.assertIn('type="translate"', svg)
+            self.assertIn('type="rotate"', svg)
+            self.assertIn("<animate", svg)
+            self.assertIn('repeatCount="indefinite"', svg)
+            self.assertIn('attributeName="stroke-dashoffset"', svg)
+
     def test_svg_size_under_limit(self):
         """Checks that generated SVGs do not exceed 200 KiB (spec allows up to 350 KiB)."""
         sim, analysis = select_daily_simulation(self.calendar, date_str="2026-09-15", steps_count=240, deep_horizon=3000)

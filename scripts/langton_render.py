@@ -11,6 +11,8 @@ Renders a pure, native GitHub contribution calendar animated by Langton's Ant:
 7. Fading tail: progressive trail with tail dash limiting clutter to recent trajectory.
 8. Native GitHub legend ("Menos" / "Mais").
 9. 100% deterministic, standalone XML, lightweight, zero JavaScript.
+10. Declarative SMIL native SVG animation engine (<animateTransform>, <animate>) guaranteed to
+    run continuously in GitHub profile <img> / <picture> contexts and Camo proxies without freezing.
 """
 
 from __future__ import annotations
@@ -101,7 +103,7 @@ def render_langton_svg(
     theme: str = "light",
     duration_s: float = 16.0,
 ) -> str:
-    """Renders the standalone animated SVG for Langton's Ant with native GitHub styling."""
+    """Renders the standalone animated SVG for Langton's Ant with native SMIL animation."""
     palette = DARK_PALETTE if theme == "dark" else LIGHT_PALETTE
     weeks_count = max(calendar.weeks_count, 53)
 
@@ -114,6 +116,8 @@ def render_langton_svg(
     total_steps = len(simulation.steps)
     if total_steps == 0:
         total_steps = 1
+
+    dur_ms = int(duration_s * 1000)
 
     def to_svg_xy(gx: float, gy: float) -> Tuple[float, float]:
         return (PAD_LEFT + gx * STEP_PITCH, PAD_TOP + gy * STEP_PITCH)
@@ -143,62 +147,71 @@ def render_langton_svg(
         path_d_parts.append(f"L {cx:.1f},{cy:.1f}")
     path_d = " ".join(path_d_parts)
 
-    # 2. Timeline Phases (0%..3% Seeding, 3%..92% Traversal, 92%..97% Pattern display, 97%..100% Reset)
-    t_ant_start = 3.0
-    t_ant_end = 92.0
-    t_ant_span = t_ant_end - t_ant_start
-
-    ant_keyframes: List[str] = []
-    trail_keyframes: List[str] = []
+    # 2. SMIL KeyTimes Timeline (0..0.02 idle/intro, 0.02..0.92 movement, 0.92..0.96 outro, 0.96..1.0 wrap)
+    t_start = 0.02
+    t_end = 0.92
+    t_span = t_end - t_start
 
     start_cx, start_cy = path_segments[0]
-    start_angle = DIR_ANGLES[simulation.steps[0].direction_after]
-    ant_keyframes.append(
-        f"0.00% {{ transform: translate({start_cx:.1f}px, {start_cy:.1f}px) rotate({start_angle}deg); opacity: 0; }}"
-    )
-    ant_keyframes.append(
-        f"{t_ant_start:.2f}% {{ transform: translate({start_cx:.1f}px, {start_cy:.1f}px) rotate({start_angle}deg); opacity: 1; }}"
-    )
+    start_rot = DIR_ANGLES[simulation.steps[0].direction_after]
 
-    trail_keyframes.append(f"0.00% {{ stroke-dashoffset: {total_trail_len:.1f}; opacity: 0; }}")
-    trail_keyframes.append(f"{t_ant_start:.2f}% {{ stroke-dashoffset: {total_trail_len:.1f}; opacity: 0.55; }}")
+    ant_times = [0.0, t_start]
+    ant_translates = [f"{start_cx:.1f},{start_cy:.1f}", f"{start_cx:.1f},{start_cy:.1f}"]
+    ant_rotates = [f"{start_rot}", f"{start_rot}"]
+    ant_opacities = ["0", "1"]
 
-    for i, step in enumerate(simulation.steps):
+    trail_times = [0.0, t_start]
+    trail_offsets = [f"{total_trail_len:.1f}", f"{total_trail_len:.1f}"]
+    trail_opacities = ["0", "0.55"]
+
+    for i in range(1, total_steps):
         frac = i / (total_steps - 1) if total_steps > 1 else 1.0
-        t_pct = t_ant_start + frac * t_ant_span
+        t = round(t_start + frac * t_span, 5)
         cx, cy = path_segments[i]
-        angle = DIR_ANGLES[step.direction_after]
+        angle = DIR_ANGLES[simulation.steps[i].direction_after]
 
-        ant_keyframes.append(
-            f"{t_pct:.2f}% {{ transform: translate({cx:.1f}px, {cy:.1f}px) rotate({angle}deg); opacity: 1; }}"
-        )
-        current_offset = total_trail_len - cum_lengths[i]
-        trail_keyframes.append(
-            f"{t_pct:.2f}% {{ stroke-dashoffset: {current_offset:.1f}; opacity: 0.55; }}"
-        )
+        ant_times.append(t)
+        ant_translates.append(f"{cx:.1f},{cy:.1f}")
+        ant_rotates.append(f"{angle}")
+        ant_opacities.append("1")
 
-    # Wrap & Fade
-    ant_keyframes.append(f"{t_ant_end:.2f}% {{ opacity: 1; }}")
-    ant_keyframes.append("97.00% { opacity: 0; }")
-    ant_keyframes.append("100.00% { opacity: 0; }")
+        trail_times.append(t)
+        trail_offsets.append(f"{(total_trail_len - cum_lengths[i]):.1f}")
+        trail_opacities.append("0.55")
 
-    trail_keyframes.append(f"{t_ant_end:.2f}% {{ stroke-dashoffset: 0; opacity: 0.55; }}")
-    trail_keyframes.append("97.00% { stroke-dashoffset: 0; opacity: 0; }")
-    trail_keyframes.append(f"100.00% {{ stroke-dashoffset: {total_trail_len:.1f}; opacity: 0; }}")
+    # Outro and wrap to origin
+    last_cx, last_cy = path_segments[-1]
+    last_rot = DIR_ANGLES[simulation.steps[-1].direction_after]
 
-    # 3. Dynamic Cell State & Overlays (Refined subtle inner stroke 0.75px, opacity ~0.35)
-    cell_steps_map: Dict[Tuple[int, int], List[Tuple[float, int, int]]] = {}
+    ant_times.extend([0.96, 1.0])
+    ant_translates.extend([f"{last_cx:.1f},{last_cy:.1f}", f"{start_cx:.1f},{start_cy:.1f}"])
+    ant_rotates.extend([f"{last_rot}", f"{start_rot}"])
+    ant_opacities.extend(["0", "0"])
+
+    trail_times.extend([0.96, 1.0])
+    trail_offsets.extend(["0.0", f"{total_trail_len:.1f}"])
+    trail_opacities.extend(["0", "0"])
+
+    kt_ant = ";".join(f"{t:.5f}" for t in ant_times)
+    val_trans = ";".join(ant_translates)
+    val_rot = ";".join(ant_rotates)
+    val_ant_op = ";".join(ant_opacities)
+
+    kt_trail = ";".join(f"{t:.5f}" for t in trail_times)
+    val_tr_off = ";".join(trail_offsets)
+    val_tr_op = ";".join(trail_opacities)
+
+    # 3. Dynamic Cell State & Overlays with SMIL <animate>
+    cell_steps_map: Dict[Tuple[int, int], List[Tuple[float, int]]] = {}
     for i, step in enumerate(simulation.steps):
         frac = i / (total_steps - 1) if total_steps > 1 else 1.0
-        t_pct = t_ant_start + frac * t_ant_span
+        t = round(t_start + frac * t_span, 5)
         pos = (step.x, step.y)
-        cell_steps_map.setdefault(pos, []).append((t_pct, step.cell_state_after, step.commit_count))
+        cell_steps_map.setdefault(pos, []).append((t, step.cell_state_after))
 
-    cell_styles: List[str] = []
     base_calendar_rects: List[str] = []
     overlay_state_rects: List[str] = []
 
-    anim_cell_counter = 0
     for w in range(weeks_count):
         for d in range(7):
             cell = calendar.cells.get((w, d))
@@ -212,41 +225,29 @@ def render_langton_svg(
                 f'<rect class="day" x="{px:.1f}" y="{py:.1f}" width="{CELL_SIZE}" height="{CELL_SIZE}" rx="{CORNER_RADIUS}" ry="{CORNER_RADIUS}" fill="{base_fill}"/>'
             )
 
-            flips = cell_steps_map.get((w, d), [])
-            init_state = simulation.initial_grid_snapshot.get((w, d), 1 if cell.count > 0 else 0)
-
+            flips = cell_steps_map.get((w, d))
             if flips:
-                cid = f"fl_{anim_cell_counter}"
-                anim_cell_counter += 1
+                c_pts: List[Tuple[float, float]] = [(0.0, 0.0), (t_start, 0.0)]
+                for t_flip, s_after in flips:
+                    t_pre = max(t_start + 0.0001, t_flip - 0.001)
+                    c_pts.append((t_pre, c_pts[-1][1]))
+                    c_pts.append((t_flip, 0.40 if s_after == 1 else 0.0))
+                c_pts.extend([(t_end, c_pts[-1][1]), (0.96, 0.0), (1.0, 0.0)])
 
-                kf_overlay: List[str] = []
-                init_op = 0.0
-                kf_overlay.append(f"0.00% {{ opacity: {init_op:.2f}; }}")
-                kf_overlay.append(f"{t_ant_start:.2f}% {{ opacity: {init_op:.2f}; }}")
+                # Clean monotonically increasing keyTimes
+                clean_pts = [c_pts[0]]
+                for pt in c_pts[1:]:
+                    if pt[0] > clean_pts[-1][0]:
+                        clean_pts.append(pt)
 
-                for t_pct, state_after, _ in flips:
-                    t_before = max(t_ant_start, t_pct - 0.05)
-                    if state_after == 1:
-                        kf_overlay.append(f"{t_before:.2f}% {{ opacity: 0.0; }}")
-                        kf_overlay.append(f"{t_pct:.2f}% {{ opacity: 0.40; }}")
-                    else:
-                        kf_overlay.append(f"{t_before:.2f}% {{ opacity: 0.40; }}")
-                        kf_overlay.append(f"{t_pct:.2f}% {{ opacity: 0.0; }}")
-
-                final_state = flips[-1][1] if flips else init_state
-                final_op = 0.40 if final_state == 1 else 0.0
-                kf_overlay.append(f"{t_ant_end:.2f}% {{ opacity: {final_op:.2f}; }}")
-                kf_overlay.append("97.00% { opacity: 0.0; }")
-                kf_overlay.append("100.00% { opacity: 0.0; }")
-
-                cell_styles.append(f"@keyframes {cid} {{ {' '.join(kf_overlay)} }}")
-                cell_styles.append(
-                    f".{cid} {{ animation: {cid} {duration_s:.1f}s cubic-bezier(0.2, 0, 0, 1) infinite; }}"
-                )
-
+                kt_c = ";".join(f"{p[0]:.4f}" for p in clean_pts)
+                vals_c = ";".join(f"{p[1]:.2f}" for p in clean_pts)
                 stroke_color = palette["state_flip_on"] if cell.count > 0 else palette["accent"]
+
                 overlay_state_rects.append(
-                    f'<rect class="state-overlay {cid}" x="{px:.1f}" y="{py:.1f}" width="{CELL_SIZE}" height="{CELL_SIZE}" rx="{CORNER_RADIUS}" ry="{CORNER_RADIUS}" fill="none" stroke="{stroke_color}" stroke-width="0.75"/>'
+                    f'<rect class="state-overlay" x="{px:.1f}" y="{py:.1f}" width="{CELL_SIZE}" height="{CELL_SIZE}" rx="{CORNER_RADIUS}" ry="{CORNER_RADIUS}" fill="none" stroke="{stroke_color}" stroke-width="0.75" opacity="0">'
+                    f'<animate attributeName="opacity" dur="{dur_ms}ms" repeatCount="indefinite" keyTimes="{kt_c}" values="{vals_c}"/>'
+                    f'</rect>'
                 )
 
     # 4. Month & Weekday Labels (Authentic GitHub placement)
@@ -270,6 +271,7 @@ def render_langton_svg(
         for d_idx, text in WEEKDAY_LABELS
     ]
 
+    # Clean CSS: Strictly styles, typography, and drop-shadows (no @keyframes or animation: properties)
     css = f"""
     svg {{
       font-family: {FONT_STACK};
@@ -286,17 +288,6 @@ def render_langton_svg(
       stroke-linejoin: round;
       stroke-dasharray: {tail_len:.1f} {total_trail_len:.1f};
       filter: drop-shadow(0 0 1px {palette['trail_glow']});
-      animation: trail-reveal {duration_s:.1f}s linear infinite;
-    }}
-    .state-overlay {{
-      opacity: 0;
-      will-change: opacity;
-    }}
-    .ant-agent {{
-      transform: translate({start_cx:.1f}px, {start_cy:.1f}px) rotate({start_angle}deg);
-      opacity: 0;
-      animation: ant-walk {duration_s:.1f}s linear infinite;
-      will-change: transform, opacity;
     }}
     .ant-halo {{
       fill: none;
@@ -315,25 +306,14 @@ def render_langton_svg(
       stroke-linecap: round;
     }}
     .ant-eye {{ fill: {palette['ant_eye']}; }}
-    @keyframes ant-walk {{
-      {" ".join(ant_keyframes)}
-    }}
-    @keyframes trail-reveal {{
-      {" ".join(trail_keyframes)}
-    }}
-    {" ".join(cell_styles)}
-    @media (prefers-reduced-motion: reduce) {{
-      .ant-agent, .trail, .state-overlay {{ animation: none !important; }}
-      .trail, .state-overlay {{ opacity: 0 !important; }}
-      .ant-agent {{
-        opacity: 1 !important;
-        transform: translate({start_cx:.1f}px, {start_cy:.1f}px) rotate({start_angle}deg) !important;
-      }}
-    }}
     """
 
     ant_svg = f"""
-    <g class="ant-agent">
+    <g class="ant-agent" transform="translate(0,0)" opacity="0">
+      <animate attributeName="opacity" dur="{dur_ms}ms" repeatCount="indefinite" keyTimes="{kt_ant}" values="{val_ant_op}"/>
+      <animateTransform attributeName="transform" type="translate" dur="{dur_ms}ms" repeatCount="indefinite" keyTimes="{kt_ant}" values="{val_trans}" additive="replace"/>
+      <animateTransform attributeName="transform" type="rotate" dur="{dur_ms}ms" repeatCount="indefinite" keyTimes="{kt_ant}" values="{val_rot}" additive="sum"/>
+
       <!-- Active cell interaction halo (Current Interaction) -->
       <rect class="ant-halo" x="{-CELL_SIZE/2.0:.1f}" y="{-CELL_SIZE/2.0:.1f}" width="{CELL_SIZE}" height="{CELL_SIZE}" rx="{CORNER_RADIUS}"/>
       <!-- Autonomous Agent Silhouette -->
@@ -365,7 +345,7 @@ def render_langton_svg(
     svg_content = f"""<svg width="{svg_width}" height="{svg_height}" viewBox="0 0 {svg_width} {svg_height}" xmlns="http://www.w3.org/2000/svg">
   <title>Langton's Ant × GitHub Contributions ({theme.capitalize()})</title>
   <desc>Deterministic Langton's Ant RL simulation seeded by real GitHub contributions. Total commits: {calendar.total_contributions}.</desc>
-  <!-- Generated by leozaow/leozaow Langton contribution renderer V4 Refined -->
+  <!-- Generated by leozaow/leozaow Langton contribution renderer V4 Refined (Native SMIL) -->
   <defs>
     <!-- Calendar Clip: strictly clips dynamic animation layers to the 53x7 calendar grid -->
     <clipPath id="calendar-clip">
@@ -396,7 +376,10 @@ def render_langton_svg(
     </g>
 
     <!-- Fading Tail Trail -->
-    <path class="trail" d="{path_d}"/>
+    <path class="trail" d="{path_d}" stroke-dashoffset="{total_trail_len:.1f}" opacity="0">
+      <animate attributeName="stroke-dashoffset" dur="{dur_ms}ms" repeatCount="indefinite" keyTimes="{kt_trail}" values="{val_tr_off}"/>
+      <animate attributeName="opacity" dur="{dur_ms}ms" repeatCount="indefinite" keyTimes="{kt_trail}" values="{val_tr_op}"/>
+    </path>
 
     <!-- Autonomous Agent with Current Interaction Halo -->
     {ant_svg}
