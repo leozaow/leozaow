@@ -338,7 +338,7 @@ def render_langton_svg(
     <g class="ant-agent" transform="translate(0,0)" opacity="0">
       <animate attributeName="opacity" dur="{dur_ms}ms" repeatCount="indefinite" keyTimes="{kt_ant}" values="{val_ant_op}" calcMode="linear"/>
       <animateTransform attributeName="transform" type="translate" dur="{dur_ms}ms" repeatCount="indefinite" keyTimes="{kt_ant}" values="{val_trans}" additive="replace" calcMode="linear"/>
-      <animateTransform attributeName="transform" type="rotate" dur="{dur_ms}ms" repeatCount="indefinite" keyTimes="{kt_ant}" values="{val_rot}" additive="sum" calcMode="linear"/>
+      <animateTransform attributeName="transform" type="rotate" dur="{dur_ms}ms" repeatCount="indefinite" keyTimes="{kt_ant}" values="{val_rot}" additive="sum" calcMode="discrete"/>
 
       <!-- Active cell interaction halo (Current Interaction) -->
       <rect class="ant-halo" x="{-CELL_SIZE/2.0:.1f}" y="{-CELL_SIZE/2.0:.1f}" width="{CELL_SIZE}" height="{CELL_SIZE}" rx="{CORNER_RADIUS}"/>
