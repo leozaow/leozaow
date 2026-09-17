@@ -8,33 +8,31 @@
 
 <p align="center">
   <a href="https://www.linkedin.com/in/leozaow/" target="_blank">
-    <img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn">
+    <img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=flat&logo=linkedin&logoColor=white" alt="LinkedIn" height="20">
   </a>
+  <img src="https://komarev.com/ghpvc/?username=leozaow&label=VISITAS+AO+PERFIL&color=0e75b6&style=flat" alt="Visitas ao Perfil" height="20">
 </p>
 
 ### 🛠️ Stack & Tecnologias
 
+#### Agentes & Automação
 <p align="left">
-  <!-- Agentes, IDEs & Automação -->
-  <a href="https://openai.com/codex/"><img src="./assets/badges/codex.svg" alt="Codex by OpenAI" /></a>
-  <a href="https://antigravity.google/"><img src="./assets/badges/google-antigravity.svg" alt="Google Antigravity" /></a>
-  <a href="https://www.onorca.dev/"><img src="./assets/badges/orca-ade.svg" alt="Orca ADE" /></a>
-  <a href="https://n8n.io/"><img src="https://img.shields.io/badge/n8n-EA4B71?style=for-the-badge&logo=n8n&logoColor=white" alt="n8n" /></a>
-  <a href="https://developer.mozilla.org/en-US/docs/Glossary/REST"><img src="./assets/badges/rest-apis.svg" alt="REST APIs" /></a>
-  <a href="https://www.redhat.com/en/topics/automation/what-is-a-webhook"><img src="./assets/badges/webhooks.svg" alt="Webhooks" /></a>
-  <br>
-  <!-- Linguagens & Runtime -->
-  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" /></a>
-  <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript"><img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" alt="JavaScript" /></a>
-  <a href="https://www.linux.org/"><img src="https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black" alt="Linux" /></a>
-  <a href="https://www.docker.com/"><img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" /></a>
-  <a href="https://github.com/"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub" /></a>
-  <br>
-  <!-- Dados & Cloud -->
-  <a href="https://www.postgresql.org/"><img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" /></a>
-  <a href="https://redis.io/"><img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white" alt="Redis" /></a>
-  <a href="https://cloud.google.com/"><img src="https://img.shields.io/badge/Google%20Cloud-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white" alt="Google Cloud" /></a>
-  <a href="https://firebase.google.com/"><img src="https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" alt="Firebase" /></a>
+  <a href="https://openai.com/codex/" title="OpenAI Codex"><img src="./assets/badges/codex.svg" alt="OpenAI Codex" width="40" height="40" /></a>
+  <a href="https://antigravity.google/" title="Google Antigravity"><img src="./assets/badges/google-antigravity.svg" alt="Google Antigravity" width="40" height="40" /></a>
+  <a href="https://www.onorca.dev/" title="Orca ADE"><img src="./assets/badges/orca-ade.svg" alt="Orca ADE" width="40" height="40" /></a>
+  <a href="https://n8n.io/" title="n8n"><img src="./assets/badges/n8n.svg" alt="n8n" width="40" height="40" /></a>
+  <a href="https://developer.mozilla.org/en-US/docs/Glossary/REST" title="REST APIs"><img src="./assets/badges/rest-apis.svg" alt="REST APIs" width="40" height="40" /></a>
+  <a href="https://www.redhat.com/en/topics/automation/what-is-a-webhook" title="Webhooks"><img src="./assets/badges/webhooks.svg" alt="Webhooks" width="40" height="40" /></a>
+</p>
+
+#### Desenvolvimento & Infraestrutura
+<p align="left">
+  <a href="https://skillicons.dev"><img src="https://skillicons.dev/icons?i=py,js,bash,linux,docker,git,github" alt="Python, JavaScript, Bash, Linux, Docker, Git, GitHub" /></a>
+</p>
+
+#### Dados & Cloud
+<p align="left">
+  <a href="https://skillicons.dev"><img src="https://skillicons.dev/icons?i=postgres,redis,gcp,firebase" alt="PostgreSQL, Redis, Google Cloud, Firebase" /></a>
 </p>
 
 <br>
