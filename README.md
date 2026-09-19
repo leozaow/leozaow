@@ -27,7 +27,7 @@
 
 #### Desenvolvimento & Infraestrutura
 <p align="left">
-  <a href="https://skillicons.dev"><img src="https://skillicons.dev/icons?i=py,js,bash,linux,docker,git,github" alt="Python, JavaScript, Bash, Linux, Docker, Git, GitHub" /></a>
+  <a href="https://skillicons.dev"><img src="https://skillicons.dev/icons?i=py,js,html,css,bash,linux,docker,git,github" alt="Python, JavaScript, HTML, CSS, Bash, Linux, Docker, Git, GitHub" /></a>
 </p>
 
 #### Dados & Cloud
