@@ -26,11 +26,9 @@
       .pillars { font-size: 14px; font-weight: 600; letter-spacing: 2.1px; fill: #8c959f; }
       .node-title { font-size: 13px; font-weight: 700; letter-spacing: 1px; fill: #f0f6fc; }
       .node-sub { font-size: 11px; font-weight: 500; fill: #8c959f; }
-      .flow { stroke-dasharray: 12 16; animation: flow 4s linear infinite; }
-      .ambient { animation: breathe 4.8s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
-      @keyframes flow { to { stroke-dashoffset: -112; } }
-      @keyframes breathe { 0%,100% { opacity:.10; transform:scale(.82) } 50% { opacity:.28; transform:scale(1.08) } }
-      @media (prefers-reduced-motion: reduce) { .flow,.ambient { animation:none; } .signal,.pulse { display:none; } }
+      .flow { stroke-dasharray: 12 16; }
+      .status-label { font-size: 10px; font-weight: 700; letter-spacing: 1.4px; fill: #8c959f; }
+      .status-text { font-size: 11px; font-weight: 650; letter-spacing: .8px; fill: #f0f6fc; }
     </style>
   </defs>
 
@@ -54,9 +52,9 @@
     <path d="M150 246C265 218 320 274 430 246" stroke="#30363d" stroke-width="5" opacity=".62"/>
     <path d="M430 246C548 215 602 277 720 246" stroke="#30363d" stroke-width="5" opacity=".62"/>
     <path d="M720 246C838 215 892 277 1010 246" stroke="#30363d" stroke-width="5" opacity=".62"/>
-    <path d="M150 246C265 218 320 274 430 246" stroke="url(#flow1)" stroke-width="2.8" class="flow"/>
-    <path d="M430 246C548 215 602 277 720 246" stroke="url(#flow2)" stroke-width="2.8" class="flow" style="animation-delay:-1.3s"/>
-    <path d="M720 246C838 215 892 277 1010 246" stroke="url(#flow3)" stroke-width="2.8" class="flow" style="animation-delay:-2.6s"/>
+    <path d="M150 246C265 218 320 274 430 246" stroke="url(#flow1)" stroke-width="2.8" class="flow"><animate attributeName="stroke-dashoffset" from="0" to="-112" dur="4s" begin="-0s" repeatCount="indefinite"/></path>
+    <path d="M430 246C548 215 602 277 720 246" stroke="url(#flow2)" stroke-width="2.8" class="flow"><animate attributeName="stroke-dashoffset" from="0" to="-112" dur="4s" begin="-1.3s" repeatCount="indefinite"/></path>
+    <path d="M720 246C838 215 892 277 1010 246" stroke="url(#flow3)" stroke-width="2.8" class="flow"><animate attributeName="stroke-dashoffset" from="0" to="-112" dur="4s" begin="-2.6s" repeatCount="indefinite"/></path>
 
     <path d="M150 246C244 196 335 195 430 246" stroke="url(#flow1)" stroke-width="1.4" stroke-dasharray="3 6" opacity=".48"/>
     <path d="M150 246C245 299 337 300 430 246" stroke="url(#flow1)" stroke-width="1.4" stroke-dasharray="3 7" opacity=".34"/>
@@ -75,28 +73,28 @@
 
   <!-- Nodes pulse in sequence as information reaches each stage. -->
   <g>
-    <circle cx="150" cy="246" r="31" fill="#58a6ff" class="ambient"/>
+    <circle cx="150" cy="246" r="24" fill="#58a6ff" opacity=".12"><animate attributeName="r" values="24;31;24" dur="4.8s" begin="0s" repeatCount="indefinite"/><animate attributeName="opacity" values=".10;.28;.10" dur="4.8s" begin="0s" repeatCount="indefinite"/></circle>
     <circle cx="150" cy="246" r="15" fill="#161b22" stroke="#58a6ff" stroke-width="2.5"/>
     <circle cx="150" cy="246" r="6" fill="#58a6ff"/>
     <circle cx="150" cy="246" r="20" class="pulse" fill="none" stroke="#58a6ff" opacity="0"><animate attributeName="r" values="18;32;18;18" keyTimes="0;.09;.18;1" dur="6.4s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.7;0;0" keyTimes="0;.09;.18;1" dur="6.4s" repeatCount="indefinite"/></circle>
     <text x="150" y="183" text-anchor="middle" class="node-title">CONTEXTO PÚBLICO</text><text x="150" y="200" text-anchor="middle" class="node-sub">regras e processos reais</text>
   </g>
   <g>
-    <circle cx="430" cy="246" r="31" fill="#79c0ff" class="ambient" style="animation-delay:-1.2s"/>
+    <circle cx="430" cy="246" r="24" fill="#79c0ff" opacity=".12"><animate attributeName="r" values="24;31;24" dur="4.8s" begin="-1.2s" repeatCount="indefinite"/><animate attributeName="opacity" values=".10;.28;.10" dur="4.8s" begin="-1.2s" repeatCount="indefinite"/></circle>
     <circle cx="430" cy="246" r="15" fill="#161b22" stroke="#79c0ff" stroke-width="2.5"/>
     <circle cx="430" cy="246" r="6" fill="#79c0ff"/>
     <circle cx="430" cy="246" r="20" class="pulse" fill="none" stroke="#79c0ff" opacity="0"><animate attributeName="r" values="18;32;18;18" keyTimes="0;.09;.18;1" dur="6.4s" begin="2.13s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.7;0;0" keyTimes="0;.09;.18;1" dur="6.4s" begin="2.13s" repeatCount="indefinite"/></circle>
     <text x="430" y="183" text-anchor="middle" class="node-title">DADOS</text><text x="430" y="200" text-anchor="middle" class="node-sub">informação estruturada</text>
   </g>
   <g>
-    <circle cx="720" cy="246" r="31" fill="#a371f7" class="ambient" style="animation-delay:-2.4s"/>
+    <circle cx="720" cy="246" r="24" fill="#a371f7" opacity=".12"><animate attributeName="r" values="24;31;24" dur="4.8s" begin="-2.4s" repeatCount="indefinite"/><animate attributeName="opacity" values=".10;.28;.10" dur="4.8s" begin="-2.4s" repeatCount="indefinite"/></circle>
     <circle cx="720" cy="246" r="15" fill="#161b22" stroke="#a371f7" stroke-width="2.5"/>
     <circle cx="720" cy="246" r="6" fill="#a371f7"/>
     <circle cx="720" cy="246" r="20" class="pulse" fill="none" stroke="#a371f7" opacity="0"><animate attributeName="r" values="18;32;18;18" keyTimes="0;.09;.18;1" dur="6.4s" begin="4.27s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.7;0;0" keyTimes="0;.09;.18;1" dur="6.4s" begin="4.27s" repeatCount="indefinite"/></circle>
     <text x="720" y="183" text-anchor="middle" class="node-title">AUTOMAÇÃO + IA</text><text x="720" y="200" text-anchor="middle" class="node-sub">capacidade aplicada</text>
   </g>
   <g>
-    <circle cx="1010" cy="246" r="31" fill="#3fb950" class="ambient" style="animation-delay:-3.6s"/>
+    <circle cx="1010" cy="246" r="24" fill="#3fb950" opacity=".12"><animate attributeName="r" values="24;31;24" dur="4.8s" begin="-3.6s" repeatCount="indefinite"/><animate attributeName="opacity" values=".10;.28;.10" dur="4.8s" begin="-3.6s" repeatCount="indefinite"/></circle>
     <circle cx="1010" cy="246" r="15" fill="#161b22" stroke="#3fb950" stroke-width="2.5"/>
     <circle cx="1010" cy="246" r="6" fill="#3fb950"/>
     <circle cx="1010" cy="246" r="20" class="pulse" fill="none" stroke="#3fb950" opacity="0"><animate attributeName="r" values="18;32;18;18" keyTimes="0;.09;.18;1" dur="6.4s" begin="-.05s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.7;0;0" keyTimes="0;.09;.18;1" dur="6.4s" begin="-.05s" repeatCount="indefinite"/></circle>
@@ -108,6 +106,10 @@
   <circle r="4" class="signal" fill="#ffffff"><animateMotion dur="6.4s" repeatCount="indefinite" path="M150 246C265 218 320 274 430 246C548 215 602 277 720 246C838 215 892 277 1010 246"/></circle>
   <circle r="3.5" class="signal" fill="#a371f7" opacity=".9"><animateMotion dur="6.4s" begin="-3.2s" repeatCount="indefinite" path="M150 246C265 196 335 195 430 246C528 195 621 195 720 246C817 195 912 195 1010 246"/></circle>
 
-  <path d="M64 331H1136" stroke="#30363d"/>
-  <text x="64" y="352" class="pillars" style="font-size:10px;letter-spacing:1.5px">PROCESSOS REAIS  →  INFORMAÇÃO  →  CAPACIDADE DIGITAL  →  ENTREGA</text>
+  <!-- Persistent system status: the pulse confirms that the public-to-digital flow is alive. -->
+  <rect x="64" y="318" width="1072" height="36" rx="9" fill="#161b22" stroke="#30363d"/>
+  <text x="84" y="341" class="status-label">FLUXO ATIVO</text>
+  <circle cx="190" cy="337" r="4" fill="#3fb950"><animate attributeName="opacity" values="1;.25;1" dur="1.6s" repeatCount="indefinite"/></circle>
+  <circle cx="190" cy="337" r="5" fill="none" stroke="#3fb950" opacity=".5"><animate attributeName="r" values="5;10;5" dur="1.6s" repeatCount="indefinite"/><animate attributeName="opacity" values=".55;0;.55" dur="1.6s" repeatCount="indefinite"/></circle>
+  <text x="212" y="341" class="status-text">PROCESSOS REAIS  →  DADOS  →  AUTOMAÇÃO + IA  →  SOLUÇÕES DIGITAIS</text>
 </svg>
