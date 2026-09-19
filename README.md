@@ -2,7 +2,7 @@
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="./assets/hero-dark.svg">
     <source media="(prefers-color-scheme: light)" srcset="./assets/hero-light.svg">
-    <img alt="Leandro Barbosa" src="./assets/hero-light.svg" width="100%">
+    <img alt="Leandro Barbosa — Tecnologia e Inovação na Administração Pública. Automação, Dados e Inteligência Artificial." src="./assets/hero-light.svg" width="100%">
   </picture>
 </p>
 
@@ -13,9 +13,11 @@
   <img src="https://komarev.com/ghpvc/?username=leozaow&label=VISITAS+AO+PERFIL&color=0e75b6&style=flat" alt="Visitas ao Perfil" height="20">
 </p>
 
-### 🛠️ Stack & Tecnologias
+Atuo na Administração Pública municipal, na gestão de pagamento de pessoal. Uso automação, dados e inteligência artificial para melhorar processos administrativos e construir soluções digitais a partir de necessidades reais do trabalho. Minha formação em Direito contribui para esse olhar sobre regras e processos.
 
-#### Agentes & Automação
+### Ferramentas de trabalho
+
+#### Automação e integração
 <p align="left">
   <a href="https://openai.com/codex/" title="OpenAI Codex"><img src="./assets/badges/codex.svg" alt="OpenAI Codex" width="40" height="40" /></a>
   <a href="https://antigravity.google/" title="Google Antigravity"><img src="./assets/badges/google-antigravity.svg" alt="Google Antigravity" width="40" height="40" /></a>
@@ -25,19 +27,21 @@
   <a href="https://www.redhat.com/en/topics/automation/what-is-a-webhook" title="Webhooks"><img src="./assets/badges/webhooks.svg" alt="Webhooks" width="40" height="40" /></a>
 </p>
 
-#### Desenvolvimento & Infraestrutura
+#### Desenvolvimento e infraestrutura
 <p align="left">
   <a href="https://skillicons.dev"><img src="https://skillicons.dev/icons?i=py,js,html,css,bash,linux,docker,git,github" alt="Python, JavaScript, HTML, CSS, Bash, Linux, Docker, Git, GitHub" /></a>
 </p>
 
-#### Dados & Cloud
+#### Dados e nuvem
 <p align="left">
   <a href="https://skillicons.dev"><img src="https://skillicons.dev/icons?i=postgres,redis,gcp,firebase" alt="PostgreSQL, Redis, Google Cloud, Firebase" /></a>
 </p>
 
 <br>
 
-### 🐜 Contribuições · Formiga de Langton
+### Contribuições · Formiga de Langton
+
+Uma implementação autoral que usa minhas contribuições reais como condição inicial do autômato.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/leozaow/leozaow/output/langton-contribution-graph-dark.svg">
@@ -47,12 +51,12 @@
 
 <br>
 
-### 🔥 Estatísticas & Sequência
+### Estatísticas e sequência
 
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/leozaow/leozaow/refs/heads/main/assets/streak.dark.svg?v=flame-position-2">
     <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/leozaow/leozaow/refs/heads/main/assets/streak.light.svg?v=flame-position-2">
-    <img alt="GitHub Stats & Streak" src="https://raw.githubusercontent.com/leozaow/leozaow/refs/heads/main/assets/streak.light.svg?v=flame-position-2" width="100%">
+    <img alt="Estatísticas de contribuições e sequências de dias e semanas no GitHub" src="https://raw.githubusercontent.com/leozaow/leozaow/refs/heads/main/assets/streak.light.svg?v=flame-position-2" width="100%">
   </picture>
 </p>

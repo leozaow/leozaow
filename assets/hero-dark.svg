@@ -1,166 +1,59 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="370" viewBox="0 0 1200 370" role="img" aria-labelledby="title desc">
-  <title id="title">Leandro Barbosa — Neural Network Flow</title>
-  <desc id="desc">Neural system flow connecting legal reasoning, public management, AI agents, and working software.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="370" viewBox="0 0 1200 370" role="img" aria-labelledby="title desc" lang="pt-BR">
+  <title id="title">Leandro Barbosa — Tecnologia e Inovação na Administração Pública</title>
+  <desc id="desc">Automação, Dados e Inteligência Artificial. Fluxos se organizam em módulos conectados, representando a transformação de processos administrativos em soluções digitais.</desc>
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#0d1117"/>
-      <stop offset="0.5" stop-color="#101827"/>
-      <stop offset="1" stop-color="#0d1117"/>
-    </linearGradient>
-    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#58a6ff"/>
-      <stop offset="0.33" stop-color="#79c0ff"/>
-      <stop offset="0.66" stop-color="#a371f7"/>
-      <stop offset="1" stop-color="#3fb950"/>
-    </linearGradient>
-    <linearGradient id="synapse1" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#58a6ff" stop-opacity="0.7"/>
-      <stop offset="1" stop-color="#79c0ff" stop-opacity="0.7"/>
-    </linearGradient>
-    <linearGradient id="synapse2" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#79c0ff" stop-opacity="0.7"/>
-      <stop offset="1" stop-color="#a371f7" stop-opacity="0.7"/>
-    </linearGradient>
-    <linearGradient id="synapse3" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#a371f7" stop-opacity="0.7"/>
-      <stop offset="1" stop-color="#3fb950" stop-opacity="0.7"/>
-    </linearGradient>
-    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
-      <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#30363d" stroke-width="1" opacity="0.32"/>
-    </pattern>
-    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur1"/>
-      <feGaussianBlur in="SourceGraphic" stdDeviation="12" result="blur2"/>
-      <feMerge>
-        <feMergeNode in="blur2"/>
-        <feMergeNode in="blur1"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
-    <filter id="subtleglow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur"/>
-      <feMerge>
-        <feMergeNode in="blur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
     <style>
-      .name { font: 700 46px 'Segoe UI', Ubuntu, -apple-system, sans-serif; letter-spacing: 1.5px; fill: #f0f6fc; }
-      .sub { font: 600 16px 'Segoe UI', Ubuntu, -apple-system, sans-serif; fill: #8c959f; letter-spacing: 3px; }
-      .node-title { font: 700 13px ui-monospace, SFMono-Regular, Consolas, monospace; fill: #e6edf3; letter-spacing: 1px; }
-      .node-sub { font: 500 11px ui-monospace, SFMono-Regular, Consolas, monospace; fill: #8c959f; }
-      .bar-label { font: 700 12px ui-monospace, SFMono-Regular, Consolas, monospace; fill: #8c959f; letter-spacing: 1.2px; }
-      .bar-text { font: 700 13px ui-monospace, SFMono-Regular, Consolas, monospace; fill: #f0f6fc; letter-spacing: 1px; }
-      .pulse-1 { animation: pulse 2.6s ease-in-out infinite; transform-origin: 150px 220px; }
-      .pulse-2 { animation: pulse 2.6s ease-in-out infinite 0.65s; transform-origin: 430px 220px; }
-      .pulse-3 { animation: pulse 2.6s ease-in-out infinite 1.3s; transform-origin: 720px 220px; }
-      .pulse-4 { animation: pulse 2.6s ease-in-out infinite 1.95s; transform-origin: 1010px 220px; }
-      @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.25; } 50% { transform: scale(1.4); opacity: 0.85; } }
-      .dot { animation: blink 1.8s ease-in-out infinite; }
-      @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+      text { font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; }
+      .name { font-size: 25px; font-weight: 600; letter-spacing: 3px; fill: #EDF2EE; }
+      .headline { font-size: 40px; font-weight: 600; letter-spacing: -.6px; fill: #EDF2EE; }
+      .pillars { font-size: 22px; font-weight: 500; letter-spacing: 1.3px; fill: #88C4B5; }
+      @media (max-width: 600px) {
+        .diagram { display: none; }
+        .name { font-size: 36px; letter-spacing: 2px; }
+        .headline { font-size: 54px; letter-spacing: -1px; }
+        .pillars { font-size: 29px; letter-spacing: .5px; }
+      }
     </style>
   </defs>
 
-  <!-- Background with tech grid -->
-  <rect x="1" y="1" width="1198" height="368" rx="20" fill="url(#bg)" stroke="#30363d"/>
-  <rect x="1" y="1" width="1198" height="368" rx="20" fill="url(#grid)"/>
+  <!-- Plano editorial: margem de 64, módulo de 8, sem recursos externos. -->
+  <rect x=".5" y=".5" width="1199" height="369" rx="12" fill="#111C23" stroke="#354B50"/>
+  <path d="M64 44H104" stroke="#88C4B5" stroke-width="4"/>
+  <text x="64" y="88" class="name">LEANDRO BARBOSA</text>
+  <text class="headline">
+    <tspan x="64" y="164">TECNOLOGIA E INOVAÇÃO</tspan>
+    <tspan x="64" y="220">NA ADMINISTRAÇÃO PÚBLICA</tspan>
+  </text>
 
-  <!-- Ambient light blobs -->
-  <circle cx="150" cy="220" r="90" fill="#58a6ff" opacity="0.05"/>
-  <circle cx="430" cy="220" r="90" fill="#79c0ff" opacity="0.04"/>
-  <circle cx="720" cy="220" r="90" fill="#a371f7" opacity="0.05"/>
-  <circle cx="1010" cy="220" r="95" fill="#3fb950" opacity="0.05"/>
-
-  <!-- Header Section -->
-  <text x="70" y="80" class="name">LEANDRO BARBOSA</text>
-  <text x="72" y="112" class="sub">DIREITO · GESTÃO PÚBLICA · AGENTES DE IA</text>
-
-  <!-- Neural Network Synaptic Axons (Curved Interconnecting Lines) -->
-  <!-- Main flow path -->
-  <path id="neuralTrack" d="M 150 220 C 270 195, 310 245, 430 220 C 550 195, 600 245, 720 220 C 840 195, 890 245, 1010 220" fill="none" stroke="#21262d" stroke-width="4"/>
-  
-  <!-- Secondary neural dendritic curves -->
-  <path d="M 150 220 C 250 170, 330 170, 430 220" fill="none" stroke="url(#synapse1)" stroke-width="1.5" stroke-dasharray="3 4" opacity="0.35"/>
-  <path d="M 150 220 C 250 270, 330 270, 430 220" fill="none" stroke="url(#synapse1)" stroke-width="1.5" stroke-dasharray="4 6" opacity="0.25"/>
-
-  <path d="M 430 220 C 530 170, 620 170, 720 220" fill="none" stroke="url(#synapse2)" stroke-width="1.5" stroke-dasharray="3 4" opacity="0.35"/>
-  <path d="M 430 220 C 530 270, 620 270, 720 220" fill="none" stroke="url(#synapse2)" stroke-width="1.5" stroke-dasharray="4 6" opacity="0.25"/>
-
-  <path d="M 720 220 C 820 170, 910 170, 1010 220" fill="none" stroke="url(#synapse3)" stroke-width="1.5" stroke-dasharray="3 4" opacity="0.35"/>
-  <path d="M 720 220 C 820 270, 910 270, 1010 220" fill="none" stroke="url(#synapse3)" stroke-width="1.5" stroke-dasharray="4 6" opacity="0.25"/>
-
-  <!-- Animated Action Potential Wave running through main axon -->
-  <path d="M 150 220 C 270 195, 310 245, 430 220 C 550 195, 600 245, 720 220 C 840 195, 890 245, 1010 220" fill="none" stroke="url(#accent)" stroke-width="2.5" stroke-dasharray="14 18">
-    <animate attributeName="stroke-dashoffset" from="0" to="-96" dur="3.6s" repeatCount="indefinite"/>
-  </path>
-
-  <!-- Neural Dendrite Branches (Small radiating synapatic connections) -->
-  <g stroke="#30363d" stroke-width="1.2" opacity="0.5">
-    <line x1="150" y1="220" x2="115" y2="190"/><circle cx="115" cy="190" r="2.5" fill="#58a6ff"/>
-    <line x1="150" y1="220" x2="120" y2="250"/><circle cx="120" cy="250" r="2.5" fill="#58a6ff"/>
-    
-    <line x1="430" y1="220" x2="430" y2="175"/><circle cx="430" cy="175" r="2.5" fill="#79c0ff"/>
-    <line x1="430" y1="220" x2="455" y2="260"/><circle cx="455" cy="260" r="2.5" fill="#79c0ff"/>
-    
-    <line x1="720" y1="220" x2="700" y2="175"/><circle cx="700" cy="175" r="2.5" fill="#a371f7"/>
-    <line x1="720" y1="220" x2="745" y2="260"/><circle cx="745" cy="260" r="2.5" fill="#a371f7"/>
-
-    <line x1="1010" y1="220" x2="1045" y2="190"/><circle cx="1045" cy="190" r="2.5" fill="#3fb950"/>
-    <line x1="1010" y1="220" x2="1040" y2="250"/><circle cx="1040" cy="250" r="2.5" fill="#3fb950"/>
+  <!-- Três entradas, passagens alinhadas e um módulo de saída.
+       A curva externa é um gesto cartográfico abstrato, não um mapa literal. -->
+  <g class="diagram" aria-hidden="true">
+    <path d="M848 64H1136M848 256H1136M880 64V256M944 64V256M1008 64V256M1072 64V256"
+          fill="none" stroke="#203139" stroke-width="1"/>
+    <path d="M856 244C860 209 877 200 887 179S891 136 914 116S957 104 969 77"
+          fill="none" stroke="#354B50" stroke-width="1"/>
+    <g fill="none" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M864 104H904Q928 104 928 128V144Q928 160 944 160H976"
+            stroke="#528879" stroke-width="3"/>
+      <path d="M848 160H976" stroke="#88C4B5" stroke-width="3"/>
+      <path d="M880 224H904Q944 224 944 184Q944 160 976 160"
+            stroke="#528879" stroke-width="3"/>
+      <path d="M1008 160H1040Q1056 160 1056 144V128Q1056 112 1072 112H1112"
+            stroke="#88C4B5" stroke-width="3"/>
+      <path d="M1008 160H1040Q1056 160 1056 176V192Q1056 208 1072 208H1112"
+            stroke="#528879" stroke-width="3"/>
+    </g>
+    <g fill="#111C23" stroke="#528879" stroke-width="2">
+      <rect x="848" y="96" width="16" height="16" rx="3"/>
+      <rect x="832" y="152" width="16" height="16" rx="3"/>
+      <rect x="864" y="216" width="16" height="16" rx="3"/>
+    </g>
+    <rect x="976" y="136" width="32" height="48" rx="4" fill="#192930" stroke="#88C4B5" stroke-width="2"/>
+    <path d="M987 149H997M987 160H997M987 171H997" stroke="#88C4B5" stroke-width="2"/>
+    <rect x="1104" y="96" width="32" height="32" rx="4" fill="#88C4B5"/>
+    <rect x="1104" y="192" width="32" height="32" rx="4" fill="#192930" stroke="#528879" stroke-width="2"/>
   </g>
 
-  <!-- NEURON 1: DIREITO / REGRAS -->
-  <g transform="translate(0, 0)">
-    <circle cx="150" cy="220" r="24" fill="#58a6ff" class="pulse-1"/>
-    <circle cx="150" cy="220" r="14" fill="#161b22" stroke="#58a6ff" stroke-width="2.5"/>
-    <circle cx="150" cy="220" r="6" fill="#58a6ff" filter="url(#subtleglow)"/>
-    <text x="150" y="165" text-anchor="middle" class="node-title">DIREITO</text>
-    <text x="150" y="180" text-anchor="middle" class="node-sub">Regras &amp; Limites</text>
-  </g>
-
-  <!-- NEURON 2: GESTÃO PÚBLICA / PROCESSOS -->
-  <g transform="translate(0, 0)">
-    <circle cx="430" cy="220" r="24" fill="#79c0ff" class="pulse-2"/>
-    <circle cx="430" cy="220" r="14" fill="#161b22" stroke="#79c0ff" stroke-width="2.5"/>
-    <circle cx="430" cy="220" r="6" fill="#79c0ff" filter="url(#subtleglow)"/>
-    <text x="430" y="165" text-anchor="middle" class="node-title">GESTÃO PÚBLICA</text>
-    <text x="430" y="180" text-anchor="middle" class="node-sub">Contexto &amp; Processos</text>
-  </g>
-
-  <!-- NEURON 3: AGENTES DE IA / RACIOCÍNIO -->
-  <g transform="translate(0, 0)">
-    <circle cx="720" cy="220" r="24" fill="#a371f7" class="pulse-3"/>
-    <circle cx="720" cy="220" r="14" fill="#161b22" stroke="#a371f7" stroke-width="2.5"/>
-    <circle cx="720" cy="220" r="6" fill="#a371f7" filter="url(#subtleglow)"/>
-    <text x="720" y="165" text-anchor="middle" class="node-title">AGENTES DE IA</text>
-    <text x="720" y="180" text-anchor="middle" class="node-sub">Execução Autônoma</text>
-  </g>
-
-  <!-- NEURON 4: SISTEMAS / SOFTWARE -->
-  <g transform="translate(0, 0)">
-    <circle cx="1010" cy="220" r="24" fill="#3fb950" class="pulse-4"/>
-    <circle cx="1010" cy="220" r="14" fill="#161b22" stroke="#3fb950" stroke-width="2.5"/>
-    <circle cx="1010" cy="220" r="6" fill="#3fb950" filter="url(#subtleglow)"/>
-    <text x="1010" y="165" text-anchor="middle" class="node-title">SOLUÇÕES EM SISTEMAS</text>
-    <text x="1010" y="180" text-anchor="middle" class="node-sub">Software em Produção</text>
-  </g>
-
-  <!-- Neural Action Potential: Glowing Synaptic Signal travelling from left to right along the curved axon -->
-  <circle r="7" fill="#ffffff" filter="url(#glow)">
-    <animateMotion dur="4.2s" repeatCount="indefinite" path="M 150 220 C 270 195, 310 245, 430 220 C 550 195, 600 245, 720 220 C 840 195, 890 245, 1010 220"/>
-  </circle>
-  <circle r="3.5" fill="#58a6ff">
-    <animateMotion dur="4.2s" repeatCount="indefinite" path="M 150 220 C 270 195, 310 245, 430 220 C 550 195, 600 245, 720 220 C 840 195, 890 245, 1010 220"/>
-  </circle>
-
-  <!-- Secondary quick pulse signal (dendritic echo) -->
-  <circle r="4" fill="#79c0ff" filter="url(#subtleglow)">
-    <animateMotion dur="4.2s" begin="1.8s" repeatCount="indefinite" path="M 150 220 C 270 195, 310 245, 430 220 C 550 195, 600 245, 720 220 C 840 195, 890 245, 1010 220"/>
-  </circle>
-
-  <!-- Bottom Terminal Bar -->
-  <rect x="70" y="295" width="1060" height="46" rx="10" fill="#161b22" stroke="#30363d"/>
-  <text x="95" y="323" class="bar-label">STACK CORE</text>
-  <circle cx="215" cy="319" r="5" fill="#3fb950" class="dot"/>
-  <text x="235" y="323" class="bar-text">OPENAI CODEX × GOOGLE ANTIGRAVITY</text>
+  <path d="M64 278H1136" stroke="#354B50"/>
+  <text x="64" y="324" class="pillars">AUTOMAÇÃO · DADOS · INTELIGÊNCIA ARTIFICIAL</text>
 </svg>
