@@ -12,6 +12,11 @@ on:
 permissions:
   contents: write
 
+# Avoid overlapping runs when a push happens near the daily schedule.
+concurrency:
+  group: langton-ant-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   langton:
     runs-on: ubuntu-latest
