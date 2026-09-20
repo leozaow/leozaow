@@ -13,7 +13,7 @@
   <img src="https://komarev.com/ghpvc/?username=leozaow&label=VISITAS+AO+PERFIL&color=0e75b6&style=flat" alt="Visitas ao Perfil" height="20">
 </p>
 
-Atuo na Administração Pública municipal, na gestão de pagamento de pessoal. Uso automação, dados e inteligência artificial para melhorar processos administrativos e construir soluções digitais a partir de necessidades reais do trabalho. Minha formação em Direito contribui para esse olhar sobre regras e processos.
+Atuo na Administração Pública. Uso automação, dados e inteligência artificial para melhorar processos e construir soluções digitais a partir de necessidades reais do trabalho. Minha formação em Direito contribui para esse olhar sobre regras e processos.
 
 ### Ferramentas de trabalho
 
