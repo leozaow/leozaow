@@ -1,8 +1,8 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="./assets/hero-dark.svg?v=synapse-motion-2">
-    <source media="(prefers-color-scheme: light)" srcset="./assets/hero-light.svg?v=synapse-motion-2">
-    <img alt="Leandro Barbosa — Tecnologia e Inovação na Administração Pública. Automação, Dados e Inteligência Artificial." src="./assets/hero-light.svg?v=synapse-motion-2" width="100%">
+    <source media="(prefers-color-scheme: dark)" srcset="./assets/hero-dark.svg?v=synapse-motion-3">
+    <source media="(prefers-color-scheme: light)" srcset="./assets/hero-light.svg?v=synapse-motion-3">
+    <img alt="Leandro Barbosa — Tecnologia e Inovação na Administração Pública. Automação, Dados e Inteligência Artificial." src="./assets/hero-light.svg?v=synapse-motion-3" width="100%">
   </picture>
 </p>
 

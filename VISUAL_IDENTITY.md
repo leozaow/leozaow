@@ -16,7 +16,7 @@ O desenho combina a comunicação orgânica de uma sinapse com a precisão de um
 3. automação e inteligência artificial: capacidade aplicada;
 4. soluções digitais: trabalho transformado.
 
-As rotas paralelas lembram que um processo administrativo raramente é linear. O sinal principal percorre todas as etapas; um segundo sinal usa uma rota alternativa. Os pulsos nos núcleos indicam transformação, e não atividade decorativa sem significado.
+As rotas paralelas lembram que um processo administrativo raramente é linear. Quatro pacotes luminosos percorrem o sistema da esquerda para a direita, defasados em 1,6 segundo e distribuídos entre a rota principal e rotas alternativas. A cor de cada pacote acompanha a etapa em que ele está — azul, ciano, violeta e verde — para que vários sinais simultâneos sejam visualmente distintos sem romper o significado funcional da paleta. Os pulsos nos núcleos indicam transformação, e não atividade decorativa sem significado.
 
 ## Sistema cromático
 
@@ -39,10 +39,11 @@ A cor progride por segmentos de duas famílias adjacentes. Isso mantém unidade 
 - Grid técnico de 28 unidades, suavizado nas bordas para não competir com o conteúdo.
 - Nome em 34 unidades; posicionamento em 19; pilares em 14.
 - Caminho estrutural em 5 unidades, fluxo ativo em 2,8 e rotas secundárias em 1,4.
-- Movimento principal de 6,4 segundos, contínuo e suficientemente lento para leitura.
+- Movimento dos sinais em ciclos de 6,4 segundos, contínuo e suficientemente lento para leitura.
+- Quatro pacotes luminosos usam defasagens de 0, -1,6, -3,2 e -4,8 segundos para manter cores diferentes visíveis ao mesmo tempo.
+- A cor de cada pacote progride com a etapa do fluxo, preservando a semântica azul → ciano → violeta → verde.
 - O pulso de cada núcleo acompanha a chegada do sinal à etapa correspondente.
-- Animação CSS e SMIL nativas, sem JavaScript, fontes remotas ou imagens incorporadas.
-- Em `prefers-reduced-motion`, sinais móveis e pulsos desaparecem; a jornada continua legível no quadro estático.
+- Animação SMIL nativa no SVG, sem JavaScript, fontes remotas ou imagens incorporadas.
 - As curvas verticais discretas são um gesto cartográfico abstrato. Elas permitem uma referência territorial sem produzir uma identidade turística.
 
 ## Adaptação futura

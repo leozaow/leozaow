@@ -101,10 +101,39 @@
     <text x="1010" y="183" text-anchor="middle" class="node-title">SOLUÇÕES DIGITAIS</text><text x="1010" y="200" text-anchor="middle" class="node-sub">trabalho transformado</text>
   </g>
 
-  <!-- One continuous signal makes the transformation legible; a second packet suggests a living system. -->
-  <circle r="8" class="signal" fill="#58a6ff" opacity=".34" filter="url(#signalGlow)"><animate attributeName="fill" values="#58a6ff;#79c0ff;#a371f7;#3fb950" keyTimes="0;.33;.66;1" dur="6.4s" repeatCount="indefinite"/><animateMotion dur="6.4s" repeatCount="indefinite" path="M150 246C265 218 320 274 430 246C548 215 602 277 720 246C838 215 892 277 1010 246"/></circle>
-  <circle r="4" class="signal" fill="#ffffff"><animateMotion dur="6.4s" repeatCount="indefinite" path="M150 246C265 218 320 274 430 246C548 215 602 277 720 246C838 215 892 277 1010 246"/></circle>
-  <circle r="3.5" class="signal" fill="#a371f7" opacity=".9"><animateMotion dur="6.4s" begin="-3.2s" repeatCount="indefinite" path="M150 246C265 196 335 195 430 246C528 195 621 195 720 246C817 195 912 195 1010 246"/></circle>
+  <!-- Four phase-shifted packets make the synapse visibly multicolored while preserving stage semantics. -->
+  <circle r="7.5" class="signal" fill="#58a6ff" opacity=".40" filter="url(#signalGlow)">
+    <animate attributeName="fill" values="#58a6ff;#79c0ff;#a371f7;#3fb950" keyTimes="0;.33;.66;1" dur="6.4s" begin="0s" repeatCount="indefinite"/>
+    <animateMotion dur="6.4s" begin="0s" repeatCount="indefinite" path="M150 246C265 218 320 274 430 246C548 215 602 277 720 246C838 215 892 277 1010 246"/>
+  </circle>
+  <circle r="3.5" class="signal" fill="#58a6ff" opacity=".96">
+    <animate attributeName="fill" values="#58a6ff;#79c0ff;#a371f7;#3fb950" keyTimes="0;.33;.66;1" dur="6.4s" begin="0s" repeatCount="indefinite"/>
+    <animateMotion dur="6.4s" begin="0s" repeatCount="indefinite" path="M150 246C265 218 320 274 430 246C548 215 602 277 720 246C838 215 892 277 1010 246"/>
+  </circle>
+  <circle r="6.5" class="signal" fill="#58a6ff" opacity=".40" filter="url(#signalGlow)">
+    <animate attributeName="fill" values="#58a6ff;#79c0ff;#a371f7;#3fb950" keyTimes="0;.33;.66;1" dur="6.4s" begin="-1.6s" repeatCount="indefinite"/>
+    <animateMotion dur="6.4s" begin="-1.6s" repeatCount="indefinite" path="M150 246C265 196 335 195 430 246C528 195 621 195 720 246C817 195 912 195 1010 246"/>
+  </circle>
+  <circle r="3" class="signal" fill="#58a6ff" opacity=".96">
+    <animate attributeName="fill" values="#58a6ff;#79c0ff;#a371f7;#3fb950" keyTimes="0;.33;.66;1" dur="6.4s" begin="-1.6s" repeatCount="indefinite"/>
+    <animateMotion dur="6.4s" begin="-1.6s" repeatCount="indefinite" path="M150 246C265 196 335 195 430 246C528 195 621 195 720 246C817 195 912 195 1010 246"/>
+  </circle>
+  <circle r="6.5" class="signal" fill="#58a6ff" opacity=".40" filter="url(#signalGlow)">
+    <animate attributeName="fill" values="#58a6ff;#79c0ff;#a371f7;#3fb950" keyTimes="0;.33;.66;1" dur="6.4s" begin="-3.2s" repeatCount="indefinite"/>
+    <animateMotion dur="6.4s" begin="-3.2s" repeatCount="indefinite" path="M150 246C245 299 337 300 430 246C529 300 622 299 720 246C818 300 913 299 1010 246"/>
+  </circle>
+  <circle r="3" class="signal" fill="#58a6ff" opacity=".96">
+    <animate attributeName="fill" values="#58a6ff;#79c0ff;#a371f7;#3fb950" keyTimes="0;.33;.66;1" dur="6.4s" begin="-3.2s" repeatCount="indefinite"/>
+    <animateMotion dur="6.4s" begin="-3.2s" repeatCount="indefinite" path="M150 246C245 299 337 300 430 246C529 300 622 299 720 246C818 300 913 299 1010 246"/>
+  </circle>
+  <circle r="5.5" class="signal" fill="#58a6ff" opacity=".40" filter="url(#signalGlow)">
+    <animate attributeName="fill" values="#58a6ff;#79c0ff;#a371f7;#3fb950" keyTimes="0;.33;.66;1" dur="6.4s" begin="-4.8s" repeatCount="indefinite"/>
+    <animateMotion dur="6.4s" begin="-4.8s" repeatCount="indefinite" path="M150 246C265 218 320 274 430 246C548 215 602 277 720 246C838 215 892 277 1010 246"/>
+  </circle>
+  <circle r="2.6" class="signal" fill="#58a6ff" opacity=".96">
+    <animate attributeName="fill" values="#58a6ff;#79c0ff;#a371f7;#3fb950" keyTimes="0;.33;.66;1" dur="6.4s" begin="-4.8s" repeatCount="indefinite"/>
+    <animateMotion dur="6.4s" begin="-4.8s" repeatCount="indefinite" path="M150 246C265 218 320 274 430 246C548 215 602 277 720 246C838 215 892 277 1010 246"/>
+  </circle>
 
   <!-- Persistent system status: the pulse confirms that the public-to-digital flow is alive. -->
   <rect x="64" y="318" width="1072" height="36" rx="9" fill="#161b22" stroke="#30363d"/>
