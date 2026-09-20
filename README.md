@@ -29,12 +29,23 @@ Atuo na Administração Pública. Uso automação, dados e inteligência artific
 
 #### Desenvolvimento e infraestrutura
 <p align="left">
-  <a href="https://skillicons.dev"><img src="https://skillicons.dev/icons?i=py,js,html,css,bash,linux,docker,git,github" alt="Python, JavaScript, HTML, CSS, Bash, Linux, Docker, Git, GitHub" /></a>
+  <a href="https://www.python.org/" title="Python"><img src="https://skillicons.dev/icons?i=py" alt="Python" width="40" height="40" /></a>
+  <a href="https://developer.mozilla.org/docs/Web/JavaScript" title="JavaScript"><img src="https://skillicons.dev/icons?i=js" alt="JavaScript" width="40" height="40" /></a>
+  <a href="https://developer.mozilla.org/docs/Web/HTML" title="HTML"><img src="https://skillicons.dev/icons?i=html" alt="HTML" width="40" height="40" /></a>
+  <a href="https://developer.mozilla.org/docs/Web/CSS" title="CSS"><img src="https://skillicons.dev/icons?i=css" alt="CSS" width="40" height="40" /></a>
+  <a href="https://www.gnu.org/software/bash/" title="Bash"><img src="https://skillicons.dev/icons?i=bash" alt="Bash" width="40" height="40" /></a>
+  <a href="https://www.linux.org/" title="Linux"><img src="https://skillicons.dev/icons?i=linux" alt="Linux" width="40" height="40" /></a>
+  <a href="https://www.docker.com/" title="Docker"><img src="https://skillicons.dev/icons?i=docker" alt="Docker" width="40" height="40" /></a>
+  <a href="https://git-scm.com/" title="Git"><img src="https://skillicons.dev/icons?i=git" alt="Git" width="40" height="40" /></a>
+  <a href="https://github.com/" title="GitHub"><img src="https://skillicons.dev/icons?i=github" alt="GitHub" width="40" height="40" /></a>
 </p>
 
 #### Dados e nuvem
 <p align="left">
-  <a href="https://skillicons.dev"><img src="https://skillicons.dev/icons?i=postgres,redis,gcp,firebase" alt="PostgreSQL, Redis, Google Cloud, Firebase" /></a>
+  <a href="https://www.postgresql.org/" title="PostgreSQL"><img src="https://skillicons.dev/icons?i=postgres" alt="PostgreSQL" width="40" height="40" /></a>
+  <a href="https://redis.io/" title="Redis"><img src="https://skillicons.dev/icons?i=redis" alt="Redis" width="40" height="40" /></a>
+  <a href="https://cloud.google.com/" title="Google Cloud"><img src="https://skillicons.dev/icons?i=gcp" alt="Google Cloud" width="40" height="40" /></a>
+  <a href="https://firebase.google.com/" title="Firebase"><img src="https://skillicons.dev/icons?i=firebase" alt="Firebase" width="40" height="40" /></a>
 </p>
 
 <br>
