@@ -52,7 +52,7 @@ jobs:
           git fetch origin output:output || git checkout --orphan output
           git worktree add ../output-branch output
           
-          # Copy new Langton SVGs without removing Pac-Man or other files
+          # Copy new Langton SVGs
           cp dist/langton-contribution-graph.svg ../output-branch/
           cp dist/langton-contribution-graph-dark.svg ../output-branch/
           

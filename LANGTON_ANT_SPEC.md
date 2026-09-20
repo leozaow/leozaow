@@ -1,6 +1,6 @@
 # Langton's Ant × GitHub Contributions — Especificação de Implementação
 
-> Especificação executável para um agente autônomo implementar, validar e publicar a substituição temporária do Pac-Man por uma animação autoral da Formiga de Langton no perfil `leozaow/leozaow`.
+> Especificação executável para a implementação, validação e publicação da animação autoral da Formiga de Langton no perfil `leozaow/leozaow`.
 
 ## 1. Objetivo
 
