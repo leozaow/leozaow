@@ -1,8 +1,8 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="./assets/hero-dark.svg?v=synapse-motion-3">
-    <source media="(prefers-color-scheme: light)" srcset="./assets/hero-light.svg?v=synapse-motion-3">
-    <img alt="Leandro Barbosa — Tecnologia e Inovação na Administração Pública. Automação, Dados e Inteligência Artificial." src="./assets/hero-light.svg?v=synapse-motion-3" width="100%">
+    <source media="(prefers-color-scheme: dark)" srcset="./assets/hero-dark.svg?v=synapse-motion-4">
+    <source media="(prefers-color-scheme: light)" srcset="./assets/hero-light.svg?v=synapse-motion-4">
+    <img alt="Leandro Barbosa — Tecnologia e Inovação na Administração Pública. Automação, Dados e IA Agêntica." src="./assets/hero-light.svg?v=synapse-motion-4" width="100%">
   </picture>
 </p>
 
@@ -14,7 +14,6 @@
 
 <p align="center">
   <a href="https://www.linkedin.com/in/leozaow/" title="LinkedIn"><img src="./assets/social/linkedin.svg" alt="LinkedIn" width="28" height="28"></a>&nbsp;&nbsp;
-  <a href="https://github.com/leozaow" title="GitHub"><img src="https://cdn.simpleicons.org/github/95a1b2" alt="GitHub" width="28" height="28"></a>&nbsp;&nbsp;
   <a href="http://lattes.cnpq.br/9852823759546906" title="Lattes"><img src="https://cdn.simpleicons.org/readme/4ca6d8" alt="Lattes" width="28" height="28"></a>&nbsp;&nbsp;
   <a href="https://www.instagram.com/leozaow_/" title="Instagram"><img src="https://cdn.simpleicons.org/instagram/f25b79" alt="Instagram" width="28" height="28"></a>&nbsp;&nbsp;
   <a href="https://www.youtube.com/leozaow" title="YouTube"><img src="https://cdn.simpleicons.org/youtube/ff3858" alt="YouTube" width="28" height="28"></a>&nbsp;&nbsp;
@@ -23,12 +22,11 @@
   <a href="https://www.twitch.tv/leozaow" title="Twitch"><img src="https://cdn.simpleicons.org/twitch/a56eff" alt="Twitch" width="28" height="28"></a>
 </p>
 
-Estudo automação, dados e IA agêntica e me preparo academicamente para investigar como essas tecnologias podem transformar a Administração Pública.  
-<sub><i>I study automation, data, and agentic AI, building an academic foundation to explore how these technologies can transform Public Administration.</i></sub>
+Estudo automação, dados e IA agêntica e me preparo academicamente para investigar como essas tecnologias podem transformar a Administração Pública. *I study automation, data, and agentic AI, building an academic foundation to explore how these technologies can transform Public Administration.*
 
-### Ferramentas e tecnologias <sub>- Tools and technologies</sub>
+### Ferramentas e tecnologias - *Tools and technologies*
 
-#### Automação e integração <sub>- Automation and integration</sub>
+#### Automação e integração - *Automation and integration*
 
 <p align="left">
   <a href="https://openai.com/codex/" title="OpenAI Codex"><img src="./assets/badges/codex.svg" alt="OpenAI Codex" width="40" height="40" /></a>
@@ -39,7 +37,7 @@ Estudo automação, dados e IA agêntica e me preparo academicamente para invest
   <a href="https://www.redhat.com/en/topics/automation/what-is-a-webhook" title="Webhooks"><img src="./assets/badges/webhooks.svg" alt="Webhooks" width="40" height="40" /></a>
 </p>
 
-#### Desenvolvimento e infraestrutura <sub>- Development and infrastructure</sub>
+#### Desenvolvimento e infraestrutura - *Development and infrastructure*
 
 <p align="left">
   <a href="https://www.python.org/" title="Python"><img src="https://skillicons.dev/icons?i=py" alt="Python" width="40" height="40" /></a>
@@ -53,7 +51,7 @@ Estudo automação, dados e IA agêntica e me preparo academicamente para invest
   <a href="https://github.com/" title="GitHub"><img src="https://skillicons.dev/icons?i=github" alt="GitHub" width="40" height="40" /></a>
 </p>
 
-#### Dados e nuvem <sub>- Data and cloud</sub>
+#### Dados e nuvem - *Data and cloud*
 
 <p align="left">
   <a href="https://www.postgresql.org/" title="PostgreSQL"><img src="https://skillicons.dev/icons?i=postgres" alt="PostgreSQL" width="40" height="40" /></a>
@@ -64,10 +62,9 @@ Estudo automação, dados e IA agêntica e me preparo academicamente para invest
 
 <br>
 
-### Contribuições <sub>- Contributions - Langton's Ant</sub>
+### Contribuições - *Contributions - Langton's Ant*
 
-Uma implementação autoral que usa minhas contribuições reais como condição inicial do autômato.  
-<sub><i>An original implementation that uses my real GitHub contributions as the automaton's initial condition.</i></sub>
+Uma implementação autoral que usa minhas contribuições reais como condição inicial do autômato. *An original implementation that uses my real GitHub contributions as the automaton's initial condition.*
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/leozaow/leozaow/output/langton-contribution-graph-dark.svg">
@@ -77,7 +74,7 @@ Uma implementação autoral que usa minhas contribuições reais como condição
 
 <br>
 
-### Estatísticas e sequência <sub>- Statistics and streaks</sub>
+### Estatísticas e sequência - *Statistics and streaks*
 
 <p align="center">
   <picture>

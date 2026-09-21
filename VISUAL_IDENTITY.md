@@ -3,9 +3,9 @@
 ## Posicionamento
 
 **Tecnologia e Inovação na Administração Pública**  
-**Automação · Dados · Inteligência Artificial**
+**Automação · Dados · IA Agêntica**
 
-A identidade parte do interesse acadêmico pela Administração Pública e do conhecimento de processos públicos reais. O sistema visual representa a investigação de como automação, dados e inteligência artificial podem transformar contexto, regras e informação em novas possibilidades para processos e serviços públicos. Direito permanece como formação e método de análise. Ferramentas e fornecedores são instrumentos de estudo, experimentação e desenvolvimento, não elementos do núcleo visual.
+A identidade parte do interesse acadêmico pela Administração Pública e do conhecimento de processos públicos reais. O sistema visual representa a investigação de como automação, dados e IA agêntica podem transformar contexto, regras e informação em novas possibilidades para processos e serviços públicos. Direito permanece como formação e método de análise. Ferramentas e fornecedores são instrumentos de estudo, experimentação e desenvolvimento, não elementos do núcleo visual.
 
 ## Conceito: sistema público sináptico
 
@@ -13,7 +13,7 @@ O desenho combina a comunicação orgânica de uma sinapse com a precisão de um
 
 1. contexto público: regras e processos reais;
 2. dados: informação estruturada;
-3. automação e inteligência artificial: campo de estudo e experimentação;
+3. IA agêntica: campo de estudo e experimentação;
 4. soluções digitais: possibilidades aplicadas à gestão pública.
 
 As rotas paralelas lembram que um processo administrativo raramente é linear. Quatro pacotes luminosos percorrem o sistema da esquerda para a direita, defasados em 1,6 segundo e distribuídos entre a rota principal e rotas alternativas. A cor de cada pacote acompanha a etapa em que ele está — azul, ciano, violeta e verde — para que vários sinais simultâneos sejam visualmente distintos sem romper o significado funcional da paleta. Os pulsos nos núcleos indicam transformação, e não atividade decorativa sem significado.
@@ -25,7 +25,7 @@ As rotas paralelas lembram que um processo administrativo raramente é linear. Q
 | Fundo | `#FFFFFF` → `#F6F8FA` → `#EEF2F6` | `#0D1117` → `#101827` → `#0D1117` | Ambiente neutro do GitHub |
 | Azul | `#0969DA` | `#58A6FF` | contexto público e confiança |
 | Ciano | `#218BFF` | `#79C0FF` | dados e circulação de informação |
-| Violeta | `#8250DF` | `#A371F7` | automação e inteligência |
+| Violeta | `#8250DF` | `#A371F7` | IA agêntica e experimentação |
 | Verde | `#1A7F37` | `#3FB950` | possibilidades de aplicação e melhoria |
 | Texto | `#1F2328` | `#F0F6FC` | hierarquia principal |
 | Texto secundário | `#57606A` | `#8C959F` | explicações e telemetria |

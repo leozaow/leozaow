@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="370" viewBox="0 0 1200 370" role="img" aria-labelledby="title desc" lang="pt-BR">
   <title id="title">Leandro Barbosa — Tecnologia e Inovação na Administração Pública</title>
-  <desc id="desc">Um fluxo sináptico animado transforma contexto público e dados em automação, inteligência artificial e soluções digitais.</desc>
+  <desc id="desc">Um fluxo sináptico animado transforma contexto público e dados em automação, IA agêntica e soluções digitais.</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#0d1117"/><stop offset=".58" stop-color="#101827"/><stop offset="1" stop-color="#0d1117"/>
@@ -45,7 +45,7 @@
   <rect x="64" y="42" width="132" height="4" rx="2" fill="url(#brand)"/>
   <text x="64" y="82" class="name">LEANDRO BARBOSA</text>
   <text x="65" y="116" class="position">TECNOLOGIA E INOVAÇÃO NA ADMINISTRAÇÃO PÚBLICA</text>
-  <text x="66" y="143" class="pillars">AUTOMAÇÃO · DADOS · INTELIGÊNCIA ARTIFICIAL</text>
+  <text x="66" y="143" class="pillars">AUTOMAÇÃO · DADOS · IA AGÊNTICA</text>
 
   <!-- Synaptic public system: parallel routes converge on the same operational transformation. -->
   <g fill="none" stroke-linecap="round">
@@ -77,7 +77,7 @@
     <circle cx="150" cy="246" r="15" fill="#161b22" stroke="#58a6ff" stroke-width="2.5"/>
     <circle cx="150" cy="246" r="6" fill="#58a6ff"/>
     <circle cx="150" cy="246" r="20" class="pulse" fill="none" stroke="#58a6ff" opacity="0"><animate attributeName="r" values="18;32;18;18" keyTimes="0;.09;.18;1" dur="6.4s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.7;0;0" keyTimes="0;.09;.18;1" dur="6.4s" repeatCount="indefinite"/></circle>
-    <text x="150" y="183" text-anchor="middle" class="node-title">CONTEXTO PÚBLICO</text><text x="150" y="200" text-anchor="middle" class="node-sub">regras e processos reais</text>
+    <text x="150" y="183" text-anchor="middle" class="node-title">CONTEXTO PÚBLICO</text><text x="150" y="200" text-anchor="middle" class="node-sub">regras e processos</text>
   </g>
   <g>
     <circle cx="430" cy="246" r="24" fill="#79c0ff" opacity=".12"><animate attributeName="r" values="24;31;24" dur="4.8s" begin="-1.2s" repeatCount="indefinite"/><animate attributeName="opacity" values=".10;.28;.10" dur="4.8s" begin="-1.2s" repeatCount="indefinite"/></circle>
@@ -91,7 +91,7 @@
     <circle cx="720" cy="246" r="15" fill="#161b22" stroke="#a371f7" stroke-width="2.5"/>
     <circle cx="720" cy="246" r="6" fill="#a371f7"/>
     <circle cx="720" cy="246" r="20" class="pulse" fill="none" stroke="#a371f7" opacity="0"><animate attributeName="r" values="18;32;18;18" keyTimes="0;.09;.18;1" dur="6.4s" begin="4.27s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.7;0;0" keyTimes="0;.09;.18;1" dur="6.4s" begin="4.27s" repeatCount="indefinite"/></circle>
-    <text x="720" y="183" text-anchor="middle" class="node-title">AUTOMAÇÃO + IA</text><text x="720" y="200" text-anchor="middle" class="node-sub">capacidade aplicada</text>
+    <text x="720" y="183" text-anchor="middle" class="node-title">IA AGÊNTICA</text><text x="720" y="200" text-anchor="middle" class="node-sub">capacidade aplicada</text>
   </g>
   <g>
     <circle cx="1010" cy="246" r="24" fill="#3fb950" opacity=".12"><animate attributeName="r" values="24;31;24" dur="4.8s" begin="-3.6s" repeatCount="indefinite"/><animate attributeName="opacity" values=".10;.28;.10" dur="4.8s" begin="-3.6s" repeatCount="indefinite"/></circle>
@@ -140,5 +140,5 @@
   <text x="84" y="341" class="status-label">FLUXO ATIVO</text>
   <circle cx="190" cy="337" r="4" fill="#3fb950"><animate attributeName="opacity" values="1;.25;1" dur="1.6s" repeatCount="indefinite"/></circle>
   <circle cx="190" cy="337" r="5" fill="none" stroke="#3fb950" opacity=".5"><animate attributeName="r" values="5;10;5" dur="1.6s" repeatCount="indefinite"/><animate attributeName="opacity" values=".55;0;.55" dur="1.6s" repeatCount="indefinite"/></circle>
-  <text x="212" y="341" class="status-text">PROCESSOS REAIS  →  DADOS  →  AUTOMAÇÃO + IA  →  SOLUÇÕES DIGITAIS</text>
+  <text x="212" y="341" class="status-text">PROCESSOS  →  DADOS  →  IA AGÊNTICA  →  SOLUÇÕES DIGITAIS</text>
 </svg>
