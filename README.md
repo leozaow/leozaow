@@ -7,17 +7,31 @@
 </p>
 
 <p align="center">
-  <a href="https://www.linkedin.com/in/leozaow/" target="_blank">
-    <img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=flat&logo=linkedin&logoColor=white" alt="LinkedIn" height="20">
-  </a>
-  <img src="https://komarev.com/ghpvc/?username=leozaow&label=VISITAS+AO+PERFIL&color=0e75b6&style=flat" alt="Visitas ao Perfil" height="20">
+  <img src="https://komarev.com/ghpvc/?username=leozaow&label=PROFILE+VIEWS&color=0e75b6&style=flat" alt="Profile Views" height="20">
 </p>
 
-Atuo na Administração Pública. Uso automação, dados e inteligência artificial para melhorar processos e construir soluções digitais a partir de necessidades reais do trabalho. Minha formação em Direito contribui para esse olhar sobre regras e processos.
+<br>
+
+<p align="center">
+  <a href="https://www.linkedin.com/in/leozaow/" title="LinkedIn"><img src="https://cdn.simpleicons.org/linkedin/0A66C2" alt="LinkedIn" width="28" height="28"></a>&nbsp;&nbsp;
+  <a href="https://github.com/leozaow" title="GitHub"><img src="https://cdn.simpleicons.org/github/95a1b2" alt="GitHub" width="28" height="28"></a>&nbsp;&nbsp;
+  <a href="http://lattes.cnpq.br/9852823759546906" title="Lattes"><img src="https://cdn.simpleicons.org/readme/4ca6d8" alt="Lattes" width="28" height="28"></a>&nbsp;&nbsp;
+  <a href="https://www.instagram.com/leozaow_/" title="Instagram"><img src="https://cdn.simpleicons.org/instagram/f25b79" alt="Instagram" width="28" height="28"></a>&nbsp;&nbsp;
+  <a href="https://www.youtube.com/leozaow" title="YouTube"><img src="https://cdn.simpleicons.org/youtube/ff3858" alt="YouTube" width="28" height="28"></a>&nbsp;&nbsp;
+  <a href="https://x.com/leozaow" title="X"><img src="https://cdn.simpleicons.org/x/9ca9ba" alt="X" width="28" height="28"></a>&nbsp;&nbsp;
+  <a href="https://www.facebook.com/Leozaow" title="Facebook"><img src="https://cdn.simpleicons.org/facebook/3989ff" alt="Facebook" width="28" height="28"></a>&nbsp;&nbsp;
+  <a href="https://www.twitch.tv/leozaow" title="Twitch"><img src="https://cdn.simpleicons.org/twitch/a56eff" alt="Twitch" width="28" height="28"></a>
+</p>
+
+Trabalho com automação e IA agêntica para transformar necessidades reais da Administração Pública em soluções digitais.  
+<sub><i>I work with automation and agentic AI to turn real needs in Public Administration into digital solutions.</i></sub>
 
 ### Ferramentas de trabalho
+<sub><i>Work tools</i></sub>
 
 #### Automação e integração
+<sub><i>Automation and integration</i></sub>
+
 <p align="left">
   <a href="https://openai.com/codex/" title="OpenAI Codex"><img src="./assets/badges/codex.svg" alt="OpenAI Codex" width="40" height="40" /></a>
   <a href="https://antigravity.google/" title="Google Antigravity"><img src="./assets/badges/google-antigravity.svg" alt="Google Antigravity" width="40" height="40" /></a>
@@ -28,6 +42,8 @@ Atuo na Administração Pública. Uso automação, dados e inteligência artific
 </p>
 
 #### Desenvolvimento e infraestrutura
+<sub><i>Development and infrastructure</i></sub>
+
 <p align="left">
   <a href="https://www.python.org/" title="Python"><img src="https://skillicons.dev/icons?i=py" alt="Python" width="40" height="40" /></a>
   <a href="https://developer.mozilla.org/docs/Web/JavaScript" title="JavaScript"><img src="https://skillicons.dev/icons?i=js" alt="JavaScript" width="40" height="40" /></a>
@@ -41,6 +57,8 @@ Atuo na Administração Pública. Uso automação, dados e inteligência artific
 </p>
 
 #### Dados e nuvem
+<sub><i>Data and cloud</i></sub>
+
 <p align="left">
   <a href="https://www.postgresql.org/" title="PostgreSQL"><img src="https://skillicons.dev/icons?i=postgres" alt="PostgreSQL" width="40" height="40" /></a>
   <a href="https://redis.io/" title="Redis"><img src="https://skillicons.dev/icons?i=redis" alt="Redis" width="40" height="40" /></a>
@@ -51,8 +69,10 @@ Atuo na Administração Pública. Uso automação, dados e inteligência artific
 <br>
 
 ### Contribuições · Formiga de Langton
+<sub><i>Contributions · Langton's Ant</i></sub>
 
-Uma implementação autoral que usa minhas contribuições reais como condição inicial do autômato.
+Uma implementação autoral que usa minhas contribuições reais como condição inicial do autômato.  
+<sub><i>An original implementation that uses my real GitHub contributions as the automaton's initial condition.</i></sub>
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/leozaow/leozaow/output/langton-contribution-graph-dark.svg">
@@ -63,6 +83,7 @@ Uma implementação autoral que usa minhas contribuições reais como condição
 <br>
 
 ### Estatísticas e sequência
+<sub><i>Statistics and streaks</i></sub>
 
 <p align="center">
   <picture>
