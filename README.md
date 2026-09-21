@@ -23,10 +23,10 @@
   <a href="https://www.twitch.tv/leozaow" title="Twitch"><img src="https://cdn.simpleicons.org/twitch/a56eff" alt="Twitch" width="28" height="28"></a>
 </p>
 
-Trabalho com automação e IA agêntica para transformar necessidades reais da Administração Pública em soluções digitais.  
-<sub><i>I work with automation and agentic AI to turn real needs in Public Administration into digital solutions.</i></sub>
+Estudo automação, dados e IA agêntica com foco acadêmico na Administração Pública e em como essas tecnologias podem transformar processos e serviços públicos.  
+<sub><i>I study automation, data, and agentic AI with an academic focus on Public Administration and how these technologies can transform public processes and services.</i></sub>
 
-### Ferramentas de trabalho <sub>- Work tools</sub>
+### Ferramentas e tecnologias <sub>- Tools and technologies</sub>
 
 #### Automação e integração <sub>- Automation and integration</sub>
 
