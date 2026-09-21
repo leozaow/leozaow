@@ -26,11 +26,9 @@
 Trabalho com automação e IA agêntica para transformar necessidades reais da Administração Pública em soluções digitais.  
 <sub><i>I work with automation and agentic AI to turn real needs in Public Administration into digital solutions.</i></sub>
 
-### Ferramentas de trabalho
-<sub><i>Work tools</i></sub>
+### Ferramentas de trabalho <sub>- Work tools</sub>
 
-#### Automação e integração
-<sub><i>Automation and integration</i></sub>
+#### Automação e integração <sub>- Automation and integration</sub>
 
 <p align="left">
   <a href="https://openai.com/codex/" title="OpenAI Codex"><img src="./assets/badges/codex.svg" alt="OpenAI Codex" width="40" height="40" /></a>
@@ -41,8 +39,7 @@ Trabalho com automação e IA agêntica para transformar necessidades reais da A
   <a href="https://www.redhat.com/en/topics/automation/what-is-a-webhook" title="Webhooks"><img src="./assets/badges/webhooks.svg" alt="Webhooks" width="40" height="40" /></a>
 </p>
 
-#### Desenvolvimento e infraestrutura
-<sub><i>Development and infrastructure</i></sub>
+#### Desenvolvimento e infraestrutura <sub>- Development and infrastructure</sub>
 
 <p align="left">
   <a href="https://www.python.org/" title="Python"><img src="https://skillicons.dev/icons?i=py" alt="Python" width="40" height="40" /></a>
@@ -56,8 +53,7 @@ Trabalho com automação e IA agêntica para transformar necessidades reais da A
   <a href="https://github.com/" title="GitHub"><img src="https://skillicons.dev/icons?i=github" alt="GitHub" width="40" height="40" /></a>
 </p>
 
-#### Dados e nuvem
-<sub><i>Data and cloud</i></sub>
+#### Dados e nuvem <sub>- Data and cloud</sub>
 
 <p align="left">
   <a href="https://www.postgresql.org/" title="PostgreSQL"><img src="https://skillicons.dev/icons?i=postgres" alt="PostgreSQL" width="40" height="40" /></a>
@@ -68,8 +64,7 @@ Trabalho com automação e IA agêntica para transformar necessidades reais da A
 
 <br>
 
-### Contribuições · Formiga de Langton
-<sub><i>Contributions · Langton's Ant</i></sub>
+### Contribuições <sub>- Contributions - Langton's Ant</sub>
 
 Uma implementação autoral que usa minhas contribuições reais como condição inicial do autômato.  
 <sub><i>An original implementation that uses my real GitHub contributions as the automaton's initial condition.</i></sub>
@@ -82,8 +77,7 @@ Uma implementação autoral que usa minhas contribuições reais como condição
 
 <br>
 
-### Estatísticas e sequência
-<sub><i>Statistics and streaks</i></sub>
+### Estatísticas e sequência <sub>- Statistics and streaks</sub>
 
 <p align="center">
   <picture>
