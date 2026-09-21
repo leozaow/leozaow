@@ -13,7 +13,7 @@
 <br>
 
 <p align="center">
-  <a href="https://www.linkedin.com/in/leozaow/" title="LinkedIn"><img src="https://cdn.simpleicons.org/linkedin/0A66C2" alt="LinkedIn" width="28" height="28"></a>&nbsp;&nbsp;
+  <a href="https://www.linkedin.com/in/leozaow/" title="LinkedIn"><img src="./assets/social/linkedin.svg" alt="LinkedIn" width="28" height="28"></a>&nbsp;&nbsp;
   <a href="https://github.com/leozaow" title="GitHub"><img src="https://cdn.simpleicons.org/github/95a1b2" alt="GitHub" width="28" height="28"></a>&nbsp;&nbsp;
   <a href="http://lattes.cnpq.br/9852823759546906" title="Lattes"><img src="https://cdn.simpleicons.org/readme/4ca6d8" alt="Lattes" width="28" height="28"></a>&nbsp;&nbsp;
   <a href="https://www.instagram.com/leozaow_/" title="Instagram"><img src="https://cdn.simpleicons.org/instagram/f25b79" alt="Instagram" width="28" height="28"></a>&nbsp;&nbsp;
