@@ -23,8 +23,8 @@
   <a href="https://www.twitch.tv/leozaow" title="Twitch"><img src="https://cdn.simpleicons.org/twitch/a56eff" alt="Twitch" width="28" height="28"></a>
 </p>
 
-Estudo automação, dados e IA agêntica com foco acadêmico na Administração Pública e em como essas tecnologias podem transformar processos e serviços públicos.  
-<sub><i>I study automation, data, and agentic AI with an academic focus on Public Administration and how these technologies can transform public processes and services.</i></sub>
+Estudo automação, dados e IA agêntica e me preparo academicamente para investigar como essas tecnologias podem transformar a Administração Pública.  
+<sub><i>I study automation, data, and agentic AI, building an academic foundation to explore how these technologies can transform Public Administration.</i></sub>
 
 ### Ferramentas e tecnologias <sub>- Tools and technologies</sub>
 
