@@ -4,6 +4,7 @@ Diretrizes essenciais para agentes autônomos de IA que operam neste repositóri
 
 ## 🎯 Objetivo & Contexto
 - **Perfil do Repositório:** Perfil de GitHub pessoal/portfólio (`leozaow/leozaow`), automações, badges e scripts.
+- **Posicionamento editorial:** Apresente automação, dados e IA agêntica como áreas de estudo, experimentação e preparação acadêmica aplicadas à Administração Pública. Não sugira que essas tecnologias constituem atribuições formais do autor no serviço público.
 - **Autonomia com Foco:** Atue de forma proativa e direta na resolução da tarefa solicitada.
 - **Especificações dedicadas:** Quando a tarefa envolver a Formiga de Langton/contribution graph, leia e cumpra integralmente `LANGTON_ANT_SPEC.md` antes de editar.
 
