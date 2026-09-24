@@ -62,7 +62,7 @@ Estudo automação, dados e IA agêntica e me preparo academicamente para invest
 
 <br>
 
-### Contribuições - *Contributions - Langton's Ant*
+### Contribuições - Formiga de Langton - *Contributions - Langton's Ant*
 
 Uma implementação autoral que usa minhas contribuições reais como condição inicial do autômato. *An original implementation that uses my real GitHub contributions as the automaton's initial condition.*
 
