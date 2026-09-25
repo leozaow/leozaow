@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <img src="https://komarev.com/ghpvc/?username=leozaow&label=PROFILE+VIEWS&color=0e75b6&style=flat" alt="Profile Views" height="20">
+  <img src="https://komarev.com/ghpvc/?username=leozaow&label=PROFILE+VIEWS&color=0e75b6&style=flat" alt="Visualizações do perfil / Profile views" height="20">
 </p>
 
 <br>
