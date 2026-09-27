@@ -69,7 +69,7 @@ Uma implementação autoral que usa minhas contribuições reais como condição
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/leozaow/leozaow/output/langton-contribution-graph-dark.svg">
   <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/leozaow/leozaow/output/langton-contribution-graph.svg">
-  <img alt="Formiga de Langton interagindo com meu calendário real de contribuições no GitHub" src="https://raw.githubusercontent.com/leozaow/leozaow/output/langton-contribution-graph.svg" width="100%">
+  <img alt="Formiga de Langton interagindo com meu calendário real de contribuições no GitHub / Langton's Ant interacting with my real GitHub contribution calendar" src="https://raw.githubusercontent.com/leozaow/leozaow/output/langton-contribution-graph.svg" width="100%">
 </picture>
 
 <br>
