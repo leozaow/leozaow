@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <img src="https://komarev.com/ghpvc/?username=leozaow&label=VISITAS+AO+PERFIL&color=0e75b6&style=flat" alt="Visitas ao perfil / Profile views" height="20">
+  <img src="https://api.visitorbadge.io/api/VisitorHit?user=leozaow&repo=leozaow&countColor=%230e75b6" alt="Visitas ao perfil / Profile views" height="20">
 </p>
 
 <br>
