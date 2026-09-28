@@ -80,6 +80,6 @@ Uma implementação autoral que usa minhas contribuições reais como condição
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/leozaow/leozaow/refs/heads/main/assets/streak.dark.svg?v=flame-position-2">
     <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/leozaow/leozaow/refs/heads/main/assets/streak.light.svg?v=flame-position-2">
-    <img alt="Estatísticas de contribuições e sequências de dias e semanas no GitHub" src="https://raw.githubusercontent.com/leozaow/leozaow/refs/heads/main/assets/streak.light.svg?v=flame-position-2" width="100%">
+    <img alt="Estatísticas de contribuições e sequências de dias e semanas no GitHub / GitHub contribution statistics and daily and weekly streaks" src="https://raw.githubusercontent.com/leozaow/leozaow/refs/heads/main/assets/streak.light.svg?v=flame-position-2" width="100%">
   </picture>
 </p>
