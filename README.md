@@ -32,6 +32,7 @@ Estudo automação, dados e IA agêntica e me preparo academicamente para invest
   <a href="https://openai.com/codex/" title="OpenAI Codex"><img src="./assets/badges/codex.svg" alt="OpenAI Codex" width="40" height="40" /></a>
   <a href="https://antigravity.google/" title="Google Antigravity"><img src="./assets/badges/google-antigravity.svg" alt="Google Antigravity" width="40" height="40" /></a>
   <a href="https://www.onorca.dev/" title="Orca ADE"><img src="./assets/badges/orca-ade.svg" alt="Orca ADE" width="40" height="40" /></a>
+  <a href="https://github.com/NousResearch/hermes-agent" title="Hermes Agent"><img src="./assets/badges/hermes.svg" alt="Hermes Agent" width="40" height="40" /></a>
   <a href="https://n8n.io/" title="n8n"><img src="./assets/badges/n8n.svg" alt="n8n" width="40" height="40" /></a>
   <a href="https://developer.mozilla.org/en-US/docs/Glossary/REST" title="REST APIs"><img src="./assets/badges/rest-apis.svg" alt="REST APIs" width="40" height="40" /></a>
   <a href="https://www.redhat.com/en/topics/automation/what-is-a-webhook" title="Webhooks"><img src="./assets/badges/webhooks.svg" alt="Webhooks" width="40" height="40" /></a>
