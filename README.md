@@ -37,8 +37,6 @@ Estudo automação, dados e IA agêntica e me preparo academicamente para invest
   <a href="https://github.com/evolution-foundation/evolution-api" title="Evolution API"><img src="https://raw.githubusercontent.com/evolution-foundation/evolution-api/main/public/images/evolution-logo.png" alt="Evolution API" width="40" height="40" /></a>
   <a href="https://telegram.org/" title="Telegram"><img src="https://cdn.simpleicons.org/telegram/26A5E4" alt="Telegram" width="40" height="40" /></a>
   <a href="https://n8n.io/" title="n8n"><img src="./assets/badges/n8n.svg" alt="n8n" width="40" height="40" /></a>
-  <a href="https://developer.mozilla.org/en-US/docs/Glossary/REST" title="REST APIs"><img src="./assets/badges/rest-apis.svg" alt="REST APIs" width="40" height="40" /></a>
-  <a href="https://www.redhat.com/en/topics/automation/what-is-a-webhook" title="Webhooks"><img src="./assets/badges/webhooks.svg" alt="Webhooks" width="40" height="40" /></a>
 </p>
 
 #### Desenvolvimento e infraestrutura - *Development and infrastructure*
@@ -46,6 +44,9 @@ Estudo automação, dados e IA agêntica e me preparo academicamente para invest
 <p align="left">
   <a href="https://www.python.org/" title="Python"><img src="https://skillicons.dev/icons?i=py" alt="Python" width="40" height="40" /></a>
   <a href="https://developer.mozilla.org/docs/Web/JavaScript" title="JavaScript"><img src="https://skillicons.dev/icons?i=js" alt="JavaScript" width="40" height="40" /></a>
+  <a href="https://www.typescriptlang.org/" title="TypeScript"><img src="https://skillicons.dev/icons?i=ts" alt="TypeScript" width="40" height="40" /></a>
+  <a href="https://react.dev/" title="React"><img src="https://skillicons.dev/icons?i=react" alt="React" width="40" height="40" /></a>
+  <a href="https://nextjs.org/" title="Next.js"><img src="https://skillicons.dev/icons?i=nextjs" alt="Next.js" width="40" height="40" /></a>
   <a href="https://developer.mozilla.org/docs/Web/HTML" title="HTML"><img src="https://skillicons.dev/icons?i=html" alt="HTML" width="40" height="40" /></a>
   <a href="https://developer.mozilla.org/docs/Web/CSS" title="CSS"><img src="https://skillicons.dev/icons?i=css" alt="CSS" width="40" height="40" /></a>
   <a href="https://www.gnu.org/software/bash/" title="Bash"><img src="https://skillicons.dev/icons?i=bash" alt="Bash" width="40" height="40" /></a>
