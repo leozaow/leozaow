@@ -32,6 +32,7 @@ Estudo automação, dados e IA agêntica e me preparo academicamente para invest
   <a href="https://openai.com/codex/" title="OpenAI Codex"><img src="./assets/badges/codex.svg" alt="OpenAI Codex" width="40" height="40" /></a>
   <a href="https://antigravity.google/" title="Google Antigravity"><img src="./assets/badges/google-antigravity.svg" alt="Google Antigravity" width="40" height="40" /></a>
   <a href="https://www.onorca.dev/" title="Orca ADE"><img src="./assets/badges/orca-ade.svg" alt="Orca ADE" width="40" height="40" /></a>
+  <a href="https://gemini.google.com/" title="Google Gemini"><img src="https://cdn.simpleicons.org/googlegemini" alt="Google Gemini" width="40" height="40" /></a>
   <a href="https://github.com/NousResearch/hermes-agent" title="Hermes Agent"><img src="https://raw.githubusercontent.com/NousResearch/hermes-agent/main/apps/desktop/public/nous-girl.png" alt="Hermes Agent" width="40" height="40" /></a>
   <a href="https://github.com/evolution-foundation/evolution-api" title="Evolution API"><img src="https://raw.githubusercontent.com/evolution-foundation/evolution-api/main/public/images/evolution-logo.png" alt="Evolution API" width="40" height="40" /></a>
   <a href="https://telegram.org/" title="Telegram"><img src="https://cdn.simpleicons.org/telegram/26A5E4" alt="Telegram" width="40" height="40" /></a>
@@ -50,8 +51,10 @@ Estudo automação, dados e IA agêntica e me preparo academicamente para invest
   <a href="https://www.gnu.org/software/bash/" title="Bash"><img src="https://skillicons.dev/icons?i=bash" alt="Bash" width="40" height="40" /></a>
   <a href="https://www.linux.org/" title="Linux"><img src="https://skillicons.dev/icons?i=linux" alt="Linux" width="40" height="40" /></a>
   <a href="https://www.docker.com/" title="Docker"><img src="https://skillicons.dev/icons?i=docker" alt="Docker" width="40" height="40" /></a>
+  <a href="https://caddyserver.com/" title="Caddy"><img src="https://cdn.simpleicons.org/caddy" alt="Caddy" width="40" height="40" /></a>
   <a href="https://git-scm.com/" title="Git"><img src="https://skillicons.dev/icons?i=git" alt="Git" width="40" height="40" /></a>
   <a href="https://github.com/" title="GitHub"><img src="https://skillicons.dev/icons?i=github" alt="GitHub" width="40" height="40" /></a>
+  <a href="https://obsidian.md/" title="Obsidian"><img src="https://cdn.simpleicons.org/obsidian" alt="Obsidian" width="40" height="40" /></a>
 </p>
 
 #### Dados e nuvem - *Data and cloud*
