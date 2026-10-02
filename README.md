@@ -24,9 +24,9 @@
 
 Estudo automação, dados e IA agêntica e me preparo academicamente para investigar como essas tecnologias podem transformar a Administração Pública. *I study automation, data, and agentic AI, building an academic foundation to explore how these technologies can transform Public Administration.*
 
-### Ferramentas e tecnologias - *Tools and technologies*
+### Ferramentas e tecnologias — *Tools and technologies*
 
-#### Automação e integração - *Automation and integration*
+#### Automação e integração — *Automation and integration*
 
 <p align="left">
   <a href="https://openai.com/codex/" title="OpenAI Codex"><img src="./assets/badges/codex.svg" alt="OpenAI Codex" width="40" height="40" /></a>
@@ -39,7 +39,7 @@ Estudo automação, dados e IA agêntica e me preparo academicamente para invest
   <a href="https://n8n.io/" title="n8n"><img src="./assets/badges/n8n.svg" alt="n8n" width="40" height="40" /></a>
 </p>
 
-#### Desenvolvimento e infraestrutura - *Development and infrastructure*
+#### Desenvolvimento e infraestrutura — *Development and infrastructure*
 
 <p align="left">
   <a href="https://www.python.org/" title="Python"><img src="https://skillicons.dev/icons?i=py" alt="Python" width="40" height="40" /></a>
@@ -58,7 +58,7 @@ Estudo automação, dados e IA agêntica e me preparo academicamente para invest
   <a href="https://obsidian.md/" title="Obsidian"><img src="https://cdn.simpleicons.org/obsidian" alt="Obsidian" width="40" height="40" /></a>
 </p>
 
-#### Dados e nuvem - *Data and cloud*
+#### Dados e nuvem — *Data and cloud*
 
 <p align="left">
   <a href="https://www.postgresql.org/" title="PostgreSQL"><img src="https://skillicons.dev/icons?i=postgres" alt="PostgreSQL" width="40" height="40" /></a>
@@ -69,7 +69,7 @@ Estudo automação, dados e IA agêntica e me preparo academicamente para invest
 
 <br>
 
-### Contribuições - Formiga de Langton - *Contributions - Langton's Ant*
+### Contribuições — Formiga de Langton — *Contributions — Langton's Ant*
 
 Uma implementação autoral que usa minhas contribuições reais como condição inicial do autômato. *An original implementation that uses my real GitHub contributions as the automaton's initial condition.*
 
@@ -81,7 +81,7 @@ Uma implementação autoral que usa minhas contribuições reais como condição
 
 <br>
 
-### Estatísticas e sequência - *Statistics and streaks*
+### Estatísticas e sequência — *Statistics and streaks*
 
 <p align="center">
   <picture>
