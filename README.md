@@ -14,7 +14,7 @@
 
 <p align="center">
   <a href="https://www.linkedin.com/in/leozaow/" title="LinkedIn"><img src="./assets/social/linkedin.svg" alt="LinkedIn" width="28" height="28"></a>&nbsp;&nbsp;
-  <a href="https://lattes.cnpq.br/9852823759546906" title="Lattes"><img src="https://cdn.simpleicons.org/readme/4ca6d8" alt="Lattes" width="28" height="28"></a>&nbsp;&nbsp;
+  <a href="https://lattes.cnpq.br/9852823759546906" title="Currículo Lattes"><img src="https://cdn.simpleicons.org/readme/4ca6d8" alt="Currículo Lattes" width="28" height="28"></a>&nbsp;&nbsp;
   <a href="https://www.instagram.com/leozaow_/" title="Instagram"><img src="https://cdn.simpleicons.org/instagram/f25b79" alt="Instagram" width="28" height="28"></a>&nbsp;&nbsp;
   <a href="https://www.youtube.com/leozaow" title="YouTube"><img src="https://cdn.simpleicons.org/youtube/ff3858" alt="YouTube" width="28" height="28"></a>&nbsp;&nbsp;
   <a href="https://x.com/leozaow" title="X"><img src="https://cdn.simpleicons.org/x/9ca9ba" alt="X" width="28" height="28"></a>&nbsp;&nbsp;
