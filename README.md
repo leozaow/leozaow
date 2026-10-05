@@ -76,7 +76,7 @@ Uma implementação autoral que usa minhas contribuições reais como condição
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/leozaow/leozaow/output/langton-contribution-graph-dark.svg">
   <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/leozaow/leozaow/output/langton-contribution-graph.svg">
-  <img alt="Formiga de Langton interagindo com meu calendário real de contribuições no GitHub / Langton's Ant interacting with my real GitHub contribution calendar" src="https://raw.githubusercontent.com/leozaow/leozaow/output/langton-contribution-graph.svg" width="100%" loading="lazy">
+  <img alt="Formiga de Langton interagindo com meu calendário real de contribuições no GitHub / Langton's Ant interacting with my real GitHub contribution calendar" src="https://raw.githubusercontent.com/leozaow/leozaow/output/langton-contribution-graph.svg" width="100%" loading="lazy" decoding="async">
 </picture>
 
 <br>
@@ -87,6 +87,6 @@ Uma implementação autoral que usa minhas contribuições reais como condição
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/leozaow/leozaow/refs/heads/main/assets/streak.dark.svg?v=flame-position-2">
     <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/leozaow/leozaow/refs/heads/main/assets/streak.light.svg?v=flame-position-2">
-    <img alt="Estatísticas de contribuições e sequências de dias e semanas no GitHub / GitHub contribution statistics and daily and weekly streaks" src="https://raw.githubusercontent.com/leozaow/leozaow/refs/heads/main/assets/streak.light.svg?v=flame-position-2" width="100%" loading="lazy">
+    <img alt="Estatísticas de contribuições e sequências de dias e semanas no GitHub / GitHub contribution statistics and daily and weekly streaks" src="https://raw.githubusercontent.com/leozaow/leozaow/refs/heads/main/assets/streak.light.svg?v=flame-position-2" width="100%" loading="lazy" decoding="async">
   </picture>
 </p>
