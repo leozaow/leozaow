@@ -1,0 +1,134 @@
+name: Generate and publish profile assets
+
+on:
+  schedule:
+    # Runs daily at 06:20 UTC
+    - cron: "20 6 * * *"
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'scripts/**'
+      - 'tests/**'
+      - '.github/workflows/profile-assets.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: profile-assets-publisher
+  cancel-in-progress: false
+
+jobs:
+  build-and-publish:
+    name: Generate, validate, and publish assets
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout main repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run automated test suite
+        run: |
+          python -m unittest discover -s tests -p "test_*.py"
+
+      - name: Generate streak cards and diagnostics
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
+          TZ: America/Sao_Paulo
+        run: |
+          python scripts/generate_streak.py --output-dir dist
+
+      - name: Generate Langton's Ant contribution graph
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
+        run: |
+          python scripts/generate_langton.py --output-dir dist
+
+      - name: Validate generated assets
+        run: |
+          python scripts/validate_assets.py --dir dist
+
+      - name: Publish to output branch
+        id: publish
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Fetch remote output branch or create orphan if non-existent
+          git fetch origin output:output || git checkout --orphan output
+          git worktree add ../output-worktree output
+
+          # Copy generated assets into output worktree (preserves pacman and any other assets)
+          cp dist/streak.light.svg ../output-worktree/
+          cp dist/streak.dark.svg ../output-worktree/
+          cp dist/stats.json ../output-worktree/
+          cp dist/langton-contribution-graph.svg ../output-worktree/
+          cp dist/langton-contribution-graph-dark.svg ../output-worktree/
+
+          cd ../output-worktree
+
+          # Stage only the intended assets
+          git add streak.light.svg streak.dark.svg stats.json langton-contribution-graph.svg langton-contribution-graph-dark.svg
+
+          if git diff --staged --quiet; then
+            echo "CHANGES_DETECTED=0" >> $GITHUB_ENV
+            echo "No changes in generated assets; output branch is already up to date."
+          else
+            echo "CHANGES_DETECTED=1" >> $GITHUB_ENV
+            git commit -m "chore(assets): refresh profile SVGs and telemetry [skip ci]"
+
+            # Safe bounded push with rebase and explicit error handling
+            PUSH_SUCCESS=0
+            for attempt in {1..5}; do
+              echo "Push attempt $attempt of 5..."
+              if git push origin output; then
+                PUSH_SUCCESS=1
+                break
+              fi
+              echo "Push rejected; pulling latest output with rebase..."
+              git pull --rebase origin output || git rebase --abort
+              sleep $(( attempt * 3 ))
+            done
+
+            if [ $PUSH_SUCCESS -ne 1 ]; then
+              echo "FATAL: Failed to push to output branch after 5 attempts." >&2
+              exit 1
+            fi
+            echo "Successfully published assets to output branch."
+          fi
+
+          cd -
+          git worktree remove ../output-worktree
+
+      - name: Generate job step summary
+        if: always()
+        run: |
+          if [ -f dist/stats.json ]; then
+            python -c '
+          import json, os
+          with open("dist/stats.json") as f:
+              d = json.load(f)
+          summary = f"""### 📊 Profile Assets Generation Summary
+          - **Reference Date**: `{d.get("reference_date")}`
+          - **Current Streak**: **{d.get("current_streak", {}).get("length")} days** ({d.get("current_streak", {}).get("start_date")} to {d.get("current_streak", {}).get("end_date")})
+          - **Longest Streak**: **{d.get("longest_streak", {}).get("length")} days**
+          - **Contributions (Last 365 Days)**: **{d.get("contributions_last_year"):,}** ({d.get("active_days_last_year")} active days)
+          - **Complete History**: `{d.get("is_complete_history")}`
+          - **Status**: Successful publication to `output` branch.
+          """
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as out:
+              out.write(summary)
+          '
+          fi

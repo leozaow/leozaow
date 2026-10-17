@@ -1,0 +1,51 @@
+name: Continuous Integration & Validation
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'scripts/**'
+      - 'tests/**'
+      - '.github/workflows/**'
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Run tests and validate asset generation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run unit test suite
+        run: |
+          python -m unittest discover -s tests -p "test_*.py"
+
+      - name: Verify fixture generation (streak demo)
+        run: |
+          python scripts/generate_streak.py --demo --output-dir dist
+
+      - name: Verify fixture generation (Langton fixture)
+        run: |
+          python scripts/generate_langton.py --input tests/fixtures/contributions.json --output-dir dist
+
+      - name: Validate generated mock assets
+        run: |
+          python scripts/validate_assets.py --dir dist
