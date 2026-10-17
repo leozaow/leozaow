@@ -134,8 +134,8 @@ tests/
     contributions.json
 
 .github/workflows/
-  langton-ant.yml
-  pacman.yml
+  profile-assets.yml   # Pipeline diário consolidado (Langton + Streak -> output)
+  validation.yml       # Validação contínua (CI) em PRs e pushes na main
 
 README.md
 LANGTON_ANT_SPEC.md
@@ -190,35 +190,27 @@ A lógica do autômato deve ser função pura o suficiente para testes determin�
 
 ## 7. Publicação e GitHub Actions
 
-Criar `.github/workflows/langton-ant.yml` com:
+A geração é orquestrada por `.github/workflows/profile-assets.yml` (consolidado com streak cards para evitar concorrência e commits diários na `main`):
 
-- `schedule` diário em horário diferente do workflow de streak;
-- `workflow_dispatch`;
-- `push` restrito aos arquivos do gerador/testes/workflow, se útil;
-- `permissions: contents: write`;
+- `schedule` diário matutino (06:20 UTC);
+- `workflow_dispatch` para disparo manual sob demanda;
+- `push` restrito aos arquivos de scripts, testes e workflows;
+- `permissions: contents: write` direcionado à branch `output`;
 - Python 3.12;
-- testes antes da geração;
-- geração light + dark;
-- validação dos SVGs;
-- publicação apenas quando houver mudança.
+- Suíte de testes completa executada antes da geração;
+- Geração light + dark (`langton-contribution-graph.svg` e `langton-contribution-graph-dark.svg`);
+- Validação estrita via `scripts/validate_assets.py`;
+- Publicação atômica na branch `output` com rebase resiliente apenas se houver mudanças.
 
 ### 7.1 Branch `output`
 
 Continuar usando a branch `output` para não criar commits diários na `main`.
 
-**Preservar os SVGs antigos do Pac-Man** na `output` para rollback. O novo processo deve atualizar somente os artefatos Langton, sem apagar arquivos não relacionados.
+**Preservar os SVGs antigos do Pac-Man** na `output` para rollback (`pacman-contribution-graph.svg` e `pacman-contribution-graph-dark.svg`). O novo processo atualiza somente os artefatos Langton e Streak, sem apagar arquivos pré-existentes.
 
-Pode usar git diretamente no workflow ou uma Action bem mantida, mas o comportamento `keep existing files` precisa ser inequívoco.
+### 7.2 Histórico do Pac-Man
 
-### 7.2 Pac-Man temporariamente desativado
-
-Não apagar a implementação do Pac-Man.
-
-Alterar `.github/workflows/pacman.yml` para manter apenas `workflow_dispatch` durante o experimento, removendo/suspendendo o `schedule`. Dessa forma:
-
-- não sobrescreve/gera diariamente;
-- continua disponível manualmente;
-- rollback é trivial.
+O workflow legado do Pac-Man foi aposentado no commit `0c89a8c` para consolidar a manutenção do repositório. Os SVGs gerados permanecem versionados na branch `output` caso seja necessário reativar a visualização anterior via README.
 
 O README deixa de referenciar o Pac-Man e passa a usar os dois SVGs Langton da branch `output`.
 
