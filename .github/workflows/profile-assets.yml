@@ -49,13 +49,6 @@ jobs:
         run: |
           python scripts/generate_streak.py --output-dir dist
 
-      - name: Generate Langton's Ant contribution graph
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
-        run: |
-          python scripts/generate_langton.py --output-dir dist
-
       - name: Validate generated assets
         run: |
           python scripts/validate_assets.py --dir dist
@@ -74,13 +67,11 @@ jobs:
           cp dist/streak.light.svg ../output-worktree/
           cp dist/streak.dark.svg ../output-worktree/
           cp dist/stats.json ../output-worktree/
-          cp dist/langton-contribution-graph.svg ../output-worktree/
-          cp dist/langton-contribution-graph-dark.svg ../output-worktree/
 
           cd ../output-worktree
 
           # Stage only the intended assets
-          git add streak.light.svg streak.dark.svg stats.json langton-contribution-graph.svg langton-contribution-graph-dark.svg
+          git add streak.light.svg streak.dark.svg stats.json
 
           if git diff --staged --quiet; then
             echo "CHANGES_DETECTED=0" >> $GITHUB_ENV
@@ -114,6 +105,8 @@ jobs:
 
       - name: Generate job step summary
         if: always()
+        env:
+          PUBLISH_OUTCOME: ${{ steps.publish.outcome }}
         run: |
           if [ -f dist/stats.json ]; then
             python -c '
@@ -126,7 +119,7 @@ jobs:
           - **Longest Streak**: **{d.get("longest_streak", {}).get("length")} days**
           - **Contributions (Last 365 Days)**: **{d.get("contributions_last_year"):,}** ({d.get("active_days_last_year")} active days)
           - **Complete History**: `{d.get("is_complete_history")}`
-          - **Status**: Successful publication to `output` branch.
+          - **Publication**: {os.environ.get('PUBLISH_OUTCOME', 'unknown')} (output branch).
           """
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as out:
               out.write(summary)

@@ -16,8 +16,6 @@ from pathlib import Path
 REQUIRED_FILES = [
     "streak.light.svg",
     "streak.dark.svg",
-    "langton-contribution-graph.svg",
-    "langton-contribution-graph-dark.svg",
     "stats.json",
 ]
 
