@@ -1,12 +1,12 @@
 {
   "username": "leozaow",
-  "reference_date": "2026-10-24",
-  "generated_at": "2026-10-24T11:07:01.917845+00:00",
+  "reference_date": "2026-10-25",
+  "generated_at": "2026-10-25T11:37:09.957595+00:00",
   "is_complete_history": true,
   "current_streak": {
-    "length": 0,
-    "start_date": null,
-    "end_date": null
+    "length": 2,
+    "start_date": "2026-10-24",
+    "end_date": "2026-10-25"
   },
   "longest_streak": {
     "length": 22,
@@ -17,7 +17,7 @@
     "current": {
       "length": 8,
       "start_date": "2026-08-31",
-      "end_date": "2026-10-24"
+      "end_date": "2026-10-25"
     },
     "longest": {
       "length": 20,
@@ -25,18 +25,13 @@
       "end_date": "2024-09-29"
     }
   },
-  "contributions_last_year": 683,
-  "active_days_last_year": 70,
-  "total_contributions": 962,
-  "total_active_days": 161,
+  "contributions_last_year": 690,
+  "active_days_last_year": 72,
+  "total_contributions": 969,
+  "total_active_days": 163,
   "history_start": "2015-01-12",
-  "history_end": "2026-10-24",
+  "history_end": "2026-10-25",
   "recent_activity_days": [
-    {
-      "date": "2026-09-20",
-      "count": 35,
-      "is_current_streak": false
-    },
     {
       "date": "2026-09-21",
       "count": 1,
@@ -204,8 +199,13 @@
     },
     {
       "date": "2026-10-24",
-      "count": 0,
-      "is_current_streak": false
+      "count": 3,
+      "is_current_streak": true
+    },
+    {
+      "date": "2026-10-25",
+      "count": 4,
+      "is_current_streak": true
     }
   ]
 }
