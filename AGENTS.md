@@ -22,6 +22,8 @@ This repository contains a **personal technology experimentation profile** and a
 - The active visualization is **GitHub contribution/streak analytics**. Do not re-enable retired visualizations without an explicit request.
 - Do not modify unrelated repositories or external infrastructure.
 - Do not force-push either branch.
+- `main` and `output` are the permanent branches. Use temporary branches only when needed; at the end of the work, verify their integration, preserve any unique history, and remove them safely.
+- Never delete an unaudited branch or one with unpreserved work. Check open pull requests and concurrent updates before deletion; archive unique commits with a verified remote tag when needed.
 
 ## 3. Engineering Standards
 
