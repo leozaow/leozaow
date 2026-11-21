@@ -1,7 +1,7 @@
 {
   "username": "leozaow",
-  "reference_date": "2026-11-20",
-  "generated_at": "2026-11-20T15:31:24.525130+00:00",
+  "reference_date": "2026-11-21",
+  "generated_at": "2026-11-21T14:42:54.110158+00:00",
   "is_complete_history": true,
   "current_streak": {
     "length": 1,
@@ -17,7 +17,7 @@
     "current": {
       "length": 1,
       "start_date": "2026-11-16",
-      "end_date": "2026-11-20"
+      "end_date": "2026-11-21"
     },
     "longest": {
       "length": 20,
@@ -25,18 +25,13 @@
       "end_date": "2024-09-29"
     }
   },
-  "contributions_last_year": 803,
+  "contributions_last_year": 824,
   "active_days_last_year": 78,
-  "total_contributions": 1082,
+  "total_contributions": 1103,
   "total_active_days": 169,
   "history_start": "2015-01-12",
-  "history_end": "2026-11-20",
+  "history_end": "2026-11-21",
   "recent_activity_days": [
-    {
-      "date": "2026-10-17",
-      "count": 17,
-      "is_current_streak": false
-    },
     {
       "date": "2026-10-18",
       "count": 128,
@@ -204,8 +199,13 @@
     },
     {
       "date": "2026-11-20",
-      "count": 1,
+      "count": 22,
       "is_current_streak": true
+    },
+    {
+      "date": "2026-11-21",
+      "count": 0,
+      "is_current_streak": false
     }
   ]
 }
